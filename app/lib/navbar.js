@@ -61,7 +61,6 @@
     
     html += '' +
       '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> Diagnostics</a></li>' +
-      '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#logger"><span class="glyphicon glyphicon-list-alt"></span> Logger</a></li>' +
       '    </ul>' +
       '  </div>' +
       '</div>' +
@@ -71,6 +70,11 @@
 
     $('a#cipapi-server-synchronize').on('click', function(evt) { $(document).trigger('cipapi-credentials-set'); });
 
+    if (CIPAPI.credentials.areValid()) {
+      // Force an update of the reportstore monitor
+      $(document).trigger('cipapi-reportstore-change');
+    }
+  
     // Hide splash screen?
     $(document).trigger('cipapi-hide-splash-screen');
   }

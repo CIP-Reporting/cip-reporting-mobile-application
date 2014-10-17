@@ -57,7 +57,7 @@
         <p class="lead">Please wait, Initializing...</p>
       </div>
     </div>
-    <div id="logger"></div>
+    <div id="cipapi-inpage-logger"></div>
     
     <!-- Phonegap / Cordova and Plugins -->
     <script src="cordova.js"></script>
@@ -75,7 +75,7 @@
     <script src="./lib/holder.js"></script>
     <script src="./lib/sprintf.js"></script>
     <script src="./lib/date.js"></script>
-    <script src="./lib/log4javascript/log4javascript.js"></script>
+    <script src="./lib/log4javascript/log4javascript_uncompressed.js"></script>
     <script src="./lib/jsonform-bootstrap3/lib/jsonform.js"></script>
     <script src="./lib/summernote/dist/summernote.js"></script>
     <script src="./lib/cryptoJS/rollups/sha1.js"></script>
@@ -95,14 +95,28 @@
         rootLogger.addAppender(consoleAppender);
         rootLogger.setLevel(log4javascript.Level.ALL);
         
-        var inPageAppender = new log4javascript.InPageAppender($('div#logger').get(0));
+        var inPageAppender = new log4javascript.InPageAppender('cipapi-inpage-logger');
         inPageAppender.setHeight('100%');
         inPageAppender.setMaxMessages(500);
 			  rootLogger.addAppender(inPageAppender);
+        
+        // Find in page appender's iframe element and remove tools
+        inPageAppender.addEventListener("load", function() {
+          var iframes = document.getElementsByTagName("iframe");
+          for (var i = 0, len = iframes.length; i < len; ++i) {
+            if (iframes[i].id.indexOf("_InPageAppender_") > -1) {
+              var iframeDoc = iframes[i].contentDocument || iframes[i].contentWindow.document;
+              iframeDoc.getElementById("switchesContainer").style.display = "none";
+              iframeDoc.getElementById("commandLine").style.display = "none";
+            }
+          }
+        });
+
       })();
     </script>
 
     <!-- CIP CORS API Interface -->
+    <script src="./CIPAPI/stats.js"></script>
     <script src="./CIPAPI/credentials.js"></script>
     <script src="./CIPAPI/config.js"></script>
     <script src="./CIPAPI/router.js"></script>
@@ -134,7 +148,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-            applicationVersion: '1.0.3607',                     // Set by the packaging script to know our own version
+            applicationVersion: '1.0.3617',                     // Set by the packaging script to know our own version
            overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
         reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
               reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server

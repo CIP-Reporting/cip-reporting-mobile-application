@@ -27,13 +27,13 @@
   // Navigating away
   $(document).on('cipapi-unbind', function() {
     log.debug("Hiding logger");
-    $('div#logger').hide();
+    $('div#cipapi-inpage-logger').hide();
   });
 
   // Navigating to
   $(document).on('cipapi-handle-logger', function(event, info) {
     log.debug("Showing logger");
-    $('div#logger').show();
+    $('div#cipapi-inpage-logger').show();
   });
   
 })(window);

@@ -25,6 +25,27 @@
 
   var log = log4javascript.getLogger("CIPAPI.reportstore");
 
+  // Since packaging images requires call backs we have to track the number of images
+  // currently being processed and defer any automated attempts of sending reports
+  // from happening while one is already under way...  We also have to track the 
+  // images loading so we know when the final one is added to the form to kick the 
+  // send.
+  var imagesBeingQueued = 0;
+  
+  // Statistics
+  var statsGroup = 'Report Store';
+  CIPAPI.stats.total(statsGroup, 'Total Stored', 0);
+  CIPAPI.stats.total(statsGroup, 'Total Sent',   0);
+  CIPAPI.stats.total(statsGroup, 'Total Images', 0);
+
+  CIPAPI.stats.total(statsGroup, 'Last Attempt', 'Never');
+  CIPAPI.stats.total(statsGroup, 'Last Check',   'Never');
+  CIPAPI.stats.total(statsGroup, 'Last Success', 'Never');
+
+  $(document).on('cipapi-stats-fetch', function() {
+    CIPAPI.stats.total(statsGroup, 'Total Pending', CIPAPI.reportstore.getNumberOfStoredReports());
+  });
+  
   // Store a report  
   CIPAPI.reportstore.storeReport = function(reportData) {
     var storageKey = 'CIPAPI.reportstore.' + CIPAPI.credentials.getCredentialHash();
@@ -39,6 +60,8 @@
 
     reportStore.push(reportData);
     localStorage.setItem(storageKey, JSON.stringify(reportStore));
+    
+    CIPAPI.stats.count(statsGroup, 'Total Stored');
 
     log.debug("Stored new report");
     
@@ -68,6 +91,8 @@
 
   // Try and send any stored reports
   CIPAPI.reportstore.sendReports = function() {
+    CIPAPI.stats.timestamp(statsGroup, 'Last Check');
+    
     // Do not send if we have no reports to send
     if (CIPAPI.reportstore.getNumberOfStoredReports() == 0) {
       return;
@@ -103,8 +128,47 @@
         return;
       }
 
-      // Compose into form data
+      // Images are currently queuing for transmission
+      if (imagesBeingQueued != 0) {
+        log.debug("Images currently queueing - not sending");
+        return;
+      }
+      
+      CIPAPI.stats.timestamp(statsGroup, 'Last Attempt');
+      
+      // Build a new form to send
       var formData = new FormData();
+      
+      // Closure for sending the current form
+      function sendCurrentReport() {
+        CIPAPI.stats.count(statsGroup, 'Total Sent');
+        
+        CIPAPI.rest.post({
+          url: reportStore[0].destinationURL,
+          data: formData,
+          success: function(response) {
+            CIPAPI.stats.timestamp(statsGroup, 'Last Success');
+            log.debug("Report sent");
+            
+            // Remove the report from the report store
+            reportStore.shift();
+            localStorage.setItem(storageKey, JSON.stringify(reportStore));
+            
+            // Let the world know...
+            $(document).trigger('cipapi-reportstore-remove');
+            $(document).trigger('cipapi-reportstore-change');
+            
+            // And do it again... or NOT
+            if (reportStore.length > 0) {
+              sendNextReport();
+            } else {
+              $(document).trigger('cipapi-reportstore-empty');
+            }
+          }
+        });
+      }
+
+      // Compose into form data
       $.each(reportStore[0].serializedData, function(key, val) {
         log.debug('Adding form value: ' + key + ' -> ' + val);
         formData.append(key, val);
@@ -112,33 +176,69 @@
 
       // Add in images which were serialized
       $.each(reportStore[0].serializedImages, function(index, stored) {
-        log.debug('Adding image: ' + stored.fileName + ' (' + stored.mimeType + ')');
-        formData.append("file[]", CIPAPI.forms.b64toBlob(stored.b64Content, stored.mimeType), stored.fileName);
-      });
-      
-      // Fire away
-      CIPAPI.rest.post({
-        url: reportStore[0].destinationURL,
-        data: formData,
-        success: function(response) {
-          log.debug("Report sent");
+        log.debug('Adding image: ' + stored.imageURL);
+        imagesBeingQueued++;
+
+        CIPAPI.stats.count(statsGroup, 'Total Images');
+        
+        // The phonegap way...
+        if (typeof window.resolveLocalFileSystemURL != 'undefined') {
+          window.resolveLocalFileSystemURL(stored.imageURL, function(fileEntry) { 
+            fileEntry.file(function(file) {
+              var reader = new FileReader();
+              reader.onloadend = function(evt) {
+                var matches   = evt.target.result.match(/^data:(.*?);base64,(.*)$/);
+                var imageData = matches[2];
+
+                formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, stored.mimeType), stored.fileName);
+                log.debug('Added image: ' + stored.imageURL);
+                imagesBeingQueued--;
+                    
+                if (imagesBeingQueued == 0) {
+                  log.debug("All images loaded - sending report");
+                  sendCurrentReport();
+                }
+              };
+              reader.readAsDataURL(file);
+            }, function(err) {
+              imagesBeingQueued--;
+              log.error("ERROR CODE: " + err.code);
+            });
+          }, function(err) {
+            imagesBeingQueued--;
+            log.error("ERROR CODE: " + err.code);
+          }); 
+        }
+        
+        // Else the old fashioned way which does not seem to work for phonegap anyhow
+        else {
+          var deferredImage = $('<img />');
           
-          // Remove the report from the report store
-          reportStore.shift();
-          localStorage.setItem(storageKey, JSON.stringify(reportStore));
+          deferredImage.on('load', function(evt) {
+            // Convert to data URI and parse then add to existing form
+            var dataURL   = CIPAPI.forms.imageToDataURL(deferredImage.get(0));
+            var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
+            var imageData = matches[2];
+
+            formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, stored.mimeType), stored.fileName);
+            log.debug('Added image: ' + stored.imageURL);
+            imagesBeingQueued--;
           
-          // Let the world know...
-          $(document).trigger('cipapi-reportstore-remove');
-          $(document).trigger('cipapi-reportstore-change');
+            if (imagesBeingQueued == 0) {
+              log.debug("All images loaded - sending report");
+              sendCurrentReport();
+            }
+          });
           
-          // And do it again... or NOT
-          if (reportStore.length > 0) {
-            sendNextReport();
-          } else {
-            $(document).trigger('cipapi-reportstore-empty');
-          }
+          deferredImage.attr('src', stored.imageURL);
         }
       });
+      
+      // Kick the send now if there are no deferred image loads
+      if (imagesBeingQueued == 0) {
+        log.debug("Sending without deferred image load");
+        sendCurrentReport();
+      }
     }
     
     sendNextReport(); // Kick it off!

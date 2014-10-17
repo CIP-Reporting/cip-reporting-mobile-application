@@ -27,6 +27,19 @@
 
   var numTransactions = 0;
   
+  // Statistics
+  var statsGroup = 'API Transactions';
+  CIPAPI.stats.total(statsGroup, 'Total GET',        0);
+  CIPAPI.stats.total(statsGroup, 'Total POST',       0);
+  CIPAPI.stats.total(statsGroup, 'Total PUT',        0);
+  CIPAPI.stats.total(statsGroup, 'Total DELETE',     0);
+  CIPAPI.stats.total(statsGroup, 'Total Errors',     0);
+  CIPAPI.stats.total(statsGroup, 'Last Transaction', 'Never');
+
+  $(document).on('cipapi-stats-fetch', function() {
+    CIPAPI.stats.total(statsGroup, 'Total Pending', numTransactions);
+  });
+
   // Iterate known API parameters and compose the query string
   function encodeApiParameters(opts) {
     var params = [];
@@ -59,7 +72,8 @@
     }
 
     $(document).trigger('cipapi-rest-error', thrownError);
-    log.error(thrownError);
+    CIPAPI.stats.count(statsGroup, 'Total Errors');
+    log.error('(' + xhr.status + ') ' + xhr.responseText + ' -> ' + thrownError);
   }
 
   // Is the REST engine idle?
@@ -75,6 +89,8 @@
   // GET  
   CIPAPI.rest.GET = function(opts) {
     $(document).trigger('cipapi-rest-active');
+    CIPAPI.stats.count(statsGroup, 'Total GET');
+    CIPAPI.stats.timestamp(statsGroup, 'Last Transaction');
     numTransactions++;
     
     var credentials = CIPAPI.credentials.get();
@@ -96,6 +112,8 @@
   // post  
   CIPAPI.rest.post = function(opts) {
     $(document).trigger('cipapi-rest-active');
+    CIPAPI.stats.count(statsGroup, 'Total POST');
+    CIPAPI.stats.timestamp(statsGroup, 'Last Transaction');
     numTransactions++;
     
     var credentials = CIPAPI.credentials.get();

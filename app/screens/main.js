@@ -178,7 +178,7 @@
 
   // Store images for packaging later  
   $(document).on('cipapi-forms-media-added', function(event, info) {
-    log.debug('Parking image: ' + info.fileName + ' (' + info.mimeType + ')');
+    log.debug('Parking image: ' + info.imageURL);
     imageStorage.push(info);
   });
 

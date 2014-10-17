@@ -27,6 +27,24 @@
 
   var isLoaded = false;
 
+  // Statistics
+  var statsGroup = 'Mobile Forms';
+  CIPAPI.stats.total(statsGroup, 'Form Updates', 0);
+  CIPAPI.stats.total(statsGroup, 'Last Update',  'Never');
+  
+  $(document).on('cipapi-stats-fetch', function() {
+    var totalForms = 0;
+    
+    var i;
+    for (i in CIPAPI.mobileforms) {
+      if (CIPAPI.mobileforms.hasOwnProperty(i)) {
+        totalForms++;
+      }
+    }
+    
+    CIPAPI.stats.total(statsGroup, 'Total Form', totalForms);
+  });
+  
   function loadForms() {
     if (!CIPAPI.credentials.areValid()) {
       log.debug("No credentials, defering attempts to load");
@@ -34,6 +52,7 @@
     }
 
     log.debug("Loading forms from server");
+    CIPAPI.stats.count(statsGroup, 'Form Updates');
 
     // Load up each ajax request into an array of ajax requests to go fetch all forms
     var requests = [];
@@ -51,6 +70,7 @@
     $.when.apply(null, requests).then(function() {
       isLoaded = true;
       $(document).trigger('cipapi-mobile-forms-set');
+      CIPAPI.stats.timestamp(statsGroup, 'Last Update');
         
       // Store the forms to local storage if so configured
       if (CIPAPI.config.persistForms) {
@@ -93,7 +113,7 @@
           return; // Do no more!
         }
       } catch(e) {
-        log.error("Failed to load configuration from local storage");
+        log.error("Failed to load forms from local storage");
       }
     }
 

@@ -76,6 +76,19 @@
     return blob;
   }  
   
+  CIPAPI.forms.imageToDataURL = function(image) {
+    var canvas    = $('<canvas />').get(0);
+    canvas.width  = image.naturalWidth;
+    canvas.height = image.naturalHeight;
+
+    log.debug('Canvas dimensions: ' + canvas.width + ' / ' + canvas.height);
+
+    var context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0);
+    
+    return canvas.toDataURL();
+  }
+  
   CIPAPI.forms.Render = function(formDefinition, formSelector) {
     // Default form selector
     if (!formSelector) formSelector = 'form.form-cip-reporting';
@@ -87,7 +100,7 @@
     //
     // Fire the date filters on all date fields by forcing the blur event on them
     // because rich HTML5 date fields never fire the onblur leaving the validation
-    // patterm to fail if the device doesn't happen to use the idential pattern.
+    // pattern to fail if the device doesn't happen to use the identical pattern.
     //
     // For rich text editing we have to initialize and also hook onto the submit button
     // and move the content back into the text area for validation and delivery.
@@ -131,42 +144,45 @@
         // Shared camera code
         function captureImage(src) {
           navigator.camera.getPicture(
-          // On Success
-          function(imageData) {
-            var now = new Date();
-            var filename = sprintf("%04d-%02d-%02d_%02d-%02d-%02d.jpg", 
-              now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds());
-            
-            // Display on screen
-            var div = $('<div data-toggle="tooltip" data-placement="bottom" class="form-cip-media-container" style="width: ' + CIPAPI.config.thumbMaxWidth + '; height: ' + CIPAPI.config.thumbMaxHeight + ';"></div>');
-            var img = $('<img data-scale="best-fit" />');
-            img.attr('src', 'data:image/jpeg;base64,' + imageData);  
-            container.find('div.form-cip-media-thumbnails').append(div.append(img));
-            img.imageScale();
-            div.tooltip({ title: filename });
-            
-            // Append to form
-            var formData = new FormData(); 
-            formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, 'image/jpeg'), filename);
-            
-            // Also let the world know...
-            $(document).trigger('cipapi-forms-media-added', {
-                fileName: filename,
-                mimeType: 'image/jpeg',
-              b64Content: imageData
-            });
-          },
-          // On Error
-          function(msg) {
-            log.error(msg);
-          }, 
-          // Options
-          {
-               destinationType: Camera.DestinationType.DATA_URL,
-                  encodingType: Camera.EncodingType.JPEG,
-            correctOrientation: true,
-                    sourceType: src
-          });
+            // On Success
+            function(imageURL) {
+              // Display on screen
+              var fileName = imageURL.substring(imageURL.lastIndexOf('/') + 1);
+              var div = $('<div data-toggle="tooltip" data-placement="bottom" class="form-cip-media-container" style="width: ' + CIPAPI.config.thumbMaxWidth + '; height: ' + CIPAPI.config.thumbMaxHeight + ';"></div>');
+              var img = $('<img data-scale="best-fit" />');
+              div.tooltip({ title: fileName });
+              container.find('div.form-cip-media-thumbnails').append(div.append(img));
+              img.attr('src', imageURL).on('load', function() {
+                img.imageScale();
+
+                // Convert to data URI and parse then add to existing form
+                var dataURL   = CIPAPI.forms.imageToDataURL(img.get(0));
+                var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
+                var mimeType  = matches[1];
+                var imageData = matches[2];
+
+                var formData = new FormData(); 
+                formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), fileName);
+              
+                // Also let the world know...
+                $(document).trigger('cipapi-forms-media-added', {
+                    imageURL: imageURL,
+                    fileName: fileName,
+                    mimeType: mimeType
+                });
+              });
+            },
+            // On Error
+            function(msg) {
+              log.error(msg);
+            }, 
+            // Options
+            {
+                 destinationType: Camera.DestinationType.FILE_URI,
+              correctOrientation: true,
+                      sourceType: src
+            }
+          );
         };
         
         // From the camera
@@ -204,14 +220,14 @@
                 div.tooltip({ title: file.name });
                 
                 // Also let the world know...
-                var regex = /^data:(.+?);base64,(.*)$/;
+                var regex = /^data:(.*?);base64,(.*)$/;
                 var matches = e.target.result.match(regex);
                 var mimeType = matches[1];
-                var b64Content = matches[2];
+                var b64Content = matches[2] == '' ? 'application/octet-stream' : matches[2];
                 $(document).trigger('cipapi-forms-media-added', {
+                    imageURL: e.target.result, // Data URL
                     fileName: file.name,
-                    mimeType: mimeType,
-                  b64Content: b64Content
+                    mimeType: mimeType
                 });
 
               };

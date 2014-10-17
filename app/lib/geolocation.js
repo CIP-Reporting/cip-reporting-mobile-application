@@ -35,6 +35,19 @@
   CIPAPI.geolocation.speed            = '0';
   CIPAPI.geolocation.timestamp        = '0';
   
+  // Statistics
+  var statsGroup = 'Geo Location';
+  $(document).on('cipapi-stats-fetch', function() {
+    CIPAPI.stats.total(statsGroup, 'Latitude',          CIPAPI.geolocation.latitude);
+    CIPAPI.stats.total(statsGroup, 'Longitude',         CIPAPI.geolocation.longitude);
+    CIPAPI.stats.total(statsGroup, 'Altitude',          CIPAPI.geolocation.altitude);
+    CIPAPI.stats.total(statsGroup, 'Accuracy',          CIPAPI.geolocation.accuracy);
+    CIPAPI.stats.total(statsGroup, 'Altitude Accuracy', CIPAPI.geolocation.altitudeAccuracy);
+    CIPAPI.stats.total(statsGroup, 'Heading',           CIPAPI.geolocation.heading);
+    CIPAPI.stats.total(statsGroup, 'Speed',             CIPAPI.geolocation.speed);
+    CIPAPI.stats.total(statsGroup, 'Timestamp',         CIPAPI.geolocation.timestamp);
+  });
+
   // onSuccess - Accepts a Position object, which contains the current GPS coordinates
   var onSuccess = function(position) {
     CIPAPI.geolocation.latitude         = position.coords.latitude;

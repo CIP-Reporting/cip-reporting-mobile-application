@@ -245,6 +245,9 @@
         return displayErrorForInput('form-signin-email');
       }
 
+      // Let the world know...
+      $(document).trigger('cipapi-lookup-email', emailAddress);
+      
       slideInForm('form-looking-up', function() {
         $(document).trigger('cipapi-rest-active'); // Must simulate due to direct access
         log.debug("Creating look up request");

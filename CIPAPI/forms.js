@@ -153,24 +153,26 @@
               div.tooltip({ title: fileName });
               container.find('div.form-cip-media-thumbnails').append(div.append(img));
               img.attr('src', imageURL).on('load', function() {
-                img.imageScale();
+                // Throw into a timer so the image can render
+                setTimeout(function() {
+                  // Convert to data URI and parse then add to existing form
+                  var dataURL   = CIPAPI.forms.imageToDataURL(img.get(0));
+                  var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
+                  var mimeType  = matches[1];
+                  var imageData = matches[2];
 
-                // Convert to data URI and parse then add to existing form
-                var dataURL   = CIPAPI.forms.imageToDataURL(img.get(0));
-                var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
-                var mimeType  = matches[1];
-                var imageData = matches[2];
-
-                var formData = new FormData(); 
-                formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), fileName);
-              
-                // Also let the world know...
-                $(document).trigger('cipapi-forms-media-added', {
-                    imageURL: imageURL,
-                    fileName: fileName,
-                    mimeType: mimeType
-                });
+                  var formData = new FormData(); 
+                  formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), fileName);
+                
+                  // Also let the world know...
+                  $(document).trigger('cipapi-forms-media-added', {
+                      imageURL: imageURL,
+                      fileName: fileName,
+                      mimeType: mimeType
+                  });
+                }, 1);
               });
+              img.imageScale();
             },
             // On Error
             function(msg) {

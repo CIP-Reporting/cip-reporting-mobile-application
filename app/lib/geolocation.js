@@ -72,7 +72,7 @@
   // Only hook in after core initialization
   $(document).on('cipapi-init', function() {
     if (window.cordova) {
-      navigator.geolocation.getCurrentPosition(onSuccess, onError);
+      navigator.geolocation.watchPosition(onSuccess, onError);
     }
   });
   

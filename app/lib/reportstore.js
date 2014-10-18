@@ -176,10 +176,22 @@
 
       // Add in images which were serialized
       $.each(reportStore[0].serializedImages, function(index, stored) {
-        log.debug('Adding image: ' + stored.imageURL);
+        log.debug('Adding image (' + stored.mimeType + '): ' + stored.imageURL);
         imagesBeingQueued++;
 
         CIPAPI.stats.count(statsGroup, 'Total Images');
+
+        // Verify mime type matches up to file name because some URLs do not and the server
+        // deterines the mime type by the inbound file name.  The mime type known here is
+        // most accurate because it was parsed from a data url with embedded mime type. The
+        // file name can be really weird especially when grabbing from the library or album.
+        // If they do not match up, generate a new file name and matching extension.
+        if (stored.mimeType != CIPAPI.mime.getMimeTypeForFileName(stored.fileName)) {
+          var newExt = CIPAPI.mime.getExtensionForMimeType(stored.mimeType);
+          var timeStamp = Math.round(new Date().getTime() / 1000);
+          stored.fileName = timeStamp + newExt;
+          log.debug("Changed file name to " + stored.fileName);
+        }
         
         // The phonegap way...
         if (typeof window.resolveLocalFileSystemURL != 'undefined') {
@@ -191,7 +203,7 @@
                 var imageData = matches[2];
 
                 formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, stored.mimeType), stored.fileName);
-                log.debug('Added image: ' + stored.imageURL);
+                log.debug('Added image (' + stored.mimeType + '): ' + stored.imageURL);
                 imagesBeingQueued--;
                     
                 if (imagesBeingQueued == 0) {

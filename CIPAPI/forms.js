@@ -136,13 +136,19 @@
       $(formSelector + ' input[type=file]').each(function() {
         // Put a media gallery into place
         var container = $(this).closest('div.form-group');
-        var fromCam = $('<a class="cipform_image_from_camera"  href="javascript: void(0)">From Camera</a>');
-        var fromLib = $('<a class="cipform_image_from_library" href="javascript: void(0)">From Library</a>');
-        var gallery = $('<div class="form-cip-media-thumbnails"></div><div style="clear: both;"></div>');
-        container.append(fromCam).append(fromLib).append(gallery);
+        var fromCam   = $('<a class="cipform_image_from_camera"  href="javascript: void(0)">From Camera</a>');
+        var fromLib   = $('<a class="cipform_image_from_library" href="javascript: void(0)">From Library</a>');
+        var gallery   = $('<div class="form-cip-media-thumbnails"></div>');
+        var clearfix  = $('<div style="clear: both;"></div>');
+        var spinner   = $('<div id="form-cip-media-spinner" class="form-cip-media-container" style="display: none; width: ' + 
+          CIPAPI.config.thumbMaxWidth + '; height: ' + CIPAPI.config.thumbMaxHeight + ';"><div></div></div>');
+
+        container.append(fromCam).append(fromLib).append(gallery).append(spinner).append(clearfix);
         
         // Shared camera code
         function captureImage(src) {
+          $('#form-cip-media-spinner').show();
+          
           navigator.camera.getPicture(
             // On Success
             function(imageURL) {
@@ -153,30 +159,30 @@
               div.tooltip({ title: fileName });
               container.find('div.form-cip-media-thumbnails').append(div.append(img));
               img.attr('src', imageURL).on('load', function() {
-                // Throw into a timer so the image can render
-                setTimeout(function() {
-                  // Convert to data URI and parse then add to existing form
-                  var dataURL   = CIPAPI.forms.imageToDataURL(img.get(0));
-                  var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
-                  var mimeType  = matches[1];
-                  var imageData = matches[2];
+                // Convert to data URI and parse then add to existing form
+                var dataURL   = CIPAPI.forms.imageToDataURL(img.get(0));
+                var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
+                var mimeType  = matches[1];
+                var imageData = matches[2];
 
-                  var formData = new FormData(); 
-                  formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), fileName);
-                
-                  // Also let the world know...
-                  $(document).trigger('cipapi-forms-media-added', {
-                      imageURL: imageURL,
-                      fileName: fileName,
-                      mimeType: mimeType
-                  });
-                }, 1);
+                var formData = new FormData(); 
+                formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), fileName);
+              
+                // Also let the world know...
+                $(document).trigger('cipapi-forms-media-added', {
+                    imageURL: imageURL,
+                    fileName: fileName,
+                    mimeType: mimeType
+                });
+          
+                $('#form-cip-media-spinner').hide();
               });
               img.imageScale();
             },
             // On Error
             function(msg) {
               log.error(msg);
+              $('#form-cip-media-spinner').hide();
             }, 
             // Options
             {
@@ -204,7 +210,7 @@
         // Put a media gallery into place
         var container = $(this).closest('div.form-group');
         container.append('<div class="form-cip-media-thumbnails"></div><div style="clear: both;"></div>');
-        
+
         this.addEventListener("change", function (evt) {
           var len = this.files.length;
 

@@ -37,6 +37,7 @@
     CIPAPI.rest.GET({ 
       url: '/api/versions/current/facts/me', 
       success: function(response) { 
+        response.data.item[0].data.lastUpdated = $.now();
         CIPAPI.me = response.data.item[0].data;
         $(document).trigger('cipapi-me-set');
         log.debug("Me loaded");
@@ -63,14 +64,14 @@
     }
   });
   
-  // Attempt to reload current user information every 5 minutes unless another interval is specified (recommend cipapi-timing-never to disable completely)
-  $(document).on('cipapi-timer-tick', function(event, info) {
-    var desiredTick = undefined === CIPAPI.config.reloadMeInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadMeInterval;
-    if (desiredTick == info) {
+  // Attempt to reload myself every 5 minutes unless another interval is specified (recommend cipapi-timing-never to disable completely)
+  $(document).on('cipapi-timing-5sec', function(event, info) {
+    var timingEvent = undefined === CIPAPI.config.reloadMeInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadMeInterval;
+    if (CIPAPI.timing.shouldFire(CIPAPI.me.lastUpdated, timingEvent)) {
       loadMe();
     }
   });
-  
+
   // When credentials change reload current user information if not disabled
   $(document).on('cipapi-credentials-set', function() {
     CIPAPI.me = {};

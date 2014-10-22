@@ -77,6 +77,11 @@
   // Get the statistics store
   CIPAPI.stats.fetch = function() {
     $(document).trigger('cipapi-stats-fetch');
+    
+    var started = new Date();  
+    CIPAPI.stats.state('Application', 'Current Time', started.toLocaleString());
+    CIPAPI.stats.state('Application', 'Current Timestamp', parseInt($.now() / 1000, 10));
+    
     return statistics;
   }
 

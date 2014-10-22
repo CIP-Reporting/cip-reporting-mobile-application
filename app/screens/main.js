@@ -24,23 +24,7 @@
   CIPAPI.main = {};
   
   var log = log4javascript.getLogger("CIPAPI.main");
-
-  var imageStorage = [];
   
-  // Navigating away from main, have my children clean up after themselves
-  $(document).on('cipapi-unbind', function() {
-    log.debug("Cleaning up my children");
-    $(document).trigger('cipapi-unbind-main');
-    $('div#main-content-area > *').remove();
-  });
-  
-  // Hide splash screen when routed
-  $(document).on('cipapi-routed', function(event, info) {
-    if (window.cordova) {
-      navigator.splashscreen.hide();
-    }
-  });
-
   // Main screen
   $(document).on('cipapi-handle-main', function(event, info) {
     renderMainScreen(info);
@@ -54,29 +38,6 @@
     renderMainScreen(info);
   });
 
-  // Disable the back button on Android
-  document.addEventListener("backbutton", function (e) { 
-    var handler = CIPAPI.router.getCurrentHandler();
-    var arguments = CIPAPI.router.getCurrentHandlerArguments();
-    
-    // Terminate the app on back button when on report list
-    if (handler == 'main' && arguments[0].match(/^action=list/)) {
-      e.preventDefault();
-      navigator.app.exitApp();
-      return;
-    }
-    
-    // Terminate the app on login screen anywhere
-    if (handler == 'login') {
-      e.preventDefault();
-      navigator.app.exitApp();
-      return;
-    }
-    
-    // Any thing else, go back one page
-    window.history.back();
-  }, false );
-  
   // Monitor for config changes and update button lists when displayed
   $(document).on('cipapi-mobile-forms-set', function(event, info) {
     if ($('div#main-content-area form div.form-button-list').length > 0) {
@@ -84,101 +45,12 @@
       $('div#main-content-area form > *').remove();
       renderButtons(CIPAPI.config.apiForms);
     }
-    
-    // Kick off a report send attempt
-    CIPAPI.reportstore.sendReports();
-  });
-
-  // Monitor for changes in the report store
-  $(document).on('cipapi-reportstore-change', function(event, info) {
-    var storedReports = CIPAPI.reportstore.getNumberOfStoredReports();
-    
-    $('span#navbar-pending-count').html(storedReports);
-    
-    if (storedReports == 0 && $('i#navbar-pending-reports').is(':visible')) {
-      $('i#navbar-pending-reports').fadeOut();
-    } else if (storedReports > 0 && !$('i#navbar-pending-reports').is(':visible')) {
-      $('i#navbar-pending-reports').fadeIn();
-    }
-  });
-  
-  // Passively try and send reports
-  $(document).on('cipapi-timer-tick', function(event, info) {
-    var desiredTick = undefined === CIPAPI.config.sendReportsInterval ? 'cipapi-timing-1min' : CIPAPI.config.sendReportsInterval;
-    if (desiredTick == info) {
-      // Kick off a report send attempt
-      CIPAPI.reportstore.sendReports();
-    }
-  });
-  
-  // Notification when all reports have been sent
-  $(document).on('cipapi-reportstore-empty', function(event, info) {
-    // Vibrate for a second
-    if (window.cordova) {
-      navigator.vibrate(1000);
-    }
-    
-    bootbox.dialog({
-      message: "All pending reports have been successfully sent",
-        title: "All Reports Sent",
-      buttons: {
-        success: {
-              label: '<span class="glyphicon glyphicon-thumbs-up"></span> Success',
-          className: "btn btn-lg btn-primary btn-custom",
-        }
-      }
-    });
-  });
-  
-  // Capture and store the email address used for an account lookup
-  $(document).on('cipapi-login-email-lookup', function(event, info) {
-    localStorage.setItem('cipapi-login-email-lookup', info);
-  });
-  
-  // Fired when the REST engine is active
-  var activelySpinning = false;
-  $(document).on('cipapi-rest-active', function(event, info) {
-    $('#cipapi-navbar-logo').addClass('cipapi-logo-spin');
-
-    // Do not re-spin when already spinning which keeps the rotation smooth for a full 360 degrees
-    if (activelySpinning) {
-      return;
-    }
-    
-    var rotation = function() {
-      var logo = $("img.cipapi-logo-spin");
-      activelySpinning = logo.length == 1;
-      
-      logo.rotate({
-        angle: 0, 
-        animateTo: 360, 
-        callback: rotation,
-        easing: function(x, t, b, c, d) {
-          // t: current time, b: begInnIng value, c: change In value, d: duration
-          return c * (t / d) + b;
-        }
-      });
-    }
-    rotation();
-  });
-  
-  // Fired when the REST engine is inactive
-  $(document).on('cipapi-rest-inactive', function(event, info) {
-    $('#cipapi-navbar-logo').removeClass('cipapi-logo-spin');
-  });
-  
-  // Event to hide the splash screen if we are capable
-  $(document).on('cipapi-hide-splash-screen', function(event, info) {
-    if (!navigator) return;
-    if (!navigator.splashscreen) return;
-    if (!navigator.splashscreen.hide) return;
-    
-    navigator.splashscreen.hide();
   });
 
   // Store images for packaging later  
+  var imageStorage = [];
   $(document).on('cipapi-forms-media-added', function(event, info) {
-    log.debug('Parking image: ' + info.imageURL);
+    log.debug('Parking image: ' + info.imageURI);
     imageStorage.push(info);
   });
 
@@ -261,6 +133,7 @@
                   formName: formName,
             serializedData: values,
           serializedImages: imageStorage,
+            mobileMetadata: CIPAPI.stats.fetch(),
             destinationURL: '/api/versions/current/integrations/' + escape(formName)
         });
         

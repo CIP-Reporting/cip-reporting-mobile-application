@@ -51,8 +51,9 @@
         allow404: true, 
         url: '/api/versions/current/integrations/' + CIPAPI.config.overrideIntegration, 
         success: function(response) { 
+          response.data.item[0].data.lastUpdated = $.now();
           $.extend(CIPAPI.config, response.data.item[0].data);
-          log.debug("Config merged");
+          log.debug("Config merged at " + CIPAPI.config.lastUpdated);
           
           // Store the configuration to local storage if so configured
           if (CIPAPI.config.persistConfig) {
@@ -82,9 +83,9 @@
   });
   
   // Attempt to reload configuration every 5 minutes unless another interval is specified (recommend cipapi-timing-never to disable completely)
-  $(document).on('cipapi-timer-tick', function(event, info) {
-    var desiredTick = undefined === CIPAPI.config.reloadConfigInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadConfigInterval;
-    if (desiredTick == info) {
+  $(document).on('cipapi-timing-5sec', function(event, info) {
+    var timingEvent = undefined === CIPAPI.config.reloadConfigInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadConfigInterval;
+    if (CIPAPI.timing.shouldFire(CIPAPI.config.lastUpdated, timingEvent)) {
       loadConfig();
     }
   });

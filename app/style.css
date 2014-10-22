@@ -19,6 +19,10 @@
  *
  */
 
+html {
+  -webkit-user-select: none; /* Text selection caret is annoying */
+}
+ 
 body {
   padding-bottom: 10px;
   padding-top: 57px;
@@ -32,20 +36,49 @@ div.navbar {
   min-height: 57px;
 }
 
-i#navbar-network-access {
+div.navbar-back-button {
+  padding: 8px 0px 0px 10px;
+  float: left;
   font-size: 34px;
-  margin: 9px 8px 8px 9px;
+}
+
+#navbar-back-button span {  
+  -moz-transform: scale(-1, 1);
+  -webkit-transform: scale(-1, 1);
+  -o-transform: scale(-1, 1);
+  -ms-transform: scale(-1, 1);
+  transform: scale(-1, 1);
+
+  cursor: default;
+  color: #444;
+}
+
+.navbar-back-button-active span {
+  cursor: pointer !important;
+  color: #999 !important;
+}
+
+div.navbar-network-access {
+  padding: 1px 0px 0px 13px;
+  font-size: 34px;
+  color: #999;
+  float: left;
+}
+
+div.navbar-pending-reports {
+  padding: 17px 0px 0px 13px;
+  float: left;
+}
+
+i#navbar-pending-reports {
+  font-size: 18px;
+  color: #ccc;
 }
 
 @media (min-width: 768px) {
   .navbar-nav > li > a {
     padding-top: 20px;
   }
-}
-
-i#navbar-pending-reports {
-  font-size: 18px;
-  color: #ccc;
 }
 
 /****************************
@@ -421,4 +454,37 @@ input.notagain {
   padding: 0;
   top: -1px;
   margin:0;
+}
+
+/*********************************
+ * DateTime Picker
+ *********************************/
+#ui-datepicker-div {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  margin-left: -130px; /* approx half the height of the datepicker div - adjust based on your size */
+  margin-top: -229px;  /* half the height of the datepicker div - adjust based on your size */
+  z-index: 9999 !important;
+}
+
+.ui-timepicker-div select {
+  width: 100%;
+}
+
+div#cipapi-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 9998;
+  color: white;
+  display: none;
+}
+
+.cipapi-fau-read-only {
+  background: #fff !important;
+  cursor: text !important;
 }

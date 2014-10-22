@@ -37,6 +37,7 @@
     CIPAPI.rest.GET({ 
       url: '/api/versions/current/facts/settings', 
       success: function(response) { 
+        response.data.item[0].data.lastUpdated = $.now();
         CIPAPI.settings = response.data.item[0].data;
         $(document).trigger('cipapi-settings-set');
         log.debug("Settings loaded");
@@ -64,9 +65,9 @@
   });
   
   // Attempt to reload settings every 5 minutes unless another interval is specified (recommend cipapi-timing-never to disable completely)
-  $(document).on('cipapi-timer-tick', function(event, info) {
-    var desiredTick = undefined === CIPAPI.config.reloadSettingsInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadSettingsInterval;
-    if (desiredTick == info) {
+  $(document).on('cipapi-timing-5sec', function(event, info) {
+    var timingEvent = undefined === CIPAPI.config.reloadSettingsInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadSettingsInterval;
+    if (CIPAPI.timing.shouldFire(CIPAPI.settings.lastUpdated, timingEvent)) {
       loadSettings();
     }
   });

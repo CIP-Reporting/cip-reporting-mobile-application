@@ -81,7 +81,7 @@
     
     // Clean up
     $('div#login-content-area > *').remove();
-    
+
     // Show login forms
     if (info.params.action == 'login') {
       log.debug("Render login screen");
@@ -267,8 +267,6 @@
 
             // Lookup successful!
             log.debug("Look up response validated");
-            $(document).trigger('cipapi-login-email-lookup', emailAddress);
-
             $('input#form-signin-host').val(cfg[0].host);
             $('input#form-signin-user').val(cfg[0].user + '@' + cfg[0].database + '/' + cfg[0].profile);
             $('input#form-signin-pass').val(cfg[0].password);

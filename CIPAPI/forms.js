@@ -25,19 +25,6 @@
 
   var log = log4javascript.getLogger("CIPAPI.forms");
 
-  // Apply formatting magic for datetime fields
-  function bindDateCleanup(selector, pattern) {
-    $(selector).each(function() {
-      var control = $(this);
-      control.blur(function() {
-        var theDate = Date.parse(this.value);
-        if (null !== theDate) {
-          this.value = theDate.toString(pattern);
-        }
-      });
-    });
-  }
-
   function equalizeElementSizes(selector) {
     var widest = 0;
 
@@ -72,7 +59,26 @@
       byteArrays.push(byteArray);
     }
 
-    var blob = new Blob(byteArrays, {type: contentType});
+    var blob = false;
+    
+    try {
+      blob = new Blob(byteArrays, {type: contentType});
+    } catch(err) {
+      // TypeError old chrome and FF
+      window.BlobBuilder = window.BlobBuilder || 
+        window.WebKitBlobBuilder || 
+        window.MozBlobBuilder || 
+        window.MSBlobBuilder;
+      
+      if (window.BlobBuilder) {
+        var bb = new BlobBuilder();
+        bb.append(byteArrays);
+        var blob = bb.getBlob(contentType);
+      } else {
+        log.error("Failed to find any method to create a blob");
+      }
+    }
+    
     return blob;
   }  
   
@@ -106,11 +112,6 @@
     // and move the content back into the text area for validation and delivery.
     $(formSelector + ' div.cipform_richtext_custom_field textarea').summernote({ height: 300 });
     $(formSelector + ' :submit').click(function() { 
-      // Force the onblur event onto date fields for magic cleanup
-      $(formSelector + ' input[type=datetime]').blur();
-      $(formSelector + ' input[type=time]').blur();
-      $(formSelector + ' input[type=date]').blur();
-    
       // Take content from rich text editor back to the hidden textarea
       $(formSelector + 'div.cipform_richtext_custom_field textarea').each(function() {
         var e = $(this);
@@ -118,11 +119,61 @@
       });
     });
 
-    // Bind the date cleanup library to all date fields
-    bindDateCleanup(formSelector + ' input[type=datetime]', 'yyyy-MM-dd HH:mm:ss');
-    bindDateCleanup(formSelector + ' input[type=time]',     'HH:mm:ss');
-    bindDateCleanup(formSelector + ' input[type=date]',     'yyyy-MM-dd');
-        
+    // Bind date and time pickers to the picker dialog ... must make fields read only
+    // to stop virtual keyboards from popping open!
+    $(formSelector + ' .cipform-datetime-datetime input').datetimepicker({
+         showAnim: '',
+      controlType: 'select',
+       dateFormat: "yy-mm-dd",
+       timeFormat: "HH:mm:ss Z",
+       beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'datetime'); },
+          onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'datetime'); }
+    }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+    
+    $(formSelector + ' .cipform-datetime-time input').timepicker({
+         showAnim: '',
+      controlType: 'select',
+       timeFormat: "HH:mm:ss",
+       beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'time'); },
+          onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'time'); }
+    }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+
+    $(formSelector + ' .cipform-datetime-date input').datepicker({
+         showAnim: '',
+      dateFormat: "yy-mm-dd",
+       beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'date'); },
+          onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'date'); }
+    }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+
+    // Set default times and dates - for now just set them all but some day when we get to
+    // editing reports via this interfae we will need to understand new vs. edit.
+    var isNewReport = true;
+    if (isNewReport) {
+      var now = new Date();
+      var yy = now.getFullYear();
+      var mm = ('0' + (now.getMonth() + 1)).slice(-2);
+      var dd = ('0' + now.getDate()).slice(-2);
+      var hh = ('0' + now.getHours()).slice(-2);
+      var ii = ('0' + now.getMinutes()).slice(-2);
+      var ss = ('0' + now.getSeconds()).slice(-2);
+      
+      var utc = now.getTimezoneOffset(); // Minutes offset
+      var gg = utc > 0 ? '-' : '+';
+      var th = ('0' + Math.floor(utc / 60)).slice(-2);
+      var tm = ('0' + (utc % 60)).slice(-2);
+      var zone = utc == 0 ? 'Z' : (gg + th + ':' + tm);
+      
+      var time = hh + ':' + ii + ':' + ss;
+      var date = yy + '-' + mm + '-' + dd;
+      var full = date + ' ' + time + ' ' + zone;
+      
+      $(formSelector + ' .cipform_timenow_custom_field input').val(full);
+      $(formSelector + ' .cipform_timenowro_custom_field input').val(full);
+      $(formSelector + ' .cipform_invtimenow_custom_field input').val(full);
+      $(formSelector + ' .cipform_justtimenow_custom_field input').val(time);
+      $(formSelector + ' .cipform_justdatenow_custom_field input').val(date);
+    }
+    
     // Set the width of multi-select and radio group options to be equal so that if the CSS
     // floats the items they will line up like table cells
     equalizeElementSizes(formSelector + 'div.cipform_multi_custom_field label.checkbox');
@@ -133,7 +184,7 @@
     
     // If phonegap is loaded AND phonegap camera controls are available use it...
     if (window.cordova && window.navigator && window.navigator.camera) {
-      $(formSelector + ' input[type=file]').each(function() {
+      $(formSelector + ' div.cipform_invisible_custom_field input[type=file]').each(function() {
         // Put a media gallery into place
         var container = $(this).closest('div.form-group');
         var fromCam   = $('<a class="cipform_image_from_camera"  href="javascript: void(0)">From Camera</a>');
@@ -148,36 +199,35 @@
         // Shared camera code
         function captureImage(src) {
           $('#form-cip-media-spinner').show();
+          log.debug("Showing spinner");
           
           navigator.camera.getPicture(
             // On Success
-            function(imageURL) {
+            function(imageURI) {
               // Display on screen
-              var fileName = imageURL.substring(imageURL.lastIndexOf('/') + 1);
+              var fileName = imageURI.substring(imageURI.lastIndexOf('/') + 1);
+              log.debug("Capturing image: " + fileName);
+              
               var div = $('<div data-toggle="tooltip" data-placement="bottom" class="form-cip-media-container" style="width: ' + CIPAPI.config.thumbMaxWidth + '; height: ' + CIPAPI.config.thumbMaxHeight + ';"></div>');
               var img = $('<img data-scale="best-fit" />');
               div.tooltip({ title: fileName });
               container.find('div.form-cip-media-thumbnails').append(div.append(img));
-              img.attr('src', imageURL).on('load', function() {
-                // Convert to data URI and parse then add to existing form
-                var dataURL   = CIPAPI.forms.imageToDataURL(img.get(0));
-                var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
-                var mimeType  = matches[1];
-                var imageData = matches[2];
-
-                var formData = new FormData(); 
-                formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), fileName);
               
-                // Also let the world know...
-                $(document).trigger('cipapi-forms-media-added', {
-                    imageURL: imageURL,
-                    fileName: fileName,
-                    mimeType: mimeType
-                });
-          
+              log.debug("Setting image src: " + imageURI);
+              img.attr('src', imageURI).on('load', function() {
+                log.debug("Hiding spinner");
                 $('#form-cip-media-spinner').hide();
               });
+              
+              log.debug("Scaling image");
               img.imageScale();
+              
+              // Also let the world know...
+              log.debug("Sending notification");
+              $(document).trigger('cipapi-forms-media-added', {
+                  imageURI: imageURI,
+                  fileName: fileName
+              });
             },
             // On Error
             function(msg) {
@@ -187,6 +237,7 @@
             // Options
             {
                  destinationType: Camera.DestinationType.FILE_URI,
+                   encodingType : Camera.EncodingType.JPEG,
               correctOrientation: true,
                       sourceType: src
             }
@@ -206,7 +257,7 @@
     // Setup AJAX image upload handlers if browser is capable, else hide any file upload inputs
     var formData = window.FormData ? new FormData() : false;
     if (formData) {
-      $(formSelector + ' input[type=file]').each(function() {
+      $(formSelector + ' div.cipform_invisible_custom_field input[type=file]').each(function() {
         // Put a media gallery into place
         var container = $(this).closest('div.form-group');
         container.append('<div class="form-cip-media-thumbnails"></div><div style="clear: both;"></div>');
@@ -223,19 +274,15 @@
                 var div = $('<div data-toggle="tooltip" data-placement="bottom" class="form-cip-media-container" style="width: ' + CIPAPI.config.thumbMaxWidth + '; height: ' + CIPAPI.config.thumbMaxHeight + ';"></div>');
                 var img = $('<img data-scale="best-fit" />');
                 img.attr('src', file.type.match(/image.*/) ? e.target.result : 'attachment.png');
+                
                 container.find('div.form-cip-media-thumbnails').append(div.append(img));
                 img.imageScale();
                 div.tooltip({ title: file.name });
                 
                 // Also let the world know...
-                var regex = /^data:(.*?);base64,(.*)$/;
-                var matches = e.target.result.match(regex);
-                var mimeType = matches[1];
-                var b64Content = matches[2] == '' ? 'application/octet-stream' : matches[2];
                 $(document).trigger('cipapi-forms-media-added', {
-                    imageURL: e.target.result, // Data URL
-                    fileName: file.name,
-                    mimeType: mimeType
+                    imageURI: e.target.result, // Data URL
+                    fileName: file.name
                 });
 
               };

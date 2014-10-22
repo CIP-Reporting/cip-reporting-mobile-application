@@ -46,6 +46,15 @@
     CIPAPI.stats.total(statsGroup, 'Total Pending', CIPAPI.reportstore.getNumberOfStoredReports());
   });
   
+  // Passively try and send reports
+  $(document).on('cipapi-timing-5sec', function(event, info) {
+    var desiredTick = undefined === CIPAPI.config.sendReportsInterval ? 'cipapi-timing-1min' : CIPAPI.config.sendReportsInterval;
+    if (desiredTick == info) {
+      // Kick off a report send attempt
+      CIPAPI.reportstore.sendReports();
+    }
+  });
+  
   // Store a report  
   CIPAPI.reportstore.storeReport = function(reportData) {
     var storageKey = 'CIPAPI.reportstore.' + CIPAPI.credentials.getCredentialHash();
@@ -174,51 +183,66 @@
         formData.append(key, val);
       });
 
+      // Embed mobile metadata
+      log.debug('Adding mobile metadata');
+      formData.append('__mobile_metadata', JSON.stringify(reportStore[0].mobileMetadata));
+      
       // Add in images which were serialized
       $.each(reportStore[0].serializedImages, function(index, stored) {
-        log.debug('Adding image (' + stored.mimeType + '): ' + stored.imageURL);
+        log.debug('Adding image: ' + stored.imageURI);
         imagesBeingQueued++;
 
         CIPAPI.stats.count(statsGroup, 'Total Images');
 
-        // Verify mime type matches up to file name because some URLs do not and the server
-        // deterines the mime type by the inbound file name.  The mime type known here is
-        // most accurate because it was parsed from a data url with embedded mime type. The
-        // file name can be really weird especially when grabbing from the library or album.
-        // If they do not match up, generate a new file name and matching extension.
-        if (stored.mimeType != CIPAPI.mime.getMimeTypeForFileName(stored.fileName)) {
-          var newExt = CIPAPI.mime.getExtensionForMimeType(stored.mimeType);
-          var timeStamp = Math.round(new Date().getTime() / 1000);
-          stored.fileName = timeStamp + newExt;
-          log.debug("Changed file name to " + stored.fileName);
-        }
-        
         // The phonegap way...
         if (typeof window.resolveLocalFileSystemURL != 'undefined') {
-          window.resolveLocalFileSystemURL(stored.imageURL, function(fileEntry) { 
+          log.debug("Resolving local file URL");
+          window.resolveLocalFileSystemURL(stored.imageURI, function(fileEntry) { 
             fileEntry.file(function(file) {
+              log.debug("Reading image");
               var reader = new FileReader();
               reader.onloadend = function(evt) {
-                var matches   = evt.target.result.match(/^data:(.*?);base64,(.*)$/);
-                var imageData = matches[2];
+                log.debug("Parsing mime type from data URI");
+                var matches   = evt.target.result.match(/^data:(.*?);base64/);
+                var mimeType  = matches[1];
+                
+                log.debug("Mime type from URL: " + mimeType);
 
-                formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, stored.mimeType), stored.fileName);
-                log.debug('Added image (' + stored.mimeType + '): ' + stored.imageURL);
+                // Verify mime type matches up to file name because some URLs do not and the server
+                // determines the mime type by the inbound file name.  The mime type known here is
+                // most accurate because it was parsed from a data url with embedded mime type. The
+                // file name can be really weird especially when grabbing from the library or album.
+                // If they do not match up, generate a new file name and matching extension.
+                if (mimeType != CIPAPI.mime.getMimeTypeForFileName(stored.fileName)) {
+                  var newExt = CIPAPI.mime.getExtensionForMimeType(mimeType);
+                  var timeStamp = Math.round(new Date().getTime() / 1000);
+                  stored.fileName = timeStamp + newExt;
+                  log.debug("Changed file name to " + stored.fileName);
+                }
+
+                formData.append('jsonfile[]', JSON.stringify({
+                  mimeType: mimeType,
+                  fileName: stored.fileName,
+                   b64File: evt.target.result
+                }));
+
                 imagesBeingQueued--;
                     
                 if (imagesBeingQueued == 0) {
                   log.debug("All images loaded - sending report");
                   sendCurrentReport();
+                } else {
+                  log.debug("Not sending report - still images pending");
                 }
               };
               reader.readAsDataURL(file);
             }, function(err) {
               imagesBeingQueued--;
-              log.error("ERROR CODE: " + err.code);
+              log.error("Error reading image: " + err.code);
             });
           }, function(err) {
             imagesBeingQueued--;
-            log.error("ERROR CODE: " + err.code);
+            log.error("Error resolving file: " + err.code);
           }); 
         }
         
@@ -230,10 +254,11 @@
             // Convert to data URI and parse then add to existing form
             var dataURL   = CIPAPI.forms.imageToDataURL(deferredImage.get(0));
             var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
+            var mimeType  = matches[1];
             var imageData = matches[2];
 
-            formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, stored.mimeType), stored.fileName);
-            log.debug('Added image: ' + stored.imageURL);
+            formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), stored.fileName);
+            log.debug('Added image: ' + stored.imageURI);
             imagesBeingQueued--;
           
             if (imagesBeingQueued == 0) {
@@ -242,7 +267,7 @@
             }
           });
           
-          deferredImage.attr('src', stored.imageURL);
+          deferredImage.attr('src', stored.imageURI);
         }
       });
       

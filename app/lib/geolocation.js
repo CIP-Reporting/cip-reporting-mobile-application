@@ -25,6 +25,9 @@
 
   var log = log4javascript.getLogger("CIPAPI.geolocation");
 
+  // Track the current watch for config updates
+  var watchHandle = false;
+  
   // Defaults...
   CIPAPI.geolocation.latitude         = '0';
   CIPAPI.geolocation.longitude        = '0';
@@ -72,8 +75,37 @@
   // Only hook in after core initialization
   $(document).on('cipapi-init', function() {
     if (window.cordova) {
-      navigator.geolocation.watchPosition(onSuccess, onError);
+      watchHandle = navigator.geolocation.watchPosition(onSuccess, onError, { 
+        enableHighAccuracy: CIPAPI.config.usePreciseGPS
+      });
     }
   });
+
+  // On configuration change reset the watch  
+  $(document).on('cipapi-config-set', function() {
+    if (window.cordova) {
+      log.debug("Clearing watch");
+      navigator.geolocation.clearWatch(watchHandle);
+      
+      log.debug("Restarting watch");
+      watchHandle = navigator.geolocation.watchPosition(onSuccess, onError, { 
+        enableHighAccuracy: CIPAPI.config.usePreciseGPS
+      });
+    }
+  });
+
+  // Turn off the watch when paused
+  document.addEventListener("pause", function() {
+    log.debug("Clearing watch");
+    navigator.geolocation.clearWatch(watchHandle);
+  }, false);
+  
+  // Re-start the watch when resumed
+  document.addEventListener("resume", function() {
+    log.debug("Restarting watch");
+    watchHandle = navigator.geolocation.watchPosition(onSuccess, onError, { 
+      enableHighAccuracy: CIPAPI.config.usePreciseGPS
+    });
+  }, false);
   
 })(window);

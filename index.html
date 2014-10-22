@@ -39,6 +39,8 @@
     <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="./lib/summernote/dist/summernote.css" />
     <link rel="stylesheet" href="./lib/font-awesome/css/font-awesome.min.css" />
+		<link rel="stylesheet" media="all" type="text/css" href="./app/jquery-ui/themes/black-tie/jquery-ui.css" />
+		<link rel="stylesheet" media="all" type="text/css" href="./lib/jquery-ui-timepicker/jquery-ui-timepicker-addon.css" />
     <link href="./app/style.css" rel="stylesheet">
     <link href="./app/customize/css/custom.css" rel="stylesheet">
 
@@ -49,7 +51,7 @@
       <script src="./lib/respond.min.js"></script>
     <![endif]-->
   </head>
-  <body>
+  <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
     <div id="container">
       <div class="initializing">
         <img src="./res/logo_mono_blue_thin.png" />
@@ -58,6 +60,7 @@
       </div>
     </div>
     <div id="cipapi-inpage-logger"></div>
+    <div id="cipapi-screen-overlay"></div>
     
     <!-- Phonegap / Cordova and Plugins -->
     <script src="cordova.js"></script>
@@ -67,14 +70,15 @@
     <script src="./lib/jquery-2.0.3.js"></script>
     <script src="./lib/jsonform-bootstrap3/deps/underscore.js"></script>
     <script src="./lib/jsonform-bootstrap3/deps/opt/jsv.js"></script>
-    <script src="./lib/jquery-ui.js"></script>
+		<script src="./lib/jquery-ui-1.11.2/jquery-ui.min.js"></script>
+		<script src="./lib/jquery-ui-timepicker/jquery-ui-timepicker-addon.js"></script>
+		<script src="./lib/jquery-ui-timepicker/i18n/jquery-ui-timepicker-addon-i18n.min.js"></script>
     <script src="./lib/jquery.actual.js"></script>
     <script src="./lib/jquery.image-scale.js"></script>
     <script src="./lib/bootstrap/js/bootstrap.min.js"></script>
     <script src="./lib/bootbox.min.js"></script>
     <script src="./lib/holder.js"></script>
     <script src="./lib/sprintf.js"></script>
-    <script src="./lib/date.js"></script>
     <script src="./lib/log4javascript/log4javascript.js"></script>
     <script src="./lib/jsonform-bootstrap3/lib/jsonform.js"></script>
     <script src="./lib/summernote/dist/summernote.js"></script>
@@ -96,6 +100,8 @@
         rootLogger.setLevel(log4javascript.Level.ALL);
         
         var inPageAppender = new log4javascript.InPageAppender('cipapi-inpage-logger');
+        patternLayout = new log4javascript.PatternLayout("%c - %m{1}");
+        inPageAppender.setLayout(patternLayout);
         inPageAppender.setHeight('100%');
         inPageAppender.setMaxMessages(500);
 			  rootLogger.addAppender(inPageAppender);
@@ -105,9 +111,17 @@
           var iframes = document.getElementsByTagName("iframe");
           for (var i = 0, len = iframes.length; i < len; ++i) {
             if (iframes[i].id.indexOf("_InPageAppender_") > -1) {
+              var head = $(iframes[i]).contents().find("head");                
+              head.append($("<link/>", { rel: "stylesheet", href: "./app/logger.css", type: "text/css" }));            
+            
               var iframeDoc = iframes[i].contentDocument || iframes[i].contentWindow.document;
               iframeDoc.getElementById("switchesContainer").style.display = "none";
               iframeDoc.getElementById("commandLine").style.display = "none";
+              
+              // Give a body click call back for hiding the navbar
+              iframeDoc.body.onclick = function() {
+                $(document).trigger('cipapi-logger-body-click');
+              };              
             }
           }
         });
@@ -140,6 +154,7 @@
     <script src="./app/lib/reportstore.js"></script>
     <script src="./app/lib/help.js"></script>
     <script src="./app/lib/geolocation.js"></script>
+    <script src="./app/lib/device.js"></script>
     <script src="./app/lib/navbar.js"></script>
     
     <!-- Customer Provided -->
@@ -149,7 +164,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-            applicationVersion: '1.0.3617',                     // Set by the packaging script to know our own version
+            applicationVersion: '1.0.3639',                     // Set by the packaging script to know our own version
            overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
         reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
               reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -161,6 +176,7 @@
                persistSettings: true,                               // Store settings in local storage to avoid start up network access
                      persistMe: true,                               // Store config in local storage to avoid start up network access
                   persistForms: true,                               // Store forms in local storage to avoid start up network access
+                 usePreciseGPS: false,                              // Use precise GPS tracking or false for location approximation
                       apiForms: { },                                // Should most likely be loaded from the config override integration
                                                                     // In the form of the key is the form integration and the value is the
                                                                     // friendly name to display on the button.  The order controls the order

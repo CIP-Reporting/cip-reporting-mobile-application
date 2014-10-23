@@ -13,7 +13,7 @@
   <access origin="*" />
 
   <!-- Configure the Application -->
-  <preference name="phonegap-version"           value="3.5.0" />          <!-- all: current version of PhoneGap -->
+  <preference name="phonegap-version"           value="3.6.3" />          <!-- all: current version of PhoneGap -->
   <preference name="orientation"                value="default" />        <!-- all: default means both landscape and portrait are enabled -->
   <preference name="target-device"              value="universal" />      <!-- all: possible values handset, tablet, or universal -->
   <preference name="fullscreen"                 value="true" />           <!-- all: hides the status bar at the top of the screen -->
@@ -30,15 +30,21 @@
   <preference name="android-minSdkVersion"      value="7" />              <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
   <preference name="android-installLocation"    value="auto" />           <!-- android: app install location. 'auto' will choose. 'internalOnly' is device memory. 'preferExternal' is SDCard. -->
   
-  <!-- Enabled Core plugins -->
+  <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->
+  <preference name="permissions" value="none"/>  
+  <feature name="http://api.phonegap.com/1.0/geolocation"/>
+  <feature name="http://api.phonegap.com/1.0/file"/>
+  <feature name="http://api.phonegap.com/1.0/network"/>
+  <feature name="http://api.phonegap.com/1.0/notification"/>
+  <feature name="http://api.phonegap.com/1.0/device"/>
+  
+  <!-- Plugins -->
   <gap:plugin name="org.apache.cordova.camera" />
   <gap:plugin name="org.apache.cordova.device" />
   <gap:plugin name="org.apache.cordova.file" />
   <gap:plugin name="org.apache.cordova.geolocation" />
   <gap:plugin name="org.apache.cordova.splashscreen" />
   <gap:plugin name="org.apache.cordova.vibration" />
-
-  <!-- Disabled Core plugins 
   <gap:plugin name="org.apache.cordova.battery-status" />
   <gap:plugin name="org.apache.cordova.media-capture" />
   <gap:plugin name="org.apache.cordova.contacts" />
@@ -51,7 +57,6 @@
   <gap:plugin name="org.apache.cordova.network-information" />
   <gap:plugin name="org.apache.cordova.inappbrowser" />
   <gap:plugin name="org.apache.cordova.media" />
-  -->
 
   <!-- Custom URL Schema -->
   <gap:plugin name="nl.x-services.plugins.launchmyapp">

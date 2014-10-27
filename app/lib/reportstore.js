@@ -47,7 +47,7 @@
   });
   
   // Passively try and send reports
-  $(document).on('cipapi-timing-5sec', function(event, info) {
+  $(document).on('cipapi-timing-event', function(event, info) {
     var desiredTick = undefined === CIPAPI.config.sendReportsInterval ? 'cipapi-timing-1min' : CIPAPI.config.sendReportsInterval;
     if (desiredTick == info) {
       // Kick off a report send attempt

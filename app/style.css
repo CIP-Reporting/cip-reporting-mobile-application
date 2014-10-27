@@ -19,10 +19,6 @@
  *
  */
 
-html {
-  -webkit-user-select: none; /* Text selection caret is annoying */
-}
- 
 body {
   padding-bottom: 10px;
   padding-top: 57px;
@@ -80,6 +76,11 @@ i#navbar-pending-reports {
     padding-top: 20px;
   }
 }
+
+/* Position fixed CSS workaround for iOS */
+.fixfixed .navbar { 
+  position: absolute; 
+} 
 
 /****************************
  ** Logger...

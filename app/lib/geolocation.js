@@ -75,6 +75,7 @@
   // Only hook in after core initialization
   $(document).on('cipapi-init', function() {
     if (window.cordova) {
+      log.debug("Enabling GPS watch position");
       watchHandle = navigator.geolocation.watchPosition(onSuccess, onError, { 
         enableHighAccuracy: CIPAPI.config.usePreciseGPS
       });

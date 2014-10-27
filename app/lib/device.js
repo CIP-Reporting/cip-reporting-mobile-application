@@ -26,6 +26,8 @@
   var log = log4javascript.getLogger("CIPAPI.device");
 
   function loadFromDevice() {
+    log.debug("Loading device info");
+    
     // Set from device
     CIPAPI.device.cordova  = typeof device != 'undefined' && device.cordova  ? device.cordova  : 'Unknown';
     CIPAPI.device.model    = typeof device != 'undefined' && device.model    ? device.model    : 'Unknown';
@@ -44,12 +46,13 @@
     });
   }
 
-  // Set defaults
-  loadFromDevice();
   
   // If phonegap - reload when ready
   if (window.cordova) {
     document.addEventListener("deviceready", loadFromDevice);
+  } else {
+    // Else set defaults
+    loadFromDevice();
   }
   
 })(window);

@@ -51,7 +51,7 @@
       <script src="./lib/respond.min.js"></script>
     <![endif]-->
   </head>
-  <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+  <body>
     <div id="container">
       <div class="initializing">
         <img src="./res/logo_mono_blue_thin.png" />
@@ -86,6 +86,7 @@
     <script src="./lib/pagedown/Markdown.Converter.js"></script>
     <script src="./lib/purl.js"></script>
     <script src="./lib/jQueryRotate.js"></script>
+    <script src="./lib/base64.js"></script>
     
     <script type="text/javascript">
       // Initialize logger
@@ -164,7 +165,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-            applicationVersion: '1.0.3639',                     // Set by the packaging script to know our own version
+            applicationVersion: '1.0.3662',                     // Set by the packaging script to know our own version
            overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
         reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
               reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server

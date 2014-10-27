@@ -82,8 +82,9 @@
     }
   });
   
-  // Attempt to reload configuration every 5 minutes unless another interval is specified (recommend cipapi-timing-never to disable completely)
-  $(document).on('cipapi-timing-5sec', function(event, info) {
+  // Every 5 minutes check to see if the interval for reload has elapsed and reload if so.
+  // Minimum resolution is obviously 5 minutes to avoid repeated reload attempts.
+  $(document).on('cipapi-timing-5min', function(event, info) {
     var timingEvent = undefined === CIPAPI.config.reloadConfigInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadConfigInterval;
     if (CIPAPI.timing.shouldFire(CIPAPI.config.lastUpdated, timingEvent)) {
       loadConfig();

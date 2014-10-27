@@ -27,6 +27,14 @@
 
   var startTime = Math.round(new Date().getTime() / 1000);
   
+  // Helper function to trigger a named timing event and a generic event
+  //
+  // Consumers who need configurable timing options may use the generic event
+  function triggerTimingEvent(eventName) {
+    $(document).trigger(eventName);
+    $(document).trigger('cipapi-timing-event', eventName);
+  }
+  
   // On application initialization setup a time notification system
   $(document).on('cipapi-init', function(event) {
     setInterval(function() {
@@ -34,21 +42,21 @@
       var delta = thisTime - startTime;
 
       $(document).trigger('cipapi-timing-1sec');
-      if (0 == delta % 5)      { $(document).trigger('cipapi-timing-5sec');   }
-      if (0 == delta % 10)     { $(document).trigger('cipapi-timing-10sec');  }
-      if (0 == delta % 15)     { $(document).trigger('cipapi-timing-15sec');  }
-      if (0 == delta % 30)     { $(document).trigger('cipapi-timing-30sec');  }
-      if (0 == delta % 60)     { $(document).trigger('cipapi-timing-1min');   }
-      if (0 == delta % 300)    { $(document).trigger('cipapi-timing-5min');   }
-      if (0 == delta % 600)    { $(document).trigger('cipapi-timing-10min');  }
-      if (0 == delta % 900)    { $(document).trigger('cipapi-timing-15min');  }
-      if (0 == delta % 1800)   { $(document).trigger('cipapi-timing-30min');  }
-      if (0 == delta % 3600)   { $(document).trigger('cipapi-timing-1hour');  }
-      if (0 == delta % 7200)   { $(document).trigger('cipapi-timing-2hour');  }
-      if (0 == delta % 14400)  { $(document).trigger('cipapi-timing-4hour');  }
-      if (0 == delta % 28800)  { $(document).trigger('cipapi-timing-8hour');  }
-      if (0 == delta % 57600)  { $(document).trigger('cipapi-timing-12hour'); }
-      if (0 == delta % 115200) { $(document).trigger('cipapi-timing-1day');   }
+      if (0 == delta % 5)      { triggerTimingEvent('cipapi-timing-5sec');   }
+      if (0 == delta % 10)     { triggerTimingEvent('cipapi-timing-10sec');  }
+      if (0 == delta % 15)     { triggerTimingEvent('cipapi-timing-15sec');  }
+      if (0 == delta % 30)     { triggerTimingEvent('cipapi-timing-30sec');  }
+      if (0 == delta % 60)     { triggerTimingEvent('cipapi-timing-1min');   }
+      if (0 == delta % 300)    { triggerTimingEvent('cipapi-timing-5min');   }
+      if (0 == delta % 600)    { triggerTimingEvent('cipapi-timing-10min');  }
+      if (0 == delta % 900)    { triggerTimingEvent('cipapi-timing-15min');  }
+      if (0 == delta % 1800)   { triggerTimingEvent('cipapi-timing-30min');  }
+      if (0 == delta % 3600)   { triggerTimingEvent('cipapi-timing-1hour');  }
+      if (0 == delta % 7200)   { triggerTimingEvent('cipapi-timing-2hour');  }
+      if (0 == delta % 14400)  { triggerTimingEvent('cipapi-timing-4hour');  }
+      if (0 == delta % 28800)  { triggerTimingEvent('cipapi-timing-8hour');  }
+      if (0 == delta % 57600)  { triggerTimingEvent('cipapi-timing-12hour'); }
+      if (0 == delta % 115200) { triggerTimingEvent('cipapi-timing-1day');   }
     }, 1000);
   });
 
@@ -71,7 +79,8 @@
     if (timingEvent == 'cipapi-timing-8hour')  { return elapsedTime > 28800; }
     if (timingEvent == 'cipapi-timing-12hour') { return elapsedTime > 57600; }
     if (timingEvent == 'cipapi-timing-1day')   { return elapsedTime > 115200; }
-    
+    if (timingEvent == 'cipapi-timing-never')  { return false; }
+
     // Assume better to return true because a typo in a configuration could completely lock out updates!
     log.error("Unknown timing event: " + timingEvent);
     return true;

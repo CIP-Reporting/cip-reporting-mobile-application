@@ -25,8 +25,6 @@
   var log = log4javascript.getLogger("CIPAPI.login");
 
   // May be provided by a schema URL open...
-  var passwordFromURL = false;
-  
   $(document).on('cipapi-handle-login', function(event, info) {
     renderLoginScreen(info);
   });
@@ -191,18 +189,8 @@
     $('input#form-signin-pass').val(credentials.pass);
     $('input#form-signin-pass-proxy').val(credentials.pass);
     
-    // See if a password was provided by schema URL, if so - run with it!
-    if (typeof passwordFromURL == 'string') {
-      log.debug("Password provided from external schema URL - going for it!");
-      $('input#form-signin-pass').val(passwordFromURL);
-      $('input#form-signin-pass-proxy').val(passwordFromURL);
-      $('#form-account-password').fadeIn(100, function() {
-        $('button#form-signin-proxy').click();
-      });
-    } else {
-      log.debug("Rendering account lookup screen");
-      $('#form-account-lookup').fadeIn(100);
-    }
+    log.debug("Rendering account lookup screen");
+    $('#form-account-lookup').fadeIn(100);
     
     // Controls to flip flop sign in mode
     $('a#form-signin-manual' ).click(function () { slideInForm('form-manual-sign-in');   });
@@ -264,6 +252,7 @@
             if (typeof cfg[0].profile  == 'undefined') throw "Invalid Profile";
             if (typeof cfg[0].password == 'undefined') throw "Invalid Password";
             if (typeof cfg[0].sso      == 'undefined') throw "Invalid SSO";
+            if (typeof cfg[0].fastsso  == 'undefined') throw "Invalid Fast SSO";
 
             // Lookup successful!
             log.debug("Look up response validated");
@@ -289,8 +278,24 @@
                 save: true
               };
               CIPAPI.credentials.set(credentials);
-              
-              slideInForm('form-sso-pw');
+
+              if (cfg[0].fastsso) {
+                log.debug("Using fast SSO method");
+                var passwordURL = $('input#form-signin-host').val() + '/sso?mobilepw=auto';
+                var passwordWindow = window.open(passwordURL, '_cipmobilepw', 'location=no');
+                passwordWindow.addEventListener('loadstop', function(event) {
+                  var matches = event.url.match(/^about.blank.p=(.*)$/);
+                  if (matches) {
+                    passwordWindow.close();
+                    $('input#form-signin-pass-proxy').val(Base64.decode(matches[1]));
+                    $('button#form-signin-proxy').click();
+                  }
+                });
+
+                slideInForm('form-account-password'); 
+              } else {              
+                slideInForm('form-sso-pw');
+              }
             } else {
               log.debug("Showing password prompt");
               slideInForm('form-account-password');
@@ -335,17 +340,18 @@
     $('button#form-create-pw').on('click', function(evt) {
       evt.preventDefault(); // Stop the form from submitting and causing a page reload
       
-      var passwordURL = $('input#form-signin-host').val() + '/sso?mobilepw=1';
-      
-      var passwordWindow = window.open(passwordURL, '_system');
-      
-      // iOS and browser just go to account password screen, but android exits
-      setTimeout(function() { 
-        slideInForm('form-account-password'); 
-        if (window.cordova) {
-          navigator.app.exitApp();
+      var passwordURL = $('input#form-signin-host').val() + '/sso?mobilepw=prompt';
+      var passwordWindow = window.open(passwordURL, '_cipmobilepw', 'location=no');
+      passwordWindow.addEventListener('loadstop', function(event) {
+        var matches = event.url.match(/^about.blank.p=(.*)$/);
+        if (matches) {
+          passwordWindow.close();
+          $('input#form-signin-pass-proxy').val(Base64.decode(matches[1]));
+          $('button#form-signin-proxy').click();
         }
-      }, 2000);
+      });
+      
+      slideInForm('form-account-password');
     });
     
     // Log In Click Handler    
@@ -375,20 +381,6 @@
       $('button#form-signin').prop('disabled', true);
       $('a#form-account-lookup').hide();
     });
-  }
-
-  // Handle URL schema opens
-  window.handleOpenURL = function(url) {
-    var parsedURL = $.url(url);
-    var password = parsedURL.param('p');
-    
-    if (typeof password == 'undefined') {
-      log.debug("Opened by URL schema but no password provided");
-      return;
-    }
-    
-    log.debug("Opened by URL and password is provided, setting into credentials");
-    passwordFromURL = password;
   }
   
 })(window);

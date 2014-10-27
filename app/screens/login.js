@@ -101,6 +101,18 @@
     }
   }
 
+  // Helper to generate a GUID
+  function generateGUID() {
+    function s4() {
+      return Math.floor((1 + Math.random()) * 0x10000)
+                 .toString(16)
+                 .substring(1);
+    }
+    
+    return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+           s4() + '-' + s4() + s4() + s4();
+  }  
+  
   // Show the forms
   function renderLogin() {
     var html = '' +
@@ -281,16 +293,22 @@
 
               if (cfg[0].fastsso) {
                 log.debug("Using fast SSO method");
-                var passwordURL = $('input#form-signin-host').val() + '/sso?mobilepw=auto';
-                var passwordWindow = window.open(passwordURL, '_cipmobilepw', 'location=no');
-                passwordWindow.addEventListener('loadstop', function(event) {
-                  var matches = event.url.match(/^about.blank.p=(.*)$/);
-                  if (matches) {
-                    passwordWindow.close();
-                    $('input#form-signin-pass-proxy').val(Base64.decode(matches[1]));
-                    $('button#form-signin-proxy').click();
-                  }
-                });
+                var passwordURL = $('input#form-signin-host').val() + '/sso?mobilepw=auto&g=' + generateGUID();
+                var passwordWindow = window.open(passwordURL, '_cipmobilepw', 'location=no,clearcache=yes,clearsessioncache=yes,toolbar=no');
+                if (passwordWindow) {
+                  passwordWindow.addEventListener('loadstop', function(event) {
+                    log.debug("InAppBrowser loadstop: " + event.url);
+                    if (event.url.match(/done.php$/)) {
+                      passwordWindow.executeScript({ code: 'document.title' }, function(values) {
+                        var encodedPassword = values[0];
+                        log.debug("Encoded password: " + encodedPassword);
+                        passwordWindow.close();
+                        $('input#form-signin-pass-proxy').val(Base64.decode(encodedPassword));
+                        $('button#form-signin-proxy').click();
+                      });
+                    }
+                  });
+                }
 
                 slideInForm('form-account-password'); 
               } else {              
@@ -340,14 +358,18 @@
     $('button#form-create-pw').on('click', function(evt) {
       evt.preventDefault(); // Stop the form from submitting and causing a page reload
       
-      var passwordURL = $('input#form-signin-host').val() + '/sso?mobilepw=prompt';
-      var passwordWindow = window.open(passwordURL, '_cipmobilepw', 'location=no');
+      var passwordURL = $('input#form-signin-host').val() + '/sso?mobilepw=prompt&g=' + generateGUID();
+      var passwordWindow = window.open(passwordURL, '_cipmobilepw', 'location=no,clearcache=yes,clearsessioncache=yes,toolbar=no');
       passwordWindow.addEventListener('loadstop', function(event) {
-        var matches = event.url.match(/^about.blank.p=(.*)$/);
-        if (matches) {
-          passwordWindow.close();
-          $('input#form-signin-pass-proxy').val(Base64.decode(matches[1]));
-          $('button#form-signin-proxy').click();
+        log.debug("InAppBrowser loadstop: " + event.url);
+        if (event.url.match(/done.php$/)) {
+          passwordWindow.executeScript({ code: 'document.title' }, function(values) {
+            var encodedPassword = values[0];
+            log.debug("Encoded password: " + encodedPassword);
+            passwordWindow.close();
+            $('input#form-signin-pass-proxy').val(Base64.decode(encodedPassword));
+            $('button#form-signin-proxy').click();
+          });
         }
       });
       

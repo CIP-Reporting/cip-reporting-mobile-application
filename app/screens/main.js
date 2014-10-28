@@ -73,6 +73,9 @@
     else {
       CIPAPI.router.goTo('main', { action: 'list' });
     }
+
+    // Scroll to the top!
+    window.scrollTo(0, 0);
   }
 
   // Render form list
@@ -169,9 +172,6 @@
     // Give camera and library access links a make over if present
     $('a.cipform_image_from_camera').addClass('btn btn-primary btn-md btn-custom cipform-real-camera').html('<span class="glyphicon glyphicon-camera"></span> From Camera');
     $('a.cipform_image_from_library').addClass('btn btn-primary btn-md btn-custom cipform-real-camera').html('<span class="glyphicon glyphicon-picture"></span> From Library');
-    
-    // Scroll to the top!
-    window.scrollTo(0, 0);
   }
 
 })(window);

@@ -145,6 +145,9 @@
           onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'date'); }
     }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
 
+    // Deal with selects that have no default value
+    $(formSelector + ' .cipform_empty_value select').prop('selectedIndex', -1);
+
     // Set default times and dates - for now just set them all but some day when we get to
     // editing reports via this interfae we will need to understand new vs. edit.
     var isNewReport = true;

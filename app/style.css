@@ -78,7 +78,7 @@ i#navbar-pending-reports {
 }
 
 /* Position fixed CSS workaround for iOS */
-.fixfixed .navbar { 
+.navbar { 
   position: absolute; 
 } 
 

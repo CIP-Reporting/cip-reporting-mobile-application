@@ -285,22 +285,4 @@
     $('#cipapi-screen-overlay').hide();
   });
 
-  // Bootstrap position fixed navbar teleports all over the place on iOS when the virtual keyboard opens.
-  // Fix this using the technique described here:
-  //
-  //  http://dansajin.com/2012/12/07/fix-position-fixed
-  //
-  // There is CSS to support this as well...
-  $(document).on('focus', 'input', function(e) {
-    $('body').addClass('fixfixed');
-  }).on('blur', 'input', function(e) {
-    $('body').removeClass('fixfixed');
-  });
-  
-  $(document).on('focus', 'textarea', function(e) {
-    $('body').addClass('fixfixed');
-  }).on('blur', 'textarea', function(e) {
-    $('body').removeClass('fixfixed');
-  });
-
 })(window);

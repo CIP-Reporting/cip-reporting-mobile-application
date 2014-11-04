@@ -27,7 +27,8 @@
   <preference name="webviewbounce"              value="true" />           <!-- ios: control whether the screen 'bounces' when scrolled beyond the top -->
   <preference name="prerendered-icon"           value="true" />           <!-- ios: if icon is prerendered, iOS will not apply it's gloss to the app's icon on the user's home screen -->
   <preference name="ios-statusbarstyle"         value="black-opaque" />   <!-- ios: black-translucent will appear black because the PhoneGap webview doesn't go beneath the status bar -->
-  <preference name="android-minSdkVersion"      value="7" />              <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
+  <preference name="android-minSdkVersion"      value="11" />             <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
+  <preference name="android-targetSdkVersion"   value="14" />             <!-- android: Target SDK version supported on the target device. -->
   <preference name="android-installLocation"    value="auto" />           <!-- android: app install location. 'auto' will choose. 'internalOnly' is device memory. 'preferExternal' is SDCard. -->
   
   <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->

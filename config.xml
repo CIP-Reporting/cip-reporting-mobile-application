@@ -2,7 +2,7 @@
 <widget xmlns = "http://www.w3.org/ns/widgets"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.3667">
+  version = "1.0.3698">
 
   <name>CIP Reporting</name>
 
@@ -38,13 +38,16 @@
   <feature name="http://api.phonegap.com/1.0/notification"/>
   <feature name="http://api.phonegap.com/1.0/device"/>
   
-  <!-- Plugins -->
+  <!-- In-Use Plugins -->
   <gap:plugin name="org.apache.cordova.camera" />
   <gap:plugin name="org.apache.cordova.device" />
   <gap:plugin name="org.apache.cordova.file" />
   <gap:plugin name="org.apache.cordova.geolocation" />
   <gap:plugin name="org.apache.cordova.splashscreen" />
   <gap:plugin name="org.apache.cordova.vibration" />
+  <gap:plugin name="org.apache.cordova.inappbrowser" />
+
+  <!-- Not Used Plugins
   <gap:plugin name="org.apache.cordova.battery-status" />
   <gap:plugin name="org.apache.cordova.media-capture" />
   <gap:plugin name="org.apache.cordova.contacts" />
@@ -55,8 +58,8 @@
   <gap:plugin name="org.apache.cordova.globalization" />
   <gap:plugin name="org.apache.cordova.console" />
   <gap:plugin name="org.apache.cordova.network-information" />
-  <gap:plugin name="org.apache.cordova.inappbrowser" />
   <gap:plugin name="org.apache.cordova.media" />
+  -->
 
   <!-- Custom URL Schema -->
   <gap:plugin name="nl.x-services.plugins.launchmyapp">

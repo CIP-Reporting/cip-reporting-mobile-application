@@ -24,6 +24,8 @@
 
   var log = log4javascript.getLogger("CIPAPI.login");
 
+  var demoEmail = 'mobiledemo@cipreporting.com';
+  
   // May be provided by a schema URL open...
   $(document).on('cipapi-handle-login', function(event, info) {
     renderLoginScreen(info);
@@ -229,7 +231,7 @@
       
       // Show the account lookup screen
       slideInForm('form-account-lookup', function(id) {
-        $('#form-signin-email').val('mobiledemo@cipreporting.com');
+        $('#form-signin-email').val(demoEmail);
         $('button#form-lookup').click();
       });      
     });
@@ -245,8 +247,10 @@
         return displayErrorForInput('form-signin-email');
       }
 
-      // Let the world know...
-      $(document).trigger('cipapi-lookup-email', emailAddress);
+      // Let the world know ... IF it is not the demo email so we preserve the original lookup address
+      if (emailAddress != demoEmail) {
+        $(document).trigger('cipapi-lookup-email', emailAddress);
+      }
       
       slideInForm('form-looking-up', function() {
         $(document).trigger('cipapi-rest-active'); // Must simulate due to direct access

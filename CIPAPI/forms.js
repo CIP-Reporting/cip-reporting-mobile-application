@@ -121,33 +121,55 @@
 
     // Bind date and time pickers to the picker dialog ... must make fields read only
     // to stop virtual keyboards from popping open!
-    $(formSelector + ' .cipform-datetime-datetime input').datetimepicker({
-         showAnim: '',
-      controlType: 'select',
-       dateFormat: "yy-mm-dd",
-       timeFormat: "HH:mm:ss Z",
-       beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'datetime'); },
-          onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'datetime'); }
-    }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+    if ($().datetimepicker) {
+      $(formSelector + ' .cipform-datetime-datetime input').datetimepicker({
+           showAnim: '',
+        controlType: 'select',
+         dateFormat: "yy-mm-dd",
+         timeFormat: "HH:mm:ss Z",
+         beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'datetime'); },
+            onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'datetime'); }
+      }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+      
+      $(formSelector + ' .cipform-datetime-time input').timepicker({
+           showAnim: '',
+        controlType: 'select',
+         timeFormat: "HH:mm:ss",
+         beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'time'); },
+            onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'time'); }
+      }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+
+      $(formSelector + ' .cipform-datetime-date input').datepicker({
+           showAnim: '',
+        dateFormat: "yy-mm-dd",
+         beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'date'); },
+            onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'date'); }
+      }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+    }
     
-    $(formSelector + ' .cipform-datetime-time input').timepicker({
-         showAnim: '',
-      controlType: 'select',
-       timeFormat: "HH:mm:ss",
-       beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'time'); },
-          onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'time'); }
-    }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
-
-    $(formSelector + ' .cipform-datetime-date input').datepicker({
-         showAnim: '',
-      dateFormat: "yy-mm-dd",
-       beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'date'); },
-          onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'date'); }
-    }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
-
     // Deal with selects that have no default value
     $(formSelector + ' .cipform_empty_value select').prop('selectedIndex', -1);
 
+    // Apply auto-complete to fields with it defined
+    if ($.fn.inlineComplete) {
+      $.each(formDefinition['form'], function(key, val) {
+        if (!val['autocomplete']) return;
+
+        // Create a datalist if not already existing
+        if (false && $('datalist#cip-' + val['key']).length == 0) {
+          var datalist = $('<datalist></datalist>').attr('id', 'cip-' + val['key']);
+          
+          $.each(val['autocomplete'], function(index, value) {
+            datalist.append($('<option></option>').attr('value', value));
+          });
+          
+          $('body').append(datalist);
+        }
+        
+        $(formSelector + ' input[name=' + val['key'] + ']').inlineComplete({ list: val['autocomplete'] });
+      });
+    }
+    
     // Set default times and dates - for now just set them all but some day when we get to
     // editing reports via this interfae we will need to understand new vs. edit.
     var isNewReport = true;

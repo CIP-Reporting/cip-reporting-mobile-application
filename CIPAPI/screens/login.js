@@ -50,7 +50,8 @@
         host: $('input#form-signin-host').val().trim(),
         user: $('input#form-signin-user').val().trim(),
         pass: $('input#form-signin-pass').val().trim(),
-        save: $('input#form-signin-remember').is(':checked')
+        save: $('input#form-signin-remember').is(':checked'),
+        token: null
       };
 
       if (credentials.host === '' ||

@@ -56,7 +56,7 @@
   });
   
   // Store a report  
-  CIPAPI.reportstore.storeReport = function(reportData) {
+  CIPAPI.reportstore.storeReport = function(reportData, silent) {
     var storageKey = 'CIPAPI.reportstore.' + CIPAPI.credentials.getCredentialHash();
     
     var reportStore = null;
@@ -74,8 +74,10 @@
 
     log.debug("Stored new report");
     
+    if (silent) return; // Throw no events
+    
     // Let the world know...
-    $(document).trigger('cipapi-reportstore-add');
+    $(document).trigger('cipapi-reportstore-add', { reportData: reportData });
     $(document).trigger('cipapi-reportstore-change');
   }
 
@@ -154,6 +156,7 @@
         
         CIPAPI.rest.post({
           url: reportStore[0].destinationURL,
+          query: reportStore[0].destinationQuery,
           data: formData,
           success: function(response) {
             CIPAPI.stats.timestamp(statsGroup, 'Last Success');

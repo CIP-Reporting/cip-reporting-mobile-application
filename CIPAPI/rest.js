@@ -41,7 +41,7 @@
   });
 
   // Iterate known API parameters and compose the query string
-  function encodeApiParameters(opts) {
+  function encodeApiParameters(opts, token) {
     var params = [];
     
     if (typeof opts.sort == 'string') {
@@ -54,6 +54,18 @@
     
     if (Object.prototype.toString.call(opts.fields) === '[object Array]') {
       params.push('fields=' + opts.fields.join(','));
+    }
+
+    if (token) {
+      params.push('token=' + token);
+    }
+    
+    if (typeof opts.offset == 'number' || typeof opts.offset == 'string') {
+      params.push('offset=' + escape(opts.offset));
+    }
+    
+    if (typeof opts.query == 'string') {
+      params.push('query=' + escape(opts.query))
     }
     
     return params.length == 0 ? '' : '?' + params.join('&');
@@ -82,7 +94,7 @@
   // Encode the basic auth header
   CIPAPI.rest.encodeBasicAuth = function(user, password) {
     var tok = user + ':' + password;
-    var hash = btoa(tok);
+    var hash = Base64.encode(tok);
     return "Basic " + hash;
   }
 
@@ -97,7 +109,7 @@
 
     return $.ajax({
       type: "GET",
-      url: credentials.host + opts.url + '.js' + encodeApiParameters(opts),
+      url: credentials.host + opts.url + '.js' + encodeApiParameters(opts, credentials.token),
       dataType: 'json',
       success: opts.success,
       complete: opts.complete,
@@ -109,7 +121,7 @@
     });
   }
   
-  // post  
+  // POST  
   CIPAPI.rest.post = function(opts) {
     $(document).trigger('cipapi-rest-active');
     CIPAPI.stats.count(statsGroup, 'Total POST');
@@ -123,7 +135,7 @@
       processData: false, // Needed for ajax file upload
       contentType: false, // Needed for ajax file upload
       data: opts.data,
-      url: credentials.host + opts.url + '.js' + encodeApiParameters(opts),
+      url: credentials.host + opts.url + '.js' + encodeApiParameters(opts, credentials.token),
       dataType: 'json',
       success: opts.success,
       complete: opts.complete,

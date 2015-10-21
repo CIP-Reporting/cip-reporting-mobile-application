@@ -67,7 +67,7 @@
     <script src="js/plugins/LaunchMyApp.js"></script>
     
     <!-- External librarys - jQuery, Bootstrap, log4javascript, etc. -->
-    <script src="./lib/jquery-2.0.3.js"></script>
+    <script src="./lib/jquery-1.11.1.min.js"></script>
     <script src="./lib/jsonform-bootstrap3/deps/underscore.js"></script>
     <script src="./lib/jsonform-bootstrap3/deps/opt/jsv.js"></script>
 		<script src="./lib/jquery-ui-1.11.2/jquery-ui.min.js"></script>
@@ -141,6 +141,8 @@
     <script src="./CIPAPI/me.js"></script>
     <script src="./CIPAPI/forms.js"></script>
     <script src="./CIPAPI/mime.js"></script>
+    <script src="./CIPAPI/translations.js"></script>
+    <script src="./CIPAPI/uuid.js"></script>
 
     <!-- Application Screens -->
     <script src="./CIPAPI/screens/logout.js"></script>
@@ -157,6 +159,7 @@
     <script src="./app/lib/geolocation.js"></script>
     <script src="./app/lib/device.js"></script>
     <script src="./app/lib/navbar.js"></script>
+    <script src="./app/lib/casestore.js"></script>
     
     <!-- Customer Provided -->
     <script src="./app/customize/js/custom.js"></script>
@@ -165,7 +168,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-            applicationVersion: '1.0.3698',                     // Set by the packaging script to know our own version
+            applicationVersion: '1.0.3967',                     // Set by the packaging script to know our own version
            overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
         reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
               reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -177,16 +180,17 @@
                persistSettings: true,                               // Store settings in local storage to avoid start up network access
                      persistMe: true,                               // Store config in local storage to avoid start up network access
                   persistForms: true,                               // Store forms in local storage to avoid start up network access
+              notifyReportSync: true,                               // Show bootbox notification when reports are successfully sync'd to the server
                  usePreciseGPS: false,                              // Use precise GPS tracking or false for location approximation
-                      apiForms: { },                                // Should most likely be loaded from the config override integration
+                  useSingleURL: false,                              // Use a single API URL for config and form interactions
+                  caseModeForm: false,                              // Can be set to the name of a form to put the mobile application into case mode
+            caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
+                      apiForms: { }                                 // Should most likely be loaded from the config override integration
                                                                     // In the form of the key is the form integration and the value is the
                                                                     // friendly name to display on the button.  The order controls the order
                                                                     // of the buttons.  Example:
                                                                     //
                                                                     // apiForms: { 'Test Form': 'Create a Test Form', 'New Form': 'Create a New Form' }
-         // Customize the text on the main report list screen
-               reportListTitle: 'Submit a Report',
-         reportListDescription: 'To submit a report select and complete one of these available forms:'
       });
       
       // Are we running in native app or in a browser?

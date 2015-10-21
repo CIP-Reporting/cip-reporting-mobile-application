@@ -33,7 +33,7 @@
     // Draw the map    
     log.debug("Max distance: " + maxDistance + " miles");
     log.debug("Home Latitude: " + CIPAPI.settings.LATITUDEDEF + ", Home Longitude: " + CIPAPI.settings.LONGITUDEDEF);
-    var apiKey  = "AqTGBsziZHIJYYxgivLBf0hVdrAk9mWO5cQcb8Yux8sW5M8c8opEC2lZqKR1ZZXf";
+    var apiKey  = "TBD";
     var map = new OpenLayers.Map(mapId, {
       controls: [ 
         new OpenLayers.Control.MousePosition({ displayProjection: new OpenLayers.Projection("EPSG:4326") }),
@@ -44,6 +44,9 @@
     var road = new OpenLayers.Layer.Bing({ key: apiKey, type: "Road" });
     var markerLayer = new OpenLayers.Layer.Markers("Markers", { srs: 'epsg:4326' });
     map.addLayers([road, markerLayer]);
+
+    // Add manual controls
+    map.addControl(new OpenLayers.Control.PanZoomBar());
 
     // Figure out the best zoom level and then center US using that zoom    
     var bestFit = 0;

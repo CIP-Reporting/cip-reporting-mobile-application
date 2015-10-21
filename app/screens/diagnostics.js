@@ -45,8 +45,8 @@
     var html = '';
   
     html += '' +
-      '<a id="cipapi-view-logs" href="#logger" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-list-alt"></span> View Logs</a>' +
-      '<a id="cipapi-factory-reset" href="javascript: void(0)" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-trash"></span> Factory Reset</a>';
+      '<a id="cipapi-view-logs" href="#logger" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-list-alt"></span> ' + CIPAPI.translations.translate('View Logs') + '</a>' +
+      '<a id="cipapi-factory-reset" href="javascript: void(0)" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-trash"></span> ' + CIPAPI.translations.translate('Factory Reset') + '</a>';
 
     $.each(CIPAPI.stats.fetch(), function(key, val) {
       html += formatKVPObject(key, val);
@@ -57,11 +57,11 @@
     // Kaboom!
     $('a#cipapi-factory-reset').click(function() {
       bootbox.dialog({
-        message: "WARNING: You will lose any stored data and be required to repeat your authentication process!",
-        title: "Factory Reset",
+        message: CIPAPI.translations.translate('WARNING: You will lose any stored data and be required to repeat your authentication process!'),
+        title: CIPAPI.translations.translate('Factory Reset'),
         buttons: {
           danger: {
-            label: "Factory Reset",
+            label: CIPAPI.translations.translate('Factory Reset'),
             className: "btn-danger",
             callback: function() {
               localStorage.clear();
@@ -69,7 +69,7 @@
             }
           },
           main: {
-            label: "Cancel",
+            label: CIPAPI.translations.translate('Cancel'),
             className: "btn-primary btn-custom",
             callback: function() {
               bootbox.hideAll();

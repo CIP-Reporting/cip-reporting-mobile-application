@@ -95,7 +95,32 @@
     return canvas.toDataURL();
   }
   
-  CIPAPI.forms.Render = function(formDefinition, formSelector) {
+  CIPAPI.forms.AutoCompleteUSD = function() {
+    var input = this;
+    
+    var tmp = input.value.replace(/^\$/, '');
+    var pieces = tmp.split('.', 2);
+    if (!pieces[1]) pieces[1] = '0';
+    
+    var front = parseInt(pieces[0].replace(/\D/g, ''), 10);
+    if (isNaN(front)) front = 0;
+    var back = parseInt(pieces[1].replace(/\D/g, ''), 10);
+    if (isNaN(back)) back = 0;
+
+    if (back > 99)
+    {
+      var tmp = '' + back;
+      back = parseInt(tmp.substring(0, 2));
+    }
+    
+    var fixed = '$' + front + '.';
+    if (back < 10) fixed += '0';
+    fixed += '' + back;
+
+    input.value = fixed;  
+  }
+  
+  CIPAPI.forms.Render = function(formDefinition, formSelector, editExisting) {
     // Default form selector
     if (!formSelector) formSelector = 'form.form-cip-reporting';
     
@@ -103,11 +128,10 @@
     $(formSelector).append($('<div class="clearfix"></div>'));
     
     // Before form validation and submit we must perform some actions
-    //
-    // Fire the date filters on all date fields by forcing the blur event on them
-    // because rich HTML5 date fields never fire the onblur leaving the validation
-    // pattern to fail if the device doesn't happen to use the identical pattern.
-    //
+
+    // Give currency fields an auto-complete handler
+    $(formSelector + ' div.cipform_currency_custom_field input').blur(CIPAPI.forms.AutoCompleteUSD);
+    
     // For rich text editing we have to initialize and also hook onto the submit button
     // and move the content back into the text area for validation and delivery.
     $(formSelector + ' div.cipform_richtext_custom_field textarea').summernote({ height: 300 });
@@ -170,10 +194,8 @@
       });
     }
     
-    // Set default times and dates - for now just set them all but some day when we get to
-    // editing reports via this interfae we will need to understand new vs. edit.
-    var isNewReport = true;
-    if (isNewReport) {
+    // Set default times and dates for new reports - on edit leave them alone...
+    if (!editExisting) {
       var now = new Date();
       var yy = now.getFullYear();
       var mm = ('0' + (now.getMonth() + 1)).slice(-2);
@@ -324,5 +346,26 @@
     }
   }
   
+  CIPAPI.forms.hexToAscii = function(h) {
+    var hex = h.toString(); // Force conversion
+    var str = '';
+    
+    for (var i = 0; i < hex.length; i += 2) {
+      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    
+    return str;
+  }
+  
+  CIPAPI.forms.asciiToHex = function(a) {
+    var arr = [];
+  
+    for (var i = 0, l = a.length; i < l; i ++) {
+      var hex = Number(a.charCodeAt(i)).toString(16);
+      arr.push(hex);
+    }
+  
+    return arr.join('');    
+  }
 })(window);
 

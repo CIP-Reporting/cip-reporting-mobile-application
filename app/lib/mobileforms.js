@@ -58,7 +58,8 @@
     var requests = [];
     $.each(CIPAPI.config.apiForms, function(key, val) {
       requests.push(CIPAPI.rest.GET({ 
-        url: '/api/versions/current/integrations/' + escape(key), 
+        url: '/api/versions/current/integrations/' + escape(CIPAPI.config.useSingleURL ? CIPAPI.config.overrideIntegration : key),
+        query: CIPAPI.config.useSingleURL ? key : false,
         success: function(response) { 
           CIPAPI.mobileforms[key] = response.data.item[0].data;
           log.debug("Loaded Form: " + key);

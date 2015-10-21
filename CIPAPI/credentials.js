@@ -26,9 +26,17 @@
   var log = log4javascript.getLogger("CIPAPI.credentials");
 
   // Working credentials
-  var host = localStorage.getItem("host");
-  var user = localStorage.getItem("user");
-  var pass = localStorage.getItem("pass");
+  var host  = localStorage.getItem("host");
+  var user  = localStorage.getItem("user");
+  var pass  = localStorage.getItem("pass");
+  var token = localStorage.getItem("token");
+
+  // Local storage is often (if not always) converted to strings
+  if (host  === "null") host = null;
+  if (user  === "null") user = null;
+  if (pass  === "null") pass = null;
+  if (token === "null") token = null;
+
   var validated = localStorage.getItem("validated") === "true";
 
   var rememberCredentials = false;
@@ -79,22 +87,24 @@
 
   // Do we have a working credential set
   CIPAPI.credentials.areValid = function() {
-    return null !== host && null !== user && null !== pass && validated === true;
+    return true === validated && null !== host && (null !== token || (null !== user && null !== pass));
   }
 
   // Capture new credentials from login screen
   CIPAPI.credentials.set = function(credentials) {
-    host = credentials.host;
-    user = credentials.user;
-    pass = credentials.pass;
+    host  = credentials.host  ? credentials.host  : null;
+    user  = credentials.user  ? credentials.user  : null;
+    pass  = credentials.pass  ? credentials.pass  : null;
+    token = credentials.token ? credentials.token : null;
     validated = false;
 
     rememberCredentials = credentials.save;
     
     if (rememberCredentials) {
-      localStorage.setItem("host", host);
-      localStorage.setItem("user", user);
-      localStorage.setItem("pass", pass);
+      localStorage.setItem("host",  host);
+      localStorage.setItem("user",  user);
+      localStorage.setItem("pass",  pass);
+      localStorage.setItem("token", token);
       localStorage.setItem("validated", false);
 
       log.debug("Credentials set and saved");
@@ -102,31 +112,34 @@
       localStorage.removeItem("host");
       localStorage.removeItem("user");
       localStorage.removeItem("pass");
+      localStorage.removeItem("token");
       localStorage.removeItem("validated");
 
       log.debug("Credentials set temporarily");
     }
     
-    if (pass != '') {
+    if (pass != '' || token != '') {
       CIPAPI.credentials.verify();
     }
   }
   
   // Fetch credentials
   CIPAPI.credentials.get = function() {
-    return { host: host, user: user, pass: pass, validated: validated };
+    return { host: host, user: user, pass: pass, token: token, validated: validated };
   }
 
   // Clear credentials (logout)
   CIPAPI.credentials.reset = function() {
-    host = null;
-    user = null;
-    pass = null;
+    host  = null;
+    user  = null;
+    pass  = null;
+    token = null;
     validated = false;
 
     localStorage.removeItem("host");
     localStorage.removeItem("user");
     localStorage.removeItem("pass");
+    localStorage.removeItem("token");
     localStorage.removeItem("validated");
     
     log.debug("Credentials removed");
@@ -135,9 +148,10 @@
   
   // Allow external scripts to pre-load API credentials to be used upon init
   CIPAPI.credentials.preload = function(credentials) {
-    host = credentials.host;
-    user = credentials.user;
-    pass = credentials.pass;
+    host  = credentials.host;
+    user  = credentials.user;
+    pass  = credentials.pass;
+    token = credentials.token;
     validated = true;
   }
 

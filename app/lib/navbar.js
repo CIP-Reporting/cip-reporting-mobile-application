@@ -52,17 +52,17 @@
     if (CIPAPI.credentials.areValid()) {
       // If authenticated...
       html += '' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#main!action=list"><span class="glyphicon glyphicon-list-alt"></span> Report List</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" id="cipapi-server-synchronize" href="javascript: void(0)"><span class="glyphicon glyphicon-refresh"></span> Synchronize</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> Diagnostics</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> Sign Out</a></li>';
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#main!action=list"><span class="glyphicon glyphicon-list-alt"></span> ' + CIPAPI.translations.translate('Report List') + '</a></li>' +
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" id="cipapi-server-synchronize" href="javascript: void(0)"><span class="glyphicon glyphicon-refresh"></span> ' + CIPAPI.translations.translate('Synchronize') + '</a></li>' +
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> ' + CIPAPI.translations.translate('Help') + '</a></li>' +
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> ' + CIPAPI.translations.translate('Diagnostics') + '</a></li>' +
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> ' + CIPAPI.translations.translate('Sign Out') + '</a></li>';
     } else {
       // If not authenticated...
       html += '' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> Help</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> Diagnostics</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> Start Over</a></li>';
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> ' + CIPAPI.translations.translate('Help') + '</a></li>' +
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> ' + CIPAPI.translations.translate('Diagnostics') + '</a></li>' +
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> ' + CIPAPI.translations.translate('Start Over') + '</a></li>';
     }
     
     html += '' +
@@ -200,12 +200,17 @@
       navigator.vibrate(1000);
     }
     
+    if (CIPAPI.config.notifyReportSync === false) {
+      // No notification
+      return;
+    }
+    
     bootbox.dialog({
-      message: "All pending reports have been successfully sent",
-        title: "All Reports Sent",
+      message: CIPAPI.translations.translate('All pending reports have been successfully sent'),
+        title: CIPAPI.translations.translate('All Reports Sent'),
       buttons: {
         success: {
-              label: '<span class="glyphicon glyphicon-thumbs-up"></span> Success',
+              label: '<span class="glyphicon glyphicon-thumbs-up"></span> ' + CIPAPI.translations.translate('Success'),
           className: "btn btn-lg btn-primary btn-custom",
         }
       }

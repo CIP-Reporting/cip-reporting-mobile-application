@@ -33,7 +33,7 @@
     // Draw the map    
     log.debug("Max distance: " + maxDistance + " miles");
     log.debug("Home Latitude: " + CIPAPI.settings.LATITUDEDEF + ", Home Longitude: " + CIPAPI.settings.LONGITUDEDEF);
-    var apiKey  = "TBD";
+    var apiKey  = "Ah5DaQHi1c4nWh7fW7b-CLUh0_PxcW6V1gwJCoKaBwl4TG1Vbx5-1TFWkHRgdanB";
     var map = new OpenLayers.Map(mapId, {
       controls: [ 
         new OpenLayers.Control.MousePosition({ displayProjection: new OpenLayers.Projection("EPSG:4326") }),

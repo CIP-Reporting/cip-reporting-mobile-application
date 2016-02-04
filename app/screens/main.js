@@ -109,6 +109,28 @@
     return n + '-' + d + '-' + y + ' ' + h + ":" + m + ":" + s;
   }
   
+  function getCaseHeadingField(caseRecord, fieldName) {
+    // See if the form key is specified explicitly
+    var formVal = caseRecord.reportData.serializedData[fieldName];
+    if (formVal) return formVal;
+
+    // Try standard form key
+    var formKey = CIPAPI.forms.asciiToHex(fieldName);
+    formVal = caseRecord.reportData.serializedData[formKey];
+    if (formVal) return formVal;
+    
+    // If not, try and find form key that starts with this form key
+    formVal = CIPAPI.translations.translate('N/A');
+    $.each(caseRecord.reportData.serializedData, function(key, val) {
+      if (key.indexOf(formKey) > -1) {
+        formVal = val;
+        return false;
+      }
+    });
+    
+    return formVal;
+  }
+  
   var currentCaseUUID = false;
   function renderCase(caseOffset, buttonCollection) {
     log.debug("Rendering case at offset " + caseOffset);
@@ -123,11 +145,11 @@
     
     var caseRecord = cases[caseOffset];
     // Generate a title
-    var caseHeader = $('<div class="col-xs-12"></div>');    
+    var caseHeader = $('<div class="col-xs-12 casehdr"></div>');    
     $.each(CIPAPI.config.caseModeListFields, function(fieldKey, fieldName) {
       var headingTag = 'h' + Math.min(5, fieldKey + 2);
       var caseHeading = $('<' + headingTag + '></' + headingTag + '>');
-      caseHeading.text(caseRecord.reportData.serializedData[CIPAPI.forms.asciiToHex(fieldName)]);
+      caseHeading.text(getCaseHeadingField(caseRecord, fieldName));
       caseHeader.append(caseHeading);
     });
 
@@ -251,11 +273,7 @@
       $.each(CIPAPI.config.caseModeListFields, function(fieldKey, fieldName) {
         var hTag = 'h' + Math.min(hLevel++, 5)
         var caseSpan = $('<' + hTag + '></' + hTag + '>');
-        if (caseRecord.reportData.serializedData[CIPAPI.forms.asciiToHex(fieldName)]) {
-          caseSpan.text(caseRecord.reportData.serializedData[CIPAPI.forms.asciiToHex(fieldName)]);
-        } else {
-          caseSpan.html('&nbsp;');
-        }
+        caseSpan.text(getCaseHeadingField(caseRecord, fieldName));
         caseLnk.append(caseSpan);
       });
       

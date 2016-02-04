@@ -50,7 +50,7 @@
     if (typeof config.summaryClass  == 'undefined') config.summaryClass  = 'logview-summary';
     if (typeof config.dragOutTimer  == 'undefined') config.dragOutTimer  = false; // Read only
     if (typeof config.query         == 'undefined') config.query         = false; // No query by default
-    
+    if (typeof config.wellnessCheck == 'undefined') config.wellnessCheck = false;
     
     // Helper function to pad digits for proper sorting
     // 'sort_10_a' < 'sort_9_a' would be incorrect; need it to be 'sort_10_a' < 'sort_09_a'
@@ -62,7 +62,7 @@
 
     // Helper function to clean a field name for API use
     function cleanFieldName(fieldName) {
-      return fieldName.replace(/\W/, '_').toLowerCase();
+      return fieldName.replace(/\W+/g, '_').toLowerCase();
     }
     
     // Helper function to clean up and merge the field lists
@@ -98,24 +98,63 @@
       var updateGuid = config.guid + '_ug_' + Math.random().toString(16).slice(2);
       log.debug("Updating log view " + config.name + ' (' + updateGuid + ')');
       
+      // Get or create the pagination controls
+      var pgn = $(config.selector + ' > div.logview-pagination');
+      
+      if (pgn.length != 1) {
+        log.debug("Pagination controls do not exist - creating...");
+        
+        pgn = $('<div class="logview-pagination"></div>');
+        var innerPgn = $('<div></div>');
+        
+        innerPgn.append('<i class="fa fa-step-backward logview-first"></i>');
+        innerPgn.append('<i class="fa fa-play fa-rotate-180 logview-previous"></i>');
+        innerPgn.append('<span class="logview-counts">0 - 0 / 0</span>');
+        innerPgn.append('<i class="fa fa-play logview-next"></i>');
+        innerPgn.append('<i class="fa fa-step-forward logview-last"></i>');
+        
+        pgn.append(innerPgn);
+        
+        function maxOffset() { return config.total - (config.total % parseInt(CIPAPI.settings.ITEMSPERPAGE, 10)); }
+        
+        pgn.find('i.logview-first').click(function()    { config.offset = 0; config.refresh(config.update); });
+        pgn.find('i.logview-previous').click(function() { config.offset = Math.max(config.offset - parseInt(CIPAPI.settings.ITEMSPERPAGE, 10), 0); config.refresh(config.update); });
+        pgn.find('i.logview-next').click(function()     { config.offset = Math.min(config.offset + parseInt(CIPAPI.settings.ITEMSPERPAGE, 10), maxOffset()); config.refresh(config.update); });
+        pgn.find('i.logview-last').click(function()     { config.offset = maxOffset(); config.refresh(config.update); });
+      }
+      
+      // Update the totals
+      var offset = parseInt(config.viewData.metadata.pagination.offset, 10);
+      var count  = parseInt(config.viewData.metadata.pagination.count,  10);
+      var total  = parseInt(config.viewData.metadata.pagination.total,  10);
+      var extra  = total == 0 ? 0 : 1;
+      
+      pgn.find('span.logview-counts').text((offset + extra) + ' - ' + (offset + count) + ' / ' + total);
+      
       // Get or create the view table
-      var tbl = $(config.selector + ' > table');
+      var tbl = $(config.selector + ' > div > table.table-striped-doublerow');
 
       if (tbl.length != 1) {
         log.debug("View table does not exist - creating...");
-        tbl = $('<table class="table-striped-doublerow"></table>');
+        tbl = $('<table class="table-striped-doublerow new-logview-table"></table>');
+        var thd = $('<thead></thead>');
         
         if (config.header) {
-          var tr  = $('<tr></tr>');
+          var tr = $('<tr></tr>');
       
           for (var i=0; i<config.columnFields.length; i++) {
             var th = $('<th></th>').text(config.columnFields[i]);
             tr.append(th);
           }
       
-          tbl.append(tr);
+          thd.append(tr);
         }
+        
+        tbl.append(thd);
+        tbl.append('<tbody></tbody>');
       }
+      
+      var tbd = tbl.find('> tbody'); // Get the tbody in the table
       
       // Add (if necessary), update rows, delete abandoned rows, and sort
       var items = config.viewData.data.item;
@@ -124,10 +163,11 @@
       var maxDigits = items.length.toString().length;
      
       for (var j=0; j<items.length; j++) {
-        var rowGrp = config.guid + '_rg_' + Math.random().toString(16).slice(2);
-        var row1ID = config.guid + '_ri_' + items[j]['data']['id'] + '_1';
-        var row2ID = config.guid + '_ri_' + items[j]['data']['id'] + '_2';
-        var numCol = config.columnFields.length;
+        var rowGrp  = config.guid + '_rg_' + Math.random().toString(16).slice(2);
+        var row1ID  = config.guid + '_ri_' + items[j]['data']['id'] + '_1';
+        var row2ID  = config.guid + '_ri_' + items[j]['data']['id'] + '_2';
+        var numCol  = config.columnFields.length;
+        var percent = 100 / numCol;
         
         var row1 = $('tr#' + row1ID);
         if (!row1.length) {
@@ -140,7 +180,7 @@
           
           // Add columns to the primary row - to be updated later
           for (var k=0; k<numCol; k++) {
-            var td = $('<td></td>');
+            var td = $('<td width="' + percent + '%"></td>');
             td.attr('data-name', config.columnFields[k]);
             row1.append(td);
             
@@ -225,30 +265,32 @@
         }
         
         // Build and set the summary row
-        var summary = '';
+        var summary = ''; var numVisible = 0;
         for (var m=0; m<config.summaryFields.length; m++) {
           var fn  = cleanFieldName(config.summaryFields[m]);
-          var key = config.summaryFields[m];
+          var key = CIPAPI.translations.translate(config.summaryFields[m]);
           var val = items[j].data[fn];
-          
-          summary += '<span data-field-name="' + config.summaryFields[m] + '" class="summary-field"><span class="summary-key">' + key + '</span>: <span class="summary-value">' + val + '</span></span> ';
+
+          numVisible += val == '' ? 0 : 1;
+          var extraCss = (val == '') ? ' hidden' : (numVisible > 1 ? ' prefix-delimiter' : '');
+          summary += '<span data-field-name="' + config.summaryFields[m] + '" class="summary-field fresh' + extraCss + '"><span class="summary-key">' + key + '</span>: <span class="summary-value">' + val + '</span></span> ';
         }
         row2.find('td').html(summary).addClass(config.summaryClass);
         
         // (re)append the rows
-        tbl.append(row1);
-        tbl.append(row2);
+        tbd.append(row1);
+        tbd.append(row2);
       }
       
       // Delete abandoned rows
-      tbl.find('> tbody > tr:gt(0)[data-guid!="' + updateGuid + '"]').each(function(offset, item) {
+      tbl.find('> tbody > tr[data-guid!="' + updateGuid + '"]').each(function(offset, item) {
         var elem = $(item);
         log.debug("Removing row" + elem.attr('data-id'));
         elem.remove();
       });
 
       // Resort rows
-      tbl.find('> tbody > tr:gt(0)').sort(function (a, b) {
+      tbl.find('> tbody > tr').sort(function (a, b) {
         var contentA = $(a).attr('data-sort');
         var contentB = $(b).attr('data-sort');
         return (contentA < contentB) ? -1 : (contentA > contentB) ? 1 : 0;
@@ -256,7 +298,7 @@
       
       // Set droppable if configured
       if (config.droppable) {
-        tbl.find('> tbody > tr:gt(0)').droppable({
+        tbl.find('> tbody > tr').droppable({
           accept: '*',
           over: function(event, ui) {
             clearTimeout(config.dragOutTimer);
@@ -286,7 +328,23 @@
         });
       }
       
-      $(config.selector).append(tbl);
+      $(config.selector).append(pgn);
+      
+      // Put table in a wrapper DIV for block level styling
+      var tblWrapper = $('<div class="table-striped-doublerow-wrapper"></div>');
+      tblWrapper.append(tbl);
+      $(config.selector).append(tblWrapper);
+
+      if (config.wellnessCheck && items.length > 0) {
+        new PNotify({
+          title: 'Wellness Check',
+          text: 'Need to update aging calls.'
+        });
+      }
+
+      
+      // Let the world know...
+      $(document).trigger('cipapi-handle-logview-update', config);      
     }
     
     // Full redraw of the view
@@ -299,15 +357,21 @@
     // Load data from the API with callback
     function refresh(callback) {
       log.debug("Refreshing view data for " + config.name);
-      CIPAPI.rest.GET({ 
+      CIPAPI.rest.GET({
         url: config.viewURL,
         sort: cleanFieldName(config.sortField),
         order: config.sortOrder,
+        offset: config.offset,
         fields: getFieldList(config.columnFields, config.summaryFields),
         query: config.query,
         success: function(response) { 
           log.debug("View data received for " + config.name);
           config.viewData = response;
+          
+          config.total    = parseInt(config.viewData.metadata.pagination.total,  10);
+          config.count    = parseInt(config.viewData.metadata.pagination.count,  10);
+          config.offset   = parseInt(config.viewData.metadata.pagination.offset, 10);
+          
           if (callback) {
             callback.call(config, response);
           }

@@ -64,6 +64,10 @@
       params.push('offset=' + escape(opts.offset));
     }
     
+    if (typeof opts.count == 'number' || typeof opts.count == 'string') {
+      params.push('count=' + escape(opts.count));
+    }
+
     if (typeof opts.query == 'string') {
       params.push('query=' + escape(opts.query))
     }

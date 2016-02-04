@@ -120,11 +120,54 @@
     input.value = fixed;  
   }
   
+  CIPAPI.forms.hexToAscii = function(h) {
+    var hex = h.toString(); // Force conversion
+    var str = '';
+    
+    for (var i = 0; i < hex.length; i += 2) {
+      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+    }
+    
+    return str;
+  }
+  
+  CIPAPI.forms.asciiToHex = function(a) {
+    var arr = [];
+  
+    for (var i = 0, l = a.length; i < l; i ++) {
+      var hex = Number(a.charCodeAt(i)).toString(16);
+      arr.push(hex);
+    }
+  
+    return arr.join('');    
+  }
+  
   CIPAPI.forms.Render = function(formDefinition, formSelector, editExisting) {
     // Default form selector
     if (!formSelector) formSelector = 'form.form-cip-reporting';
+
+    var jsonForm = false;
     
-    $(formSelector).jsonForm(formDefinition);
+    // If CIPAPI.fielddeps is loaded we need to assign onChange handlers
+    if (CIPAPI.fielddeps) {    
+      log.debug("Assigning field dependency onChange handlers");
+      
+      $(formDefinition.form).each(function (i, v) {
+        if (formDefinition.form[i].type && formDefinition.form[i].type == 'submit') return; // Leave the submit button alone...
+        
+        formDefinition.form[i]['onChange'] = function(event, info) { 
+          $(document).trigger('cipapi-fieldvalues-change', { 
+            formDefinition: formDefinition,
+              formSelector: formSelector,
+              editExisting: editExisting,
+              changeTarget: event.target,
+                  jsonForm: jsonForm
+          }); 
+        }
+      });
+    }
+
+    jsonForm = $(formSelector).jsonForm(formDefinition);
     $(formSelector).append($('<div class="clearfix"></div>'));
     
     // Before form validation and submit we must perform some actions
@@ -344,28 +387,18 @@
       // Remove file upload controls, they will not work...
       $(formSelector + ' input[type=file]').closest('div.form-group').remove();
     }
-  }
-  
-  CIPAPI.forms.hexToAscii = function(h) {
-    var hex = h.toString(); // Force conversion
-    var str = '';
-    
-    for (var i = 0; i < hex.length; i += 2) {
-      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+
+    // If CIPAPI.fielddeps is loaded we need to fire the dependency engine on form initialization
+    if (CIPAPI.fielddeps) {    
+      log.debug("Firing initial field value change for field dependencies");
+      
+      $(document).trigger('cipapi-fieldvalues-change', {
+        formDefinition: formDefinition,
+          formSelector: formSelector,
+          editExisting: editExisting,
+          changeTarget: false,
+              jsonForm: jsonForm
+      });
     }
-    
-    return str;
-  }
-  
-  CIPAPI.forms.asciiToHex = function(a) {
-    var arr = [];
-  
-    for (var i = 0, l = a.length; i < l; i ++) {
-      var hex = Number(a.charCodeAt(i)).toString(16);
-      arr.push(hex);
-    }
-  
-    return arr.join('');    
   }
 })(window);
-

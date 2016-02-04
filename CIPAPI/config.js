@@ -133,4 +133,10 @@
     }
   });
   
+  // Allow manual reloading of the config
+  $(document).on('cipapi-config-reload', function() {
+    log.info('Manual configuration reload requested');
+    loadConfig();
+  });
+  
 })(window);

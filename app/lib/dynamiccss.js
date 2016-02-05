@@ -27,14 +27,19 @@
 
   // When the configuration is loaded apply any dynamic CSS
   $(document).on('cipapi-config-set', function() {
+    if ($('head style#dynamic-css').length == 0) {
+      log.debug('Creating dynamic CSS tag in head');
+      $('head').append('<style id="dynamic-css"></style>');
+    }
+    
     if (CIPAPI.config.dynamicCSS === false) {
       log.debug('No dynamic CSS - removing any existing dynamic CSS');
-      $('#dynamic-css').html('');
+      $('head style#dynamic-css').html('');
       return;
     }
     
     log.debug('Updating dynamic CSS');
-    $('#dynamic-css').html(CIPAPI.config.dynamicCSS);
+    $('head style#dynamic-css').html(CIPAPI.config.dynamicCSS);
   });
   
   log.debug('Monitoring for config changes');

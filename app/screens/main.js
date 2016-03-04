@@ -74,7 +74,7 @@
     }
     // Show a form
     else if (info.params.action == 'form') {
-      renderForm(info.params.form, info.params.case);
+      CIPAPI.main.renderForm(info.params.form, info.params.case);
     }
     // Show a case
     else if (info.params.action == 'case') {
@@ -82,7 +82,7 @@
     }
     // Barcode?
     else if (info.params.action == 'barcode') {
-      captureBarcode();
+      CIPAPI.barcode.scan();
     }
     // Navigate to the button list if all else fails
     else {
@@ -93,24 +93,6 @@
     window.scrollTo(0, 0);
   }
 
-  // Capture a barcode
-  function captureBarcode() {
-    log.debug('Starting scanner');
-
-    if (typeof cordova == 'undefined') return;
-    if (typeof cordova.plugins == 'undefined') return;
-    if (typeof cordova.plugins.barcodeScanner == 'undefined') return;
-    
-    cordova.plugins.barcodeScanner.scan(
-      function (result) { 
-        log.debug(result);
-      }, 
-      function (error)  { 
-        log.error(error);
-      }
-    );
-  }
-  
   // Return the formatted time
   function getTime() {
     // Add zero in front of numbers < 10
@@ -340,7 +322,7 @@
     $('div#main-content-area form').append('<div class="form-button-list"></div>');
     
     if (CIPAPI.config.enableBarcodeScanner !== false) {
-      var title = CIPAPI.translations.translate('Scan a Barcode');
+      var title = CIPAPI.translations.translate('Barcode Scanner');
       var span = '<span class="glyphicon glyphicon-barcode"></span> ';
       $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="barcode-scanner" class="btn btn-primary btn-lg btn-custom">' + span + title + '</a></div>');
     }
@@ -361,7 +343,7 @@
   }
   
   // Render a form
-  function renderForm(formName, caseUUID) {
+  CIPAPI.main.renderForm = function(formName, caseUUID, fieldValues, autoSubmit) {
     log.debug("Rendering form button collection");
     
     if (typeof CIPAPI.mobileforms[formName] == 'undefined') {
@@ -375,6 +357,13 @@
     // Make a deep copy
     var formDefinition = jQuery.extend(true, {}, CIPAPI.mobileforms[formName]);
     var editExisting = false;
+    
+    if (fieldValues) {
+      $.each(fieldValues, function(fieldKey, fieldValue) {
+        fieldKey = CIPAPI.forms.asciiToHex(fieldKey);
+        formDefinition.value[fieldKey] = fieldValue;
+      });
+    }
     
     // If a case and existing child report these UUIDs may get assigned next
     var reportUUID = false; reportRelUUID = false;
@@ -468,6 +457,12 @@ log.error("TODO: Form value type: " + formValueType);
     $('a#cipform-proxy-submit').on('click', function(evt) {
       $('input.cipform-save-report').click();
     });
+    
+    // Have we been requested to just submit this?
+    if (autoSubmit) {
+      log.debug('Auto submitting from');
+      $('a#cipform-proxy-submit').click();
+    }
     
     // Give camera and library access links a make over if present
     $('a.cipform_image_from_camera').addClass('btn btn-primary btn-md btn-custom cipform-real-camera').html('<span class="glyphicon glyphicon-camera"></span> From Camera');

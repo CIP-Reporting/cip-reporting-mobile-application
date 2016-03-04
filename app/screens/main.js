@@ -96,14 +96,17 @@
   // Capture a barcode
   function captureBarcode() {
     log.debug('Starting scanner');
+
+    if (typeof cordova == 'undefined') return;
+    if (typeof cordova.plugins == 'undefined') return;
+    if (typeof cordova.plugins.barcodeScanner == 'undefined') return;
+    
     cordova.plugins.barcodeScanner.scan(
       function (result) { 
         log.debug(result);
-        CIPAPI.navbar.goBack();
       }, 
       function (error)  { 
         log.error(error);
-        CIPAPI.navbar.goBack();
       }
     );
   }

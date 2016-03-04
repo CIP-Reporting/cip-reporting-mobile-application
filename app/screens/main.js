@@ -80,6 +80,10 @@
     else if (info.params.action == 'case') {
       renderCase(info.params.case, CIPAPI.config.apiForms);
     }
+    // Barcode?
+    else if (info.params.action == 'barcode') {
+      captureBarcode();
+    }
     // Navigate to the button list if all else fails
     else {
       CIPAPI.router.goTo('main', { action: 'list' });
@@ -93,8 +97,14 @@
   function captureBarcode() {
     log.debug('Starting scanner');
     cordova.plugins.barcodeScanner.scan(
-      function (result) { log.debug(result); }, 
-      function (error)  { log.error(error); }
+      function (result) { 
+        log.debug(result);
+        CIPAPI.navbar.goBack();
+      }, 
+      function (error)  { 
+        log.error(error);
+        CIPAPI.navbar.goBack();
+      }
     );
   }
   
@@ -342,13 +352,7 @@
       btn.click(function() {
         var btn = $(this);
         var form = btn.attr('data-form');
-        
-        if (form == 'barcode-scanner') {
-          log.debug('Capturing bar code');
-          return captureBarcode();
-        }
-        
-        CIPAPI.router.goTo('main', { action: 'form', form: form });
+        CIPAPI.router.goTo('main', { action: form == 'barcode-scanner' ? 'barcode' : 'form', form: form });
       });
     });
   }

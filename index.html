@@ -169,7 +169,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-            applicationVersion: '1.0.4216',                     // Set by the packaging script to know our own version
+            applicationVersion: '1.0.4309',                     // Set by the packaging script to know our own version
            overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
         reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
               reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -186,6 +186,7 @@
                   useSingleURL: false,                              // Use a single API URL for config and form interactions
                   caseModeForm: false,                              // Can be set to the name of a form to put the mobile application into case mode
                     dynamicCSS: false,                              // Can be provided by server configuration to be injected into the application
+          enableBarcodeScanner: true,                               // Can be provided by server configuration to enable bar code scanning
             caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
                       apiForms: { }                                 // Should most likely be loaded from the config override integration
                                                                     // In the form of the key is the form integration and the value is the

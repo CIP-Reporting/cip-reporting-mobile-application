@@ -89,6 +89,15 @@
     window.scrollTo(0, 0);
   }
 
+  // Capture a barcode
+  function captureBarcode() {
+    log.debug('Starting scanner');
+    cordova.plugins.barcodeScanner.scan(
+      function (result) { log.debug(result); }, 
+      function (error)  { log.error(error); }
+    );
+  }
+  
   // Return the formatted time
   function getTime() {
     // Add zero in front of numbers < 10
@@ -317,6 +326,12 @@
     $('div#main-content-area form').append(header);
     $('div#main-content-area form').append('<div class="form-button-list"></div>');
     
+    if (CIPAPI.config.enableBarcodeScanner !== false) {
+      var title = CIPAPI.translations.translate('Scan a Barcode');
+      var span = '<span class="glyphicon glyphicon-barcode"></span> ';
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="barcode-scanner" class="btn btn-primary btn-lg btn-custom">' + span + title + '</a></div>');
+    }
+    
     $.each(buttonCollection, function(key, val) {
       var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
       $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="' + key + '" class="btn btn-primary btn-lg btn-custom">' + span + key + '</a></div>');
@@ -326,7 +341,14 @@
       var btn = $(this);
       btn.click(function() {
         var btn = $(this);
-        CIPAPI.router.goTo('main', { action: 'form', form: btn.attr('data-form') });
+        var form = btn.attr('data-form');
+        
+        if (form == 'barcode-scanner') {
+          log.debug('Capturing bar code');
+          return captureBarcode();
+        }
+        
+        CIPAPI.router.goTo('main', { action: 'form', form: form });
       });
     });
   }

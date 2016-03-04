@@ -244,5 +244,14 @@
     localStorage.setItem(storageKey, JSON.stringify(caseStore));
     
     return removedCase;
+  }
+
+  // Remove all cases from the device
+  CIPAPI.casestore.removeAllCases = function() {
+    log.debug('Removing all cases');
+    CIPAPI.stats.reset();
+    localStorage.removeItem('CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash());    
+    return CIPAPI.casestore.getCases();
   }    
+
 })(window);

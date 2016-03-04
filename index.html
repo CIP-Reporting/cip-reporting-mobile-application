@@ -187,8 +187,9 @@
                   useSingleURL: false,                              // Use a single API URL for config and form interactions
                   caseModeForm: false,                              // Can be set to the name of a form to put the mobile application into case mode
                     dynamicCSS: false,                              // Can be provided by server configuration to be injected into the application
-          enableBarcodeScanner: true,                               // Can be provided by server configuration to enable bar code scanning
+          enableBarcodeScanner: false,                              // Can be provided by server configuration to enable bar code scanning
             caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
+                   hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
                       apiForms: { }                                 // Should most likely be loaded from the config override integration
                                                                     // In the form of the key is the form integration and the value is the
                                                                     // friendly name to display on the button.  The order controls the order

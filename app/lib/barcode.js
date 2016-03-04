@@ -58,80 +58,79 @@
   function processCIPFormQRURL(url) {
     log.debug('Decoding URL: ' + url);
 
-    try {
-      var parser = document.createElement('a');
-      parser.href = url;
+    var parser = document.createElement('a');
+    parser.href = url;
 
-      if (parser.protocol != 'https:')               throw new Exception('Invalid QR Code Protocol: '  + parser.protocol);
-      if (parser.hostname != 'www.cipreporting.com') throw new Exception('Invalid QR Code Host Name: ' + parser.hostname);
-      
-      if (parser.pathname.lastIndexOf('/qr/', 0) !== 0)
-        throw new Exception('Invalid pathname: ' + parser.pathname);
-      
-      var formName = decodeURIComponent(parser.pathname.substr(4)).split('+').join(' ');
-      log.debug('QR Code Form Name: ' + formName);
-      
-      var fieldValues = {};
-      if (parser.search.lastIndexOf('?', 0) === 0) {
-        fieldValues = getJsonFromUrl(parser.search.substr(1));
-      }
-      
-      var submit = parser.hash == '#submit';
-
-      CIPAPI.main.renderForm(formName, false, fieldValues, parser.hash == '#submit');
-    } catch(err) {
-      log.error(err);
-      CIPAPI.router.goTo('main', { action: 'list' });
+    if (parser.protocol != 'https:')                  throw 'Invalid QR Code Protocol: '  + parser.protocol;
+    if (parser.hostname != 'www.cipreporting.com')    throw 'Invalid QR Code Host Name: ' + parser.hostname;
+    if (parser.pathname.lastIndexOf('/qr/', 0) !== 0) throw 'Invalid pathname: ' + parser.pathname;
+    
+    var formName = decodeURIComponent(parser.pathname.substr(4)).split('+').join(' ');
+    log.debug('QR Code Form Name: ' + formName);
+    
+    var fieldValues = {};
+    if (parser.search.lastIndexOf('?', 0) === 0) {
+      fieldValues = getJsonFromUrl(parser.search.substr(1));
     }
+    
+    var submit = parser.hash == '#submit';
+
+    CIPAPI.main.renderForm(formName, false, fieldValues, parser.hash == '#submit');
   }
   
   CIPAPI.barcode.scan = function() {
     log.debug('Starting scanner');
 
-    var debug = false;
-    if (debug) {
-      setTimeout(function() {
+    try
+    {
+      // Some debuggery...
+      if (false) {
         processCIPFormQRURL('https://www.cipreporting.com/qr/Quality+Incident?Customer+Location=The+Hamptons&Project+Number=12345&Problem+Description=Test&Product+Line=Straight&Part+Numbers=1231231#submit');
-      }, 100);
-      return;
-    }
+        return;
+      }
 
-    var hasScanner = true;
-    if (hasScanner && typeof cordova == 'undefined') hasScanner = false;
-    if (hasScanner && typeof cordova.plugins == 'undefined') hasScanner = false;
-    if (hasScanner && typeof cordova.plugins.barcodeScanner == 'undefined') hasScanner = false;
-    
-    if (!hasScanner) {
-      log.error('No scanner');
-      CIPAPI.router.goTo('main', { action: 'list' });
-      return;
-    }
-    
-    cordova.plugins.barcodeScanner.scan(
-      // Success...
-      function (result) { 
-        if (result.cancelled) {
-          log.error('Cancelled');
-          CIPAPI.router.goTo('main', { action: 'list' });
-        }
-        
-        if (result.format == 'QR_CODE') {
-          if (result.text.lastIndexOf('https://www.cipreporting.com/qr/', 0) === 0) {
-            log.debug('Processing CIP Form QR code');
-            return processCIPFormQRURL(result.text);
+      var hasScanner = true;
+      if (hasScanner && typeof cordova == 'undefined') hasScanner = false;
+      if (hasScanner && typeof cordova.plugins == 'undefined') hasScanner = false;
+      if (hasScanner && typeof cordova.plugins.barcodeScanner == 'undefined') hasScanner = false;
+      if (!hasScanner) throw 'No Scanner';
+      
+      cordova.plugins.barcodeScanner.scan(
+        // Success...
+        function (result) { 
+          if (result.cancelled) {
+            log.error('Cancelled');
+            CIPAPI.router.goTo('main', { action: 'list' });
+          }
+          
+          if (result.format == 'QR_CODE') {
+            if (result.text.lastIndexOf('https://www.cipreporting.com/qr/', 0) === 0) {
+              log.debug('Processing CIP Form QR code');
+              return processCIPFormQRURL(result.text);
+            }
+          }
+          
+          throw 'Unhandled barcode (' + result.format + ') ' + result.text;
+        }, 
+
+        // Error...
+        function (error) { throw error; }
+      );
+    } catch(err) {
+      log.error(err);
+      CIPAPI.navbar.goBack();
+      
+      bootbox.dialog({
+        message: err,
+          title: CIPAPI.translations.translate('Barcode Error'),
+        buttons: {
+          success: {
+                label: '<span class="glyphicon glyphicon-thumbs-down"></span> ' + CIPAPI.translations.translate('Close'),
+            className: "btn btn-lg btn-primary btn-custom",
           }
         }
-        
-        log.error('Unhandled barcode (' + result.format + ') ' + result.text);
-        CIPAPI.router.goTo('main', { action: 'list' });
-      }, 
-
-      // Error...
-      function (error)  { 
-        log.error(error);
-        CIPAPI.router.goTo('main', { action: 'list' });
-      }
-    );
+      });
+    }
   }
   
 })(window);

@@ -82,7 +82,14 @@
     }
     // Barcode?
     else if (info.params.action == 'barcode') {
-      CIPAPI.barcode.scan();
+      // Because this guy supports "auto-save" it may save and attempt to "go back" before this
+      // page is fully rendered (from the perspective of the CIPAPI.router).  In this case the
+      // back page stage is not loaded with this current page as that is loaded into the stack
+      // post-navigation.  Therefore, when it attempts to go back the page stack is not loaded
+      // fully and the app gets confused on where to go back to.  In Android it may exit the
+      // app.  A simple work around is to make this call in a delayed closure to allow this
+      // execution context to complete first.
+      setTimeout(function() { CIPAPI.barcode.scan(); }, 100);
     }
     // Navigate to the button list if all else fails
     else {
@@ -328,6 +335,8 @@
     }
     
     $.each(buttonCollection, function(key, val) {
+      if (-1 !== $.inArray(key, CIPAPI.config.hiddenForms)) return;
+
       var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
       $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="' + key + '" class="btn btn-primary btn-lg btn-custom">' + span + key + '</a></div>');
     });

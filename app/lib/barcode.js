@@ -79,6 +79,22 @@
 
     CIPAPI.main.renderForm(formName, false, fieldValues, parser.hash == '#submit');
   }
+
+  function handleError(err) {
+    log.error(err);
+    CIPAPI.navbar.goBack();
+    
+    bootbox.dialog({
+      message: err,
+        title: CIPAPI.translations.translate('Barcode Error'),
+      buttons: {
+        success: {
+              label: '<span class="glyphicon glyphicon-thumbs-down"></span> ' + CIPAPI.translations.translate('Close'),
+          className: "btn btn-lg btn-primary btn-custom",
+        }
+      }
+    });
+  }
   
   CIPAPI.barcode.scan = function() {
     log.debug('Starting scanner');
@@ -112,26 +128,14 @@
             }
           }
           
-          throw 'Unhandled barcode (' + result.format + ') ' + result.text;
+          handleError('Unhandled barcode (' + result.format + ') ' + result.text);
         }, 
 
         // Error...
-        function (error) { throw error; }
+        function (err) { handleError(err); }
       );
     } catch(err) {
-      log.error(err);
-      CIPAPI.navbar.goBack();
-      
-      bootbox.dialog({
-        message: err,
-          title: CIPAPI.translations.translate('Barcode Error'),
-        buttons: {
-          success: {
-                label: '<span class="glyphicon glyphicon-thumbs-down"></span> ' + CIPAPI.translations.translate('Close'),
-            className: "btn btn-lg btn-primary btn-custom",
-          }
-        }
-      });
+      handleError(err);
     }
   }
   

@@ -118,7 +118,7 @@
         function (result) { 
           if (result.cancelled) {
             log.debug('Cancelled');
-            CIPAPI.navbar.goBack();
+//            CIPAPI.navbar.goBack();
             return;
           }
           

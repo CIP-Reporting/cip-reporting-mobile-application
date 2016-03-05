@@ -68,6 +68,8 @@
     var formName = decodeURIComponent(parser.pathname.substr(4)).split('+').join(' ');
     log.debug('QR Code Form Name: ' + formName);
     
+    if (typeof CIPAPI.mobileforms[formName] == 'undefined') throw 'Form does not exist: ' + formName;
+    
     var fieldValues = {};
     if (parser.search.lastIndexOf('?', 0) === 0) {
       fieldValues = getJsonFromUrl(parser.search.substr(1));

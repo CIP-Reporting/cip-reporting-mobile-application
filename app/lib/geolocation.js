@@ -61,8 +61,9 @@
     CIPAPI.geolocation.heading          = position.coords.heading;
     CIPAPI.geolocation.speed            = position.coords.speed;
     CIPAPI.geolocation.timestamp        = position.timestamp;
-    
-    log.debug("Position Updated: " + CIPAPI.geolocation.latitude + " / " + CIPAPI.geolocation.longitude);
+  
+// JER - I commented this out because it generates a lot of log traffic needlessly  
+//    log.debug("Position Updated: " + CIPAPI.geolocation.latitude + " / " + CIPAPI.geolocation.longitude);
     
     $(document).trigger('cipapi-geolocation-updated', position.coords);
   };

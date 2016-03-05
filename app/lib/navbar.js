@@ -93,6 +93,8 @@
   
   // Go back ... maybe!
   CIPAPI.navbar.goBack = function() {
+    log.debug('Go back');
+    
     // Require at least 2 - one for current page and one to go back to
     if (backButtonQueue.length < 2) {
       if (CIPAPI.device.platform == "Android") {

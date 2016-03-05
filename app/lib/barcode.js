@@ -118,7 +118,6 @@
         function (result) { 
           if (result.cancelled) {
             log.debug('Cancelled');
-//            CIPAPI.navbar.goBack();
             return;
           }
           

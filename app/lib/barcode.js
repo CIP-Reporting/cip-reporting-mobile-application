@@ -117,8 +117,9 @@
         // Success...
         function (result) { 
           if (result.cancelled) {
-            log.error('Cancelled');
-            CIPAPI.router.goTo('main', { action: 'list' });
+            log.debug('Cancelled');
+            CIPAPI.navbar.goBack();
+            return;
           }
           
           if (result.format == 'QR_CODE') {
@@ -128,14 +129,14 @@
             }
           }
           
-          handleError('Unhandled barcode (' + result.format + ') ' + result.text);
+          return handleError('Unhandled barcode (' + result.format + ') ' + result.text);
         }, 
 
         // Error...
-        function (err) { handleError(err); }
+        function (err) { return handleError(err); }
       );
     } catch(err) {
-      handleError(err);
+      return handleError(err);
     }
   }
   

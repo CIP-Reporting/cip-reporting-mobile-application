@@ -51,6 +51,7 @@
     if (typeof config.dragOutTimer  == 'undefined') config.dragOutTimer  = false; // Read only
     if (typeof config.query         == 'undefined') config.query         = false; // No query by default
     if (typeof config.wellnessCheck == 'undefined') config.wellnessCheck = false;
+    if (typeof config.scrollPos     == 'undefined') config.scrollPos     = 0;  // Keep track of scroll Pos on refresh/updates
     
     // Helper function to pad digits for proper sorting
     // 'sort_10_a' < 'sort_9_a' would be incorrect; need it to be 'sort_10_a' < 'sort_09_a'
@@ -335,16 +336,12 @@
       tblWrapper.append(tbl);
       $(config.selector).append(tblWrapper);
 
-      if (config.wellnessCheck && items.length > 0) {
-        new PNotify({
-          title: 'Wellness Check',
-          text: 'Need to update aging calls.'
-        });
-      }
-
       
       // Let the world know...
-      $(document).trigger('cipapi-handle-logview-update', config);      
+      $(document).trigger('cipapi-handle-logview-update', config); 
+
+      // Finally maintain scroll position
+      tbl.scrollParent().scrollTop(config.scrollPos);     
     }
     
     // Full redraw of the view
@@ -357,6 +354,12 @@
     // Load data from the API with callback
     function refresh(callback) {
       log.debug("Refreshing view data for " + config.name);
+
+      // Preserve scroll Pos before refresh/updates
+      var scrollPos = 0;
+      if ($(config.selector + ' > div > table.table-striped-doublerow').length > 0)
+        scrollPos = $(config.selector + ' > div > table.table-striped-doublerow').scrollParent().scrollTop();
+
       CIPAPI.rest.GET({
         url: config.viewURL,
         sort: cleanFieldName(config.sortField),
@@ -371,6 +374,7 @@
           config.total    = parseInt(config.viewData.metadata.pagination.total,  10);
           config.count    = parseInt(config.viewData.metadata.pagination.count,  10);
           config.offset   = parseInt(config.viewData.metadata.pagination.offset, 10);
+          config.scrollPos = scrollPos;
           
           if (callback) {
             callback.call(config, response);

@@ -40,6 +40,8 @@
   CIPAPI.stats.total(statsGroup, 'New Reports',    0);
   CIPAPI.stats.total(statsGroup, 'Report Updates', 0);
   CIPAPI.stats.total(statsGroup, 'Case Removals',  0);
+  CIPAPI.stats.total(statsGroup, 'Case Syncs',     0);
+  CIPAPI.stats.total(statsGroup, 'Case Sets',      0);
 
   // Try and find the case in the collection and return that offset
   // or return false if not found.
@@ -69,13 +71,10 @@
   }
   
   // Helper to determine percent complete of a report
-  function calculatePercentageComplete(formName, formValues) {
-    var form = CIPAPI.mobileforms[formName];
-    if (!form) return 0;
-    
+  function calculatePercentageComplete(formDefinition, formValues) {
     var visibleFields = 0;
     var completedFields = 0;
-    $.each(form.form, function(key, obj) {
+    $.each(formDefinition.form, function(key, obj) {
       if (obj.htmlClass.match(/cipform_invisible/)) return; // Invisible
       if (obj.type && obj.type == 'help') return; // No value for help fields
       if (obj.type && obj.type == 'null') return; // No value for null fields
@@ -100,7 +99,7 @@
     }
 
     // Calculate the percentage complete for this item
-    var percentComplete = calculatePercentageComplete(info.reportData.formName, info.reportData.serializedData);
+    var percentComplete = calculatePercentageComplete(info.reportData.formDefinition, info.reportData.serializedData);
     log.debug("Percent complete: " + percentComplete);
     
     // If this is a new case just add it to the list...
@@ -162,6 +161,26 @@
     }
     
     return caseStore;
+  }
+  
+  // Get the case collection
+  CIPAPI.casestore.setCases = function(caseStore) {
+    log.debug('Setting case store');
+
+    // Count reports
+    var totalReports = 0;
+    for (var i=0; i<caseStore.length; i++) {
+      totalReports++; // Count parent case
+      totalReports += caseStore[i].relatedReports.length;
+    }
+    
+    CIPAPI.stats.total(statsGroup, 'Total Cases',   caseStore.length);
+    CIPAPI.stats.total(statsGroup, 'Total Reports', totalReports);
+    CIPAPI.stats.count(statsGroup, 'Case Sets');
+    
+    // Set back to storage
+    var storageKey = 'CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash();
+    localStorage.setItem(storageKey, JSON.stringify(caseStore));
   }
   
   // Does a child form exist for a given case UUID?
@@ -246,12 +265,80 @@
     return removedCase;
   }
 
+  // Add a case to the device
+  CIPAPI.casestore.addCase = function(newCase) {
+    var caseStore = CIPAPI.casestore.getCases();
+    
+    log.debug('Adding case ' + newCase.reportData.serializedData.reportUUID + ' at offset ' + caseStore.length);
+    
+    caseStore.push(newCase);
+    
+    // Count reports
+    var totalReports = 0;
+    for (var i=0; i<caseStore.length; i++) {
+      totalReports++; // Count parent case
+      totalReports += caseStore[i].relatedReports.length;
+    }
+    
+    CIPAPI.stats.total(statsGroup, 'Total Cases',   caseStore.length);
+    CIPAPI.stats.total(statsGroup, 'Total Reports', totalReports);
+    CIPAPI.stats.count(statsGroup, 'New Cases');
+    
+    // Set back to storage
+    var storageKey = 'CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash();
+    localStorage.setItem(storageKey, JSON.stringify(caseStore));
+    
+    return newCase;
+  }
+  
   // Remove all cases from the device
   CIPAPI.casestore.removeAllCases = function() {
     log.debug('Removing all cases');
-    CIPAPI.stats.reset();
+
+    CIPAPI.stats.total(statsGroup, 'Total Cases',   0);
+    CIPAPI.stats.total(statsGroup, 'Total Reports', 0);
+
     localStorage.removeItem('CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash());    
     return CIPAPI.casestore.getCases();
   }    
 
+  // Monitor for forms updates ... a lazy way to hook into the process over all to update
+  $(document).on('cipapi-mobile-forms-set', function() { 
+    var key = CIPAPI.config.caseModeSyncForm;
+
+    if (key === false) {
+      log.debug("Not updating cases, not configured");
+      return;
+    }
+    
+    if (CIPAPI.reportstore.getNumberOfStoredReports() > 0) {
+      log.debug("Pending reports exist - not updating cases");
+      return;
+    }
+    
+    log.debug("Updating cases");
+    
+    CIPAPI.rest.GET({ 
+      url: '/api/versions/current/integrations/' + escape(CIPAPI.config.useSingleURL ? CIPAPI.config.overrideIntegration : key),
+      query: CIPAPI.config.useSingleURL ? key : false,
+      success: function(response) { 
+        var caseStore = response.data.item[0].data;
+        CIPAPI.stats.count(statsGroup, 'Case Syncs');
+
+        // Recalculate percentage complete
+        for (var h=0; h<caseStore.length; h++) {
+          for (var i=0; i<caseStore[h].relatedReports.length; i++) {
+            caseStore[h].relatedReports[i].percentComplete = calculatePercentageComplete(
+              caseStore[h].relatedReports[i].reportData.formDefinition,
+              caseStore[h].relatedReports[i].reportData.serializedData
+            );
+          }
+        }
+        
+        CIPAPI.casestore.setCases(caseStore);
+        $(document).trigger('cipapi-mobile-cases-set');
+      }
+    });
+  });
+  
 })(window);

@@ -112,10 +112,14 @@
       if (hasScanner && typeof cordova.plugins == 'undefined') hasScanner = false;
       if (hasScanner && typeof cordova.plugins.barcodeScanner == 'undefined') hasScanner = false;
       if (!hasScanner) throw 'No Scanner';
-      
+
+      $(document).trigger('cipapi-mobile-barcode-scan-start');
+
       cordova.plugins.barcodeScanner.scan(
         // Success...
         function (result) { 
+          $(document).trigger('cipapi-mobile-barcode-scan-stop');
+          
           if (result.cancelled) {
             log.debug('Cancelled');
             return;
@@ -132,7 +136,10 @@
         }, 
 
         // Error...
-        function (err) { return handleError(err); }
+        function (err) { 
+          $(document).trigger('cipapi-mobile-barcode-scan-stop');
+          return handleError(err); 
+        }
       );
     } catch(err) {
       return handleError(err);

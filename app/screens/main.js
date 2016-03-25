@@ -39,7 +39,7 @@
   });
 
   // Monitor for config changes and update button lists when displayed
-  $(document).on('cipapi-mobile-forms-set', function(event, info) {
+  $(document).on('cipapi-mobile-forms-set cipapi-mobile-cases-set', function(event, info) {
     if ($('div#main-content-area form div.form-button-list').length > 0) {
       // Clean up and re-draw buttons
       $('div#main-content-area form > *').remove();
@@ -363,8 +363,25 @@
     // Reset image storage
     imageStorage = [];
     
-    // Make a deep copy
-    var formDefinition = jQuery.extend(true, {}, CIPAPI.mobileforms[formName]);
+    // Grab the form definition from the case definition if possible else from the global form definitions
+    var formDefinition = false;
+    if (caseUUID) {
+      var childReport = CIPAPI.casestore.getChildReportForCaseByFormName(caseUUID, formName);
+      if (childReport) {
+        log.debug("Using form definition from existing case child");
+        formDefinition = childReport.formDefinition;
+      } else {
+        log.debug("Using form definition from global form data instead of case child");
+        formDefinition = jQuery.extend(true, {}, CIPAPI.mobileforms[formName]);
+      }
+    } else {
+      log.debug("Using form definition from global form data");
+      formDefinition = jQuery.extend(true, {}, CIPAPI.mobileforms[formName]);
+    }
+    
+    // Make a deep copy of the original
+    var originalFormDefinition = jQuery.extend(true, {}, formDefinition);
+    
     var editExisting = false;
     
     if (fieldValues) {
@@ -431,6 +448,7 @@ log.error("TODO: Form value type: " + formValueType);
         // Store the report for transmission
         CIPAPI.reportstore.storeReport({
                   formName: formName,
+            formDefinition: originalFormDefinition,
             serializedData: values,
           serializedImages: imageStorage,
             mobileMetadata: CIPAPI.stats.fetch(),

@@ -2,7 +2,7 @@
 <widget xmlns = "http://www.w3.org/ns/widgets"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.4318">
+  version = "1.0.4347">
 
   <name>CIP Reporting</name>
 
@@ -69,6 +69,9 @@
 
   <!-- Bar Code Scanning -->
   <gap:plugin name="com.jp.bc2" spec="1.0" source="pgb" />
+
+  <!-- Flash Light for Bar Codes in Low Light -->
+  <gap:plugin name="nl.x-services.plugins.flashlight" />
   
   <!-- Define platforms -->
   <gap:platform name="android" />

@@ -183,8 +183,35 @@
     localStorage.setItem(storageKey, JSON.stringify(caseStore));
   }
   
-  // Does a child form exist for a given case UUID?
-  CIPAPI.casestore.caseChildExists = function(caseUUID, childFormName) {
+  // Get child form UUIDs for a case by a given form name
+  CIPAPI.casestore.getCaseChildrenUUIDs = function(caseUUID, childFormName, atLeastOne) {
+    var cases = CIPAPI.casestore.getCases();
+    var caseOffset = getCaseOffset(cases, caseUUID);
+    if (false === caseOffset) { 
+      log.error("Failed to find case for child report " + caseUUID);
+      return false; 
+    }
+    
+    var UUIDs = []; var percents = [];
+    for (var i=0; i<cases[caseOffset].relatedReports.length; i++) {
+      if (cases[caseOffset].relatedReports[i].reportData.formName == childFormName) {
+        UUIDs.push(cases[caseOffset].relatedReports[i].reportData.serializedData.reportUUID);
+        percents.push(cases[caseOffset].relatedReports[i].percentComplete);
+      }
+    }
+    
+    // If no UUIDs exist for this child form and we are requested to always have
+    // at least one of each form create a false UUID which may be created.
+    if (atLeastOne && UUIDs.length == 0) {
+      UUIDs.push(CIPAPI.uuid.get());
+      percents.push(0);
+    }
+    
+    return { uuids: UUIDs, percents: percents }
+  }
+  
+  // Get percent complete for a given case and child form
+  CIPAPI.casestore.caseChildPercentComplete = function(caseUUID, childUUID) {
     var cases = CIPAPI.casestore.getCases();
     var caseOffset = getCaseOffset(cases, caseUUID);
     if (false === caseOffset) { 
@@ -193,12 +220,12 @@
     }
     
     for (var i=0; i<cases[caseOffset].relatedReports.length; i++) {
-      if (cases[caseOffset].relatedReports[i].reportData.formName == childFormName) {
+      if (cases[caseOffset].relatedReports[i].reportData.serializedData.reportUUID == childUUID) {
         return cases[caseOffset].relatedReports[i].percentComplete;
       }
     }
 
-    return false;
+    return 0;
   }
   
   // Helper function to calculate the percent completion of a case
@@ -218,8 +245,8 @@
     return Math.floor(100 * (actualPoints / totalPoints));
   }
   
-  // Try and find a form by name within a given case specified by UUID
-  CIPAPI.casestore.getChildReportForCaseByFormName = function(caseUUID, formName) {
+  // Try and find a child form by UUID within a given case specified by UUID
+  CIPAPI.casestore.getChildReportForCaseByChildUUID = function(caseUUID, childUUID) {
     var cases = CIPAPI.casestore.getCases();
     var caseOffset = getCaseOffset(cases, caseUUID);
     if (false === caseOffset) {
@@ -227,7 +254,7 @@
     }
     
     for (var i=0; i<cases[caseOffset].relatedReports.length; i++) {
-      if (cases[caseOffset].relatedReports[i].reportData.formName == formName) {
+      if (cases[caseOffset].relatedReports[i].reportData.serializedData.reportUUID == childUUID) {
         return cases[caseOffset].relatedReports[i].reportData;
       }
     }

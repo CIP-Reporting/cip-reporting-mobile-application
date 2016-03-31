@@ -74,7 +74,7 @@
     }
     // Show a form
     else if (info.params.action == 'form') {
-      CIPAPI.main.renderForm(info.params.form, info.params.case);
+      CIPAPI.main.renderForm(info.params.form, info.params.case, info.params.uuid);
     }
     // Show a case
     else if (info.params.action == 'case') {
@@ -175,12 +175,19 @@
     $.each(buttonCollection, function(key, val) {
       if (key == CIPAPI.config.caseModeForm) return;
 
-      var percentComplete = CIPAPI.casestore.caseChildExists(caseUUID, key);
-      var progress = '<div class="meter ' + (percentComplete === 100 ? 'green' : 'orange') + '"><span style="width: ' + (percentComplete === false ? 0 : percentComplete) + '%"></span></div>';
-      var extraCss = percentComplete === false ? '-notexist' : '';
+      var childDB = CIPAPI.casestore.getCaseChildrenUUIDs(caseUUID, key, true);
+      var childrenPercents = childDB.percents;
+      var childrenUUIDs = childDB.uuids;
+      
+      for (var i=0; i<childrenUUIDs.length; i++)
+      {
+        var percentComplete = childrenPercents[i];
+        var progress = '<div class="meter ' + (percentComplete === 100 ? 'green' : 'orange') + '"><span style="width: ' + (percentComplete === false ? 0 : percentComplete) + '%"></span></div>';
+        var extraCss = percentComplete === false ? '-notexist' : '';
 
-      var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="' + key + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
+        var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
+        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
+      }
     });
 
     // Attach click handlers
@@ -188,7 +195,7 @@
       var btn = $(this);
       btn.click(function() {
         var btn = $(this);
-        CIPAPI.router.goTo('main', { action: 'form', form: btn.attr('data-form'), case: caseUUID });
+        CIPAPI.router.goTo('main', { action: 'form', form: btn.attr('data-form'), case: caseUUID, uuid: btn.attr('data-uuid') });
       });
     });
     
@@ -352,7 +359,7 @@
   }
   
   // Render a form
-  CIPAPI.main.renderForm = function(formName, caseUUID, fieldValues, autoSubmit) {
+  CIPAPI.main.renderForm = function(formName, caseUUID, childUUID, fieldValues, autoSubmit) {
     log.debug("Rendering form button collection");
     
     if (typeof CIPAPI.mobileforms[formName] == 'undefined') {
@@ -366,7 +373,7 @@
     // Grab the form definition from the case definition if possible else from the global form definitions
     var formDefinition = false;
     if (caseUUID) {
-      var childReport = CIPAPI.casestore.getChildReportForCaseByFormName(caseUUID, formName);
+      var childReport = CIPAPI.casestore.getChildReportForCaseByChildUUID(caseUUID, childUUID);
       if (childReport) {
         log.debug("Using form definition from existing case child");
         formDefinition = childReport.formDefinition;
@@ -399,7 +406,7 @@
       // Set the reportRelUUID to this case then...
       reportRelUUID = caseUUID;
       
-      var childReport = CIPAPI.casestore.getChildReportForCaseByFormName(caseUUID, formName);
+      var childReport = CIPAPI.casestore.getChildReportForCaseByChildUUID(caseUUID, childUUID);
       if (false !== childReport) {
         reportUUID = childReport.serializedData.reportUUID;
         editExisting = true;

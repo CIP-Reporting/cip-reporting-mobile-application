@@ -92,7 +92,7 @@
 
     var caseStore = null;
     try {
-      caseStore = JSON.parse(localStorage.getItem(storageKey));
+      caseStore = CIPAPI.storage.getItem(storageKey);
       if (!Array.isArray(caseStore)) caseStore = new Array();
     } catch(e) {
       caseStore = new Array();
@@ -145,7 +145,7 @@
     CIPAPI.stats.total(statsGroup, 'Total Reports', totalReports);
 
     // Set back to storage
-    localStorage.setItem(storageKey, JSON.stringify(caseStore));
+    CIPAPI.storage.setItem(storageKey, caseStore);
   });
   
   // Get the case collection
@@ -154,7 +154,7 @@
 
     var caseStore = null;
     try {
-      caseStore = JSON.parse(localStorage.getItem(storageKey));
+      caseStore = CIPAPI.storage.getItem(storageKey);
       if (!Array.isArray(caseStore)) caseStore = new Array();
     } catch(e) {
       caseStore = new Array();
@@ -180,7 +180,7 @@
     
     // Set back to storage
     var storageKey = 'CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash();
-    localStorage.setItem(storageKey, JSON.stringify(caseStore));
+    CIPAPI.storage.setItem(storageKey, caseStore);
   }
   
   // Get child form UUIDs for a case by a given form name
@@ -287,7 +287,7 @@
 
     // Set back to storage
     var storageKey = 'CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash();
-    localStorage.setItem(storageKey, JSON.stringify(caseStore));
+    CIPAPI.storage.setItem(storageKey, caseStore);
     
     return removedCase;
   }
@@ -313,7 +313,7 @@
     
     // Set back to storage
     var storageKey = 'CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash();
-    localStorage.setItem(storageKey, JSON.stringify(caseStore));
+    CIPAPI.storage.setItem(storageKey, caseStore);
     
     return newCase;
   }
@@ -325,7 +325,7 @@
     CIPAPI.stats.total(statsGroup, 'Total Cases',   0);
     CIPAPI.stats.total(statsGroup, 'Total Reports', 0);
 
-    localStorage.removeItem('CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash());    
+    CIPAPI.storage.removeItem('CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash());    
     return CIPAPI.casestore.getCases();
   }    
 

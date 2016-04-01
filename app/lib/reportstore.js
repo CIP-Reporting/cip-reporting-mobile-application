@@ -61,14 +61,14 @@
     
     var reportStore = null;
     try {
-      reportStore = JSON.parse(localStorage.getItem(storageKey));
+      reportStore = CIPAPI.storage.getItem(storageKey);
       if (!Array.isArray(reportStore)) reportStore = new Array();
     } catch(e) {
       reportStore = new Array();
     }
 
     reportStore.push(reportData);
-    localStorage.setItem(storageKey, JSON.stringify(reportStore));
+    CIPAPI.storage.setItem(storageKey, reportStore);
     
     CIPAPI.stats.count(statsGroup, 'Total Stored');
 
@@ -87,7 +87,7 @@
     
     var reportStore = null;
     try {
-      reportStore = JSON.parse(localStorage.getItem(storageKey));
+      reportStore = CIPAPI.storage.getItem(storageKey);
       if (!Array.isArray(reportStore)) reportStore = new Array();
     } catch(e) {
       reportStore = new Array();
@@ -127,7 +127,7 @@
       // Go get the store
       var reportStore = null;
       try {
-        reportStore = JSON.parse(localStorage.getItem(storageKey));
+        reportStore = CIPAPI.storage.getItem(storageKey);
         if (!Array.isArray(reportStore)) reportStore = new Array();
       } catch(e) {
         reportStore = new Array();
@@ -164,7 +164,7 @@
             
             // Remove the report from the report store
             reportStore.shift();
-            localStorage.setItem(storageKey, JSON.stringify(reportStore));
+            CIPAPI.storage.setItem(storageKey, reportStore);
             
             // Let the world know...
             $(document).trigger('cipapi-reportstore-remove');

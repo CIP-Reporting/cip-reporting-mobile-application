@@ -64,6 +64,8 @@
             label: CIPAPI.translations.translate('Factory Reset'),
             className: "btn-danger",
             callback: function() {
+              // Clear both local storage and our storage which might or might not be one and the same...
+              CIPAPI.storage.clear();
               localStorage.clear();
               CIPAPI.router.goTo('logout');
             }

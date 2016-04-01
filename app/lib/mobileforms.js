@@ -76,7 +76,7 @@
       // Store the forms to local storage if so configured
       if (CIPAPI.config.persistForms) {
         var storageKey = 'CIPAPI.mobileforms.' + CIPAPI.credentials.getCredentialHash();
-        localStorage.setItem(storageKey, JSON.stringify(CIPAPI.mobileforms));
+        CIPAPI.storage.setItem(storageKey, CIPAPI.mobileforms);
         log.debug("Forms stored in local storage");
       }
       
@@ -101,7 +101,7 @@
     if (!isLoaded && CIPAPI.config.persistForms) {
       try {
         var storageKey = 'CIPAPI.mobileforms.' + CIPAPI.credentials.getCredentialHash();
-        var storedForms = JSON.parse(localStorage.getItem(storageKey));
+        var storedForms = CIPAPI.storage.getItem(storageKey);
         if (storedForms !== null && typeof storedForms === 'object') {
           CIPAPI.mobileforms = storedForms;
           log.debug("Forms merged from local storage");
@@ -128,7 +128,7 @@
 
     // If backed by local storage delete the contents
     if (CIPAPI.config.persistForms) {
-      localStorage.removeItem('CIPAPI.mobileforms.' + CIPAPI.credentials.getCredentialHash());
+      CIPAPI.storage.removeItem('CIPAPI.mobileforms.' + CIPAPI.credentials.getCredentialHash());
       log.debug("Local storage cleared");
     }
   });

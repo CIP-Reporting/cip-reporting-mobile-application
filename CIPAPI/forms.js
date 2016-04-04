@@ -276,6 +276,7 @@
     if (window.cordova && window.navigator && window.navigator.camera) {
       $(formSelector + ' div.cipform_invisible_custom_field input[type=file]').each(function() {
         // Put a media gallery into place
+        var name      = $(this).attr('name');
         var container = $(this).closest('div.form-group');
         var fromCam   = $('<a class="cipform_image_from_camera"  href="javascript: void(0)">From Camera</a>');
         var fromLib   = $('<a class="cipform_image_from_library" href="javascript: void(0)">From Library</a>');
@@ -315,8 +316,10 @@
               // Also let the world know...
               log.debug("Sending notification");
               $(document).trigger('cipapi-forms-media-added', {
-                  imageURI: imageURI,
-                  fileName: fileName
+                 imageURI: imageURI,
+                 fileName: fileName,
+                 formName: name,
+                timeStamp: Math.floor(Date.now() / 1000)
               });
             },
             // On Error
@@ -348,6 +351,7 @@
     var formData = window.FormData ? new FormData() : false;
     if (formData) {
       $(formSelector + ' div.cipform_invisible_custom_field input[type=file]').each(function() {
+        var name = $(this).attr('name');
         // Put a media gallery into place
         var container = $(this).closest('div.form-group');
         container.append('<div class="form-cip-media-thumbnails"></div><div style="clear: both;"></div>');
@@ -372,7 +376,9 @@
                 // Also let the world know...
                 $(document).trigger('cipapi-forms-media-added', {
                     imageURI: e.target.result, // Data URL
-                    fileName: file.name
+                    fileName: file.name,
+                    formName: name,
+                   timeStamp: Math.floor(Date.now() / 1000)
                 });
 
               };

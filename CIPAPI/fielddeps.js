@@ -23,18 +23,20 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.fielddeps = {};
   
-  CIPAPI.fielddeps.rules = [];
+  // Rules as currently known from the service
+  CIPAPI.fielddeps.serverRules = [];
+  
+  // The rules currently in use, which defaults to serverRules above
+  CIPAPI.fielddeps.currentRules = false;
   
   var log = log4javascript.getLogger("CIPAPI.fielddeps");
 
   var isLoaded = false;
 
-
-  // Helper function to search rules by trigger / field name
-  // Example:  CIPAPI.fielddeps.findRuleBy("General Location")
-  CIPAPI.fielddeps.findRuleBy = function(trigger) {
-    return CIPAPI.fielddeps.rules.filter (function(obj) { if (obj.name == trigger) return obj });
-  };
+  // APIs for managing the current dependency rule set
+  CIPAPI.fielddeps.setCurrentRules   = function(rules) { CIPAPI.fielddeps.currentRules = rules; }
+  CIPAPI.fielddeps.getCurrentRules   = function() { return CIPAPI.fielddeps.currentRules ? CIPAPI.fielddeps.currentRules : CIPAPI.fielddeps.serverRules; }
+  CIPAPI.fielddeps.resetCurrentRules = function() { CIPAPI.fielddeps.currentRules = false; }
   
   function loadFieldDependencies() {
     if (!CIPAPI.credentials.areValid()) {
@@ -47,14 +49,14 @@
       url: '/api/versions/current/facts/fielddeps', 
       success: function(response) { 
         CIPAPI.fielddeps.lastUpdated = $.now();
-        CIPAPI.fielddeps.rules = response.data.item[0].data;
+        CIPAPI.fielddeps.serverRules = response.data.item[0].data;
         $(document).trigger('cipapi-fielddeps-set');
         log.debug("Field dependencies loaded");
         isLoaded = true;
         
         // Store the field dependencies to local storage if so configured
         if (CIPAPI.config.persistFieldDependencies) {
-          var storageKey = 'CIPAPI.fielddeps.rules.' + CIPAPI.credentials.getCredentialHash();
+          var storageKey = 'CIPAPI.fielddeps.serverRules.' + CIPAPI.credentials.getCredentialHash();
           localStorage.setItem(storageKey, JSON.stringify(response.data.item[0].data));
           log.debug("Field dependencies stored in local storage");
         }
@@ -84,17 +86,17 @@
 
   // When credentials change reload current field dependencies if not disabled
   $(document).on('cipapi-credentials-set', function() {
-    CIPAPI.fielddeps.rules = [];
+    CIPAPI.fielddeps.serverRules = [];
     delete CIPAPI.fielddeps.lastUpdated;
 
     // If currently NOT loaded AND local storage is enabled try and load field dependency rules
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistFieldDependencies) {
       try {
-        var storageKey = 'CIPAPI.fielddeps.rules.' + CIPAPI.credentials.getCredentialHash();
+        var storageKey = 'CIPAPI.fielddeps.serverRules.' + CIPAPI.credentials.getCredentialHash();
         var storedFieldDeps = JSON.parse(localStorage.getItem(storageKey));
         if (storedFieldDeps !== null && typeof storedFieldDeps === 'object') {
-          CIPAPI.fielddeps.rules = storedFieldDeps;
+          CIPAPI.fielddeps.serverRules = storedFieldDeps;
           log.debug("Field dependencies merged from local storage");
 
           // Simulate full load
@@ -115,13 +117,13 @@
   
   // When credentials are lost, reset our configuration
   $(document).on('cipapi-credentials-reset', function() {
-    CIPAPI.fielddeps.rules = [];
+    CIPAPI.fielddeps.serverRules = [];
     delete CIPAPI.fielddeps.lastUpdated;
     isLoaded = false;
 
     // If backed by local storage delete the contents
     if (CIPAPI.config.persistFieldDependencies) {
-      localStorage.removeItem('CIPAPI.fielddeps.rules.' + CIPAPI.credentials.getCredentialHash());
+      localStorage.removeItem('CIPAPI.fielddeps.serverRules.' + CIPAPI.credentials.getCredentialHash());
       log.debug("Local storage cleared");
     }
   });
@@ -131,8 +133,9 @@
     var fieldName = info.changeTarget ? $(info.changeTarget).attr('name') : false;
     
     // Process each of the rules
-    for (var i=0; i<CIPAPI.fielddeps.rules.length; i++) {
-      var fieldRule = CIPAPI.fielddeps.rules[i];
+    var rules = CIPAPI.fielddeps.getCurrentRules();
+    for (var i=0; i<rules.length; i++) {
+      var fieldRule = rules[i];
 
       // Right now we only support core object fields
       if (fieldRule.object != 'core') continue;
@@ -155,12 +158,12 @@
         for (var j=0; j<fieldRule.hide.length; j++) {
           var formName = CIPAPI.forms.asciiToHex(fieldRule.hide[j]);
 
-// Unlike the old side of the system just because a field dependency rule exists targeting 
-// a specific field does not mean that field exists here based on report type relationships.
-if (!info.jsonForm.formDesc.schema.properties[formName]) {
-  log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
-  continue;
-}
+          // Unlike the old side of the system just because a field dependency rule exists targeting 
+          // a specific field does not mean that field exists here based on report type relationships.
+          if (!info.jsonForm.formDesc.schema.properties[formName]) {
+            log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
+            continue;
+          }
 
           log.debug('Hiding field ' + fieldRule.hide[j] + ' (' + formName + ')');
           var field = $(info.formSelector + ' .form-control[name=' + formName + ']');
@@ -183,12 +186,12 @@ if (!info.jsonForm.formDesc.schema.properties[formName]) {
         for (var k=0; k<fieldRule.show.length; k++) {
           var formName = CIPAPI.forms.asciiToHex(fieldRule.show[k]);
 
-// Unlike the old side of the system just because a field dependency rule exists targeting 
-// a specific field does not mean that field exists here based on report type relationships.
-if (!info.jsonForm.formDesc.schema.properties[formName]) {
-  log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
-  continue;
-}
+          // Unlike the old side of the system just because a field dependency rule exists targeting 
+          // a specific field does not mean that field exists here based on report type relationships.
+          if (!info.jsonForm.formDesc.schema.properties[formName]) {
+            log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
+            continue;
+          }
 
           log.debug('Showing field ' + fieldRule.show[k] + ' (' + formName + ')');
           var field = $(info.formSelector + ' .form-control[name=' + formName + ']');
@@ -215,12 +218,12 @@ if (!info.jsonForm.formDesc.schema.properties[formName]) {
         for (var l=0; l<fieldRule.values.length; l++) {
           var formName = CIPAPI.forms.asciiToHex(fieldRule.values[l].name);
 
-// Unlike the old side of the system just because a field dependency rule exists targeting 
-// a specific field does not mean that field exists here based on report type relationships.
-if (!info.jsonForm.formDesc.schema.properties[formName]) {
-  log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
-  continue;
-}
+          // Unlike the old side of the system just because a field dependency rule exists targeting 
+          // a specific field does not mean that field exists here based on report type relationships.
+          if (!info.jsonForm.formDesc.schema.properties[formName]) {
+            log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
+            continue;
+          }
 
           log.debug('Changing values for field ' + fieldRule.values[l].name + ' (' + formName + ')');
           var field = $(info.formSelector + ' .form-control[name=' + formName + ']');

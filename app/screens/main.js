@@ -54,7 +54,7 @@
   // Store images for packaging later  
   var imageStorage = [];
   $(document).on('cipapi-forms-media-added', function(event, info) {
-    log.debug('Parking image: ' + info.imageURI);
+    log.debug('Parking image: ' + info.fileName);
     imageStorage.push(info);
   });
 
@@ -150,8 +150,8 @@
     
     // Make sure case record exists
     if (caseOffset >= cases.length) {
-      log.error('Case record does not exist at offset ' + caseOffset);
-      CIPAPI.router.goTo('main', { action: 'list' });
+      log.warn('Case record does not exist at offset (yet)' + caseOffset);
+      return CIPAPI.router.goTo('main', { action: 'list' });
     }
     
     var caseRecord = cases[caseOffset];
@@ -186,17 +186,23 @@
         var extraCss = percentComplete === false ? '-notexist' : '';
 
         var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
+        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
       }
     });
 
-    // Attach click handlers
+    // Attach click and long click handlers
     $('div#main-content-area form div div a').each(function() {
       var btn = $(this);
-      btn.click(function() {
-        var btn = $(this);
+      CIPAPI.longclick.monitor(this, function() { // Click
         CIPAPI.router.goTo('main', { action: 'form', form: btn.attr('data-form'), case: caseUUID, uuid: btn.attr('data-uuid') });
-      });
+      }, function() { // Long Click
+        // Vibrate for a moment
+        if (window.cordova) {
+          navigator.vibrate(500);
+        }
+        
+        log.warn('No long click support yet');
+      })
     });
     
     // Output a potential clear div
@@ -204,7 +210,7 @@
 
     // Output case ending button    
     var span = '<span class="glyphicon glyphicon-check"></span> ';
-    $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="' + caseUUID + '" class="formbtn btn btn-primary btn-lg btn-custom-end-case">' + span + CIPAPI.translations.translate('Complete Case') + '</a></div>');
+    $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="' + caseUUID + '" class="formbtn btn btn-primary btn-lg btn-custom-end-case">' + span + CIPAPI.translations.translate('Complete Case') + '</a></div>');
     
     // Assign click handler
     $('div#main-content-area form div div a.btn-custom-end-case').click(function() {
@@ -266,7 +272,7 @@
     $.each(buttonCollection, function(key, val) {
       if (key != CIPAPI.config.caseModeForm) return;
       var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="' + key + '" class="formbtn btn btn-primary btn-lg btn-custom btn-custom-start-case">' + span + key + '</a></div>');
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" ><a data-form="' + key + '" class="formbtn btn btn-primary btn-lg btn-custom btn-custom-start-case">' + span + key + '</a></div>');
     });
     
     // Assign click handler
@@ -283,7 +289,7 @@
     
     // Output current cases
     $.each(CIPAPI.casestore.getCases(), function(caseKey, caseRecord) {
-      var caseDiv = $('<div class="casebtn col-xs-12 col-sm-6 col-md-4 col-lg-3"></div>');
+      var caseDiv = $('<div class="casebtn col-xs-12 col-sm-12 col-md-6 col-lg-6"></div>');
       var caseLnk = $('<a data-form="' + caseKey + '" class="casebtn btn btn-primary btn-lg btn-custom"></a>');
 
       // Output the button text
@@ -338,14 +344,14 @@
     if (CIPAPI.config.enableBarcodeScanner !== false) {
       var title = CIPAPI.translations.translate('Barcode Scanner');
       var span = '<span class="glyphicon glyphicon-barcode"></span> ';
-      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="barcode-scanner" class="btn btn-primary btn-lg btn-custom">' + span + title + '</a></div>');
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="barcode-scanner" class="btn btn-primary btn-lg btn-custom">' + span + title + '</a></div>');
     }
     
     $.each(buttonCollection, function(key, val) {
       if (-1 !== $.inArray(key, CIPAPI.config.hiddenForms)) return;
 
       var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" ><a data-form="' + key + '" class="btn btn-primary btn-lg btn-custom">' + span + key + '</a></div>');
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="' + key + '" class="btn btn-primary btn-lg btn-custom">' + span + key + '</a></div>');
     });
     
     $('div#main-content-area form div div a').each(function() {
@@ -372,22 +378,27 @@
     
     // Grab the form definition from the case definition if possible else from the global form definitions
     var formDefinition = false;
+    var fieldDependencies = false;
     if (caseUUID) {
       var childReport = CIPAPI.casestore.getChildReportForCaseByChildUUID(caseUUID, childUUID);
       if (childReport) {
         log.debug("Using form definition from existing case child");
-        formDefinition = childReport.formDefinition;
+        formDefinition = jQuery.extend(true, {}, childReport.formDefinition);
+        fieldDependencies = jQuery.extend(true, [], childReport.fieldDependencies);
       } else {
         log.debug("Using form definition from global form data instead of case child");
         formDefinition = jQuery.extend(true, {}, CIPAPI.mobileforms[formName]);
+        fieldDependencies = jQuery.extend(true, [], CIPAPI.fielddeps.getCurrentRules());
       }
     } else {
       log.debug("Using form definition from global form data");
       formDefinition = jQuery.extend(true, {}, CIPAPI.mobileforms[formName]);
+      fieldDependencies = jQuery.extend(true, [], CIPAPI.fielddeps.getCurrentRules());
     }
     
     // Make a deep copy of the original
     var originalFormDefinition = jQuery.extend(true, {}, formDefinition);
+    var originalFieldDependencies = jQuery.extend(true, [], fieldDependencies);
     
     var editExisting = false;
     
@@ -424,7 +435,7 @@
           });
           
 // TODO: We probably need to do a CSV split on multi-select fields and we may also need to use strings vs. arrays depending on type
-log.error("TODO: Form value type: " + formValueType);
+log.warn("TODO: Form value type: " + formValueType);
           formDefinition.value[fieldKey] = fieldValue;
         });
       } else {
@@ -452,15 +463,28 @@ log.error("TODO: Form value type: " + formValueType);
         values.reportUUID = reportUUID ? reportUUID : CIPAPI.uuid.get();
         values.reportRelUUID = reportRelUUID ? reportRelUUID : values.reportUUID;
         
+        // If in case mode rename the attachments to have enough information to know what tab and input the image is for
+        if (caseUUID) {
+          $.each(imageStorage, function(key, value) {
+            var nameParts = imageStorage[key].fileName.split('.')
+            var extension = nameParts.length > 1 ? ('.' + nameParts.pop()) : '';
+            
+            imageStorage[key].fileName = reportUUID + '_' + imageStorage[key].formName + '_' + imageStorage[key].timeStamp + extension;
+            log.debug('New attachment name: ' + imageStorage[key].fileName);
+          });        
+        }
+        
         // Store the report for transmission
         CIPAPI.reportstore.storeReport({
-                  formName: formName,
-            formDefinition: originalFormDefinition,
-            serializedData: values,
-          serializedImages: imageStorage,
-            mobileMetadata: CIPAPI.stats.fetch(),
-            destinationURL: '/api/versions/current/integrations/' + escape(CIPAPI.config.useSingleURL ? CIPAPI.config.overrideIntegration : formName),
-          destinationQuery: CIPAPI.config.useSingleURL ? formName : false
+                    version: 1,
+                   formName: formName,
+             formDefinition: originalFormDefinition,
+          fieldDependencies: originalFieldDependencies,
+             serializedData: values,
+           serializedImages: imageStorage,
+             mobileMetadata: CIPAPI.stats.fetch(),
+             destinationURL: '/api/versions/current/integrations/' + escape(CIPAPI.config.useSingleURL ? CIPAPI.config.overrideIntegration : formName),
+           destinationQuery: CIPAPI.config.useSingleURL ? formName : false
         });
         
         // Kick off a report send attempt
@@ -472,6 +496,7 @@ log.error("TODO: Form value type: " + formValueType);
     }
 
     // Show me some form
+    CIPAPI.fielddeps.setCurrentRules(fieldDependencies);
     CIPAPI.forms.Render(formDefinition, false, editExisting);
 
     // Need a clearfix between the submit button and form due to float and fixed changes in bootstrap depending on media size.

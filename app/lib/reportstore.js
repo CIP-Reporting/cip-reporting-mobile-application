@@ -192,7 +192,7 @@
       
       // Add in images which were serialized
       $.each(reportStore[0].serializedImages, function(index, stored) {
-        log.debug('Adding image: ' + stored.imageURI);
+        log.debug('Adding image: ' + stored.fileName);
         imagesBeingQueued++;
 
         CIPAPI.stats.count(statsGroup, 'Total Images');
@@ -261,7 +261,7 @@
             var imageData = matches[2];
 
             formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), stored.fileName);
-            log.debug('Added image: ' + stored.imageURI);
+            log.debug('Added image: ' + stored.fileName);
             imagesBeingQueued--;
           
             if (imagesBeingQueued == 0) {

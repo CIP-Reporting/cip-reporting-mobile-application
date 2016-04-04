@@ -2,7 +2,7 @@
 <widget xmlns = "http://www.w3.org/ns/widgets"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.4356">
+  version = "1.0.4368">
 
   <name>CIP Reporting</name>
 
@@ -70,9 +70,6 @@
   <!-- Bar Code Scanning -->
   <gap:plugin name="com.jp.bc2" spec="1.0" source="pgb" />
   
-  <!-- SQLite Database -->
-  <gap:plugin name="com.brodysoft.sqliteplugin " />
-
   <!-- Define platforms -->
   <gap:platform name="android" />
   <gap:platform name="ios" />

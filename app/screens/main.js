@@ -186,7 +186,7 @@
         var extraCss = percentComplete === false ? '-notexist' : '';
 
         var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
+        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
       }
     });
 
@@ -198,7 +198,7 @@
       }, function() { // Long Click
         // Vibrate for a moment
         if (window.cordova) {
-          navigator.vibrate(500);
+          navigator.vibrate(200);
         }
         
         log.warn('No long click support yet');
@@ -210,7 +210,7 @@
 
     // Output case ending button    
     var span = '<span class="glyphicon glyphicon-check"></span> ';
-    $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="' + caseUUID + '" class="formbtn btn btn-primary btn-lg btn-custom-end-case">' + span + CIPAPI.translations.translate('Complete Case') + '</a></div>');
+    $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + caseUUID + '" class="formbtn btn btn-primary btn-lg btn-custom-end-case">' + span + CIPAPI.translations.translate('Complete Case') + '</a></div>');
     
     // Assign click handler
     $('div#main-content-area form div div a.btn-custom-end-case').click(function() {

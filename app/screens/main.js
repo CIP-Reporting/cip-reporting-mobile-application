@@ -527,6 +527,41 @@ log.warn("TODO: Form value type: " + formValueType);
     
     // Fire off the behavior handler for forms
     $(document).trigger('cipapi-behaviors-apply-forms');
+    
+    // Track if field values actually are changed
+    var fieldValuesChanged = false;
+    $(document).on('cipapi-fieldvalues-change', function() { fieldValuesChanged = true; });
+    
+    // Put a custom back handler in place that can prompt to save on navigate away
+    CIPAPI.navbar.registerBackHandler(function() {
+      // If no changes, just go back...
+      if (!fieldValuesChanged) return CIPAPI.navbar.goBack();
+      
+      $(document).trigger('cipapi-behaviors-haptic-feedback');
+      bootbox.dialog({
+        message: CIPAPI.translations.translate('WARNING: You attempting to go back without saving your changes.'),
+        title: CIPAPI.translations.translate('Save Changes'),
+        buttons: {
+          danger: {
+            label: CIPAPI.translations.translate('Abandon Changes'),
+            className: "btn-danger",
+            callback: function() {
+              // Go somewhere...
+              CIPAPI.navbar.goBack();
+              bootbox.hideAll();
+            }
+          },
+          main: {
+            label: CIPAPI.translations.translate('Save Changes'),
+            className: "btn-primary btn-custom",
+            callback: function() {
+              bootbox.hideAll();
+              $('input.cipform-save-report').click();
+            }
+          }
+        }
+      });
+    });
   }
 
 })(window);

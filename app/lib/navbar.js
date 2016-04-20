@@ -25,6 +25,8 @@
 
   var log = log4javascript.getLogger("CIPAPI.navbar");
 
+  var oneTimeBackHandler = false;
+  var activelySpinning = false;
   var backButtonQueue = [];
   
   // Draw some navbar!
@@ -87,12 +89,10 @@
     $.event.special.tap.emitTapOnTaphold = false;
   }
   
-  // Hide splash screen when routed
-  $(document).on('cipapi-routed', function(event, info) {
-    if (window.cordova) {
-      navigator.splashscreen.hide();
-    }
-  });
+  // Register a one time back handler override
+  CIPAPI.navbar.registerBackHandler = function(handler) {
+    oneTimeBackHandler = handler;
+  }
   
   // Go back ... maybe!
   CIPAPI.navbar.goBack = function() {
@@ -115,9 +115,21 @@
     window.location.href = 'index.html' + goBackHash;
   }
 
+  // Clear custom back handler
+  $(document).on('cipapi-pre-handle cipapi-pre-update', function(event, info) {
+    oneTimeBackHandler = false;
+  });
+  
   // Attach to pre-route automagically
   $(document).on('cipapi-pre-handle', function(event, info) {
     CIPAPI.navbar.render(info.hash + '-content-area');
+  });
+  
+  // Hide splash screen when routed
+  $(document).on('cipapi-routed', function(event, info) {
+    if (window.cordova) {
+      navigator.splashscreen.hide();
+    }
   });
   
   // After routing manage the stack and set the back link up if prudent
@@ -147,8 +159,13 @@
     // If the queue has any entries in it, enable the back button
     if (backButtonQueue.length > 0) {
       log.debug("Back button queue: " + backButtonQueue.length);
-      $('a#navbar-back-button').addClass('navbar-back-button-active').click(function() {
-        CIPAPI.navbar.goBack();
+      $('a#navbar-back-button').addClass('navbar-back-button-active').off('click').on('click', function() {
+        if (oneTimeBackHandler) {
+          log.debug("Firing custom back handler");
+          oneTimeBackHandler();
+        } else {
+          CIPAPI.navbar.goBack();
+        }
       });
     } else {
       log.debug("Back button queue exhausted, removing handlers");
@@ -223,7 +240,6 @@
   });
   
   // Fired when the REST engine is active
-  var activelySpinning = false;
   $(document).on('cipapi-rest-active', function(event, info) {
     $('#cipapi-navbar-logo').addClass('cipapi-logo-spin');
 
@@ -295,6 +311,7 @@
     $('#cipapi-screen-overlay').hide();
   });
 
+  // Give the user a little tactile feedback
   $(document).on('cipapi-behaviors-haptic-feedback', function(event, info) {
     // Vibrate for a moment
     if (window.cordova) {

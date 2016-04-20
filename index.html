@@ -165,7 +165,8 @@
     <script src="./app/lib/dynamiccss.js"></script>
     <script src="./app/lib/barcode.js"></script>
     <script src="./app/lib/filesize.js"></script>
-    <script src="./app/lib/longclick.js"></script>
+
+    <script src="./app/lib/jquery.mobile-1.4.5.min.js"></script>
     
     <!-- Customer Provided -->
     <script src="./app/customize/js/custom.js"></script>
@@ -174,37 +175,42 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-            applicationVersion: '1.0.4368',                     // Set by the packaging script to know our own version
-           overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
-        reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
-              reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
-          reloadConfigInterval: 'cipapi-timing-1day',               // How often to reload the configuration override from the server
-           sendReportsInterval: 'cipapi-timing-1min',               // How often to passively try and send reports
-                 thumbMaxWidth: '128px',                            // Thumbnail for attachments maximum width
-                thumbMaxHeight: '128px',                            // Thumbnail for attachments maximum height
-                 persistConfig: true,                               // Store config in local storage to avoid start up network access
-               persistSettings: true,                               // Store settings in local storage to avoid start up network access
-                     persistMe: true,                               // Store config in local storage to avoid start up network access
-                  persistForms: true,                               // Store forms in local storage to avoid start up network access
-              notifyReportSync: true,                               // Show bootbox notification when reports are successfully sync'd to the server
-                 usePreciseGPS: false,                              // Use precise GPS tracking or false for location approximation
-                  useSingleURL: false,                              // Use a single API URL for config and form interactions
-                  caseModeForm: false,                              // Can be set to the name of a form to put the mobile application into case mode
-              caseModeSyncForm: false,                              // Can be set to a form name to request which should respond with open cases
-                    dynamicCSS: false,                              // Can be provided by server configuration to be injected into the application
-          enableBarcodeScanner: false,                              // Can be provided by server configuration to enable bar code scanning
-            caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
-                   hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
-                      apiForms: { }                                 // Should most likely be loaded from the config override integration
-                                                                    // In the form of the key is the form integration and the value is the
-                                                                    // friendly name to display on the button.  The order controls the order
-                                                                    // of the buttons.  Example:
-                                                                    //
-                                                                    // apiForms: { 'Test Form': 'Create a Test Form', 'New Form': 'Create a New Form' }
+              applicationVersion: '1.0.4403',                     // Set by the packaging script to know our own version
+             overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
+          reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
+                reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
+            reloadConfigInterval: 'cipapi-timing-1day',               // How often to reload the configuration override from the server
+             sendReportsInterval: 'cipapi-timing-1min',               // How often to passively try and send reports
+                   thumbMaxWidth: '128px',                            // Thumbnail for attachments maximum width
+                  thumbMaxHeight: '128px',                            // Thumbnail for attachments maximum height
+                   persistConfig: true,                               // Store config in local storage to avoid start up network access
+                 persistSettings: true,                               // Store settings in local storage to avoid start up network access
+                       persistMe: true,                               // Store config in local storage to avoid start up network access
+                    persistForms: true,                               // Store forms in local storage to avoid start up network access
+        persistFieldDependencies: true,                               // Store field dependency in local storage to avoid start up network access
+             persistTranslations: true,                               // Store translations in local storage to avoid start up network access
+                notifyReportSync: true,                               // Show bootbox notification when reports are successfully sync'd to the server
+                   usePreciseGPS: false,                              // Use precise GPS tracking or false for location approximation
+                    useSingleURL: false,                              // Use a single API URL for config and form interactions
+                    caseModeForm: false,                              // Can be set to the name of a form to put the mobile application into case mode
+                caseModeSyncForm: false,                              // Can be set to a form name to request which should respond with open cases
+                      dynamicCSS: false,                              // Can be provided by server configuration to be injected into the application
+            enableBarcodeScanner: false,                              // Can be provided by server configuration to enable bar code scanning
+              caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
+                     hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
+                        apiForms: { }                                 // Should most likely be loaded from the config override integration
+                                                                      // In the form of the key is the form integration and the value is the
+                                                                      // friendly name to display on the button.  The order controls the order
+                                                                      // of the buttons.  Example:
+                                                                      //
+                                                                      // apiForms: { 'Test Form': 'Create a Test Form', 'New Form': 'Create a New Form' }
       });
       
       // Are we running in native app or in a browser?
       $(document).ready(function() {
+        // Disable the context menu
+        $('body').attr('oncontextmenu', 'return false;');
+        
         if (window.cordova) {
           document.addEventListener("deviceready", function() { 
             // Initialize

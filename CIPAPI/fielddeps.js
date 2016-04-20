@@ -145,7 +145,9 @@
       if (fieldName && fieldName != encodedFieldName) continue;
 
       // If we get here we want the value of the field...
-      var fieldValue = $(info.formSelector + ' select[name=' + encodedFieldName + ']').val() || '';
+      var fieldValue = $(info.formSelector + ' select[name=' + encodedFieldName + ']').val() || 
+                       $(info.formSelector +  ' input[name=' + encodedFieldName + ']:checked').val() || 
+                       '';
       
       // Equality?
       if (fieldRule.condition == 'eq' && fieldRule.value != fieldValue) continue; // Not a match
@@ -161,20 +163,27 @@
           // Unlike the old side of the system just because a field dependency rule exists targeting 
           // a specific field does not mean that field exists here based on report type relationships.
           if (!info.jsonForm.formDesc.schema.properties[formName]) {
-            log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
+//            log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
             continue;
           }
 
           log.debug('Hiding field ' + fieldRule.hide[j] + ' (' + formName + ')');
           var field = $(info.formSelector + ' .form-control[name=' + formName + ']');
-          var container = field.parent().parent();
-          
+          if (field.length == 0) {
+            // If no match, assume a radio button control
+            field = $(info.formSelector + ' input[name=' + formName + ']');
+          }
+
           field.val([]); // No value when being hidden
 
+          var container = field.closest('div.form-group');
+          
           // Any field that is being hidden will be marked as no longer required
           container.addClass('hide');
-          container.removeClass('jsonform-required');
-          field.removeAttr('required');
+          if (container.hasClass('jsonform-required')) {
+            container.removeClass('jsonform-required').addClass('jsonform-was-required');
+            field.removeAttr('required');
+          }
           
           if (info.jsonForm.formDesc.schema.properties[formName])
             info.jsonForm.formDesc.schema.properties[formName].required = false;
@@ -189,20 +198,25 @@
           // Unlike the old side of the system just because a field dependency rule exists targeting 
           // a specific field does not mean that field exists here based on report type relationships.
           if (!info.jsonForm.formDesc.schema.properties[formName]) {
-            log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
+//            log.debug('Field does not exist at this time: ' + CIPAPI.forms.hexToAscii(formName));
             continue;
           }
 
           log.debug('Showing field ' + fieldRule.show[k] + ' (' + formName + ')');
           var field = $(info.formSelector + ' .form-control[name=' + formName + ']');
-          var container = field.parent().parent();
+          if (field.length == 0) {
+            // If no match, assume a radio button control
+            field = $(info.formSelector + ' input[name=' + formName + ']');
+          }
 
-          // Any field being shown via dependencies is considered mandatory at this time even if not so configured
-          // on the admin interface.  This should be changed to something more intelligent (actual field config)
-          // when we have the ability to enforce this properly on the API.
+          var container = field.closest('div.form-group');
+
+          // Restore the original required status
           container.removeClass('hide');
-          container.addClass('jsonform-required');
-          field.attr('required', 'required');
+          if (container.hasClass('jsonform-was-required')) {
+            container.removeClass('jsonform-was-required').addClass('jsonform-required');
+            field.attr('required', 'required');
+          }
           
           if (info.jsonForm.formDesc.schema.properties[formName])
             info.jsonForm.formDesc.schema.properties[formName].required = true;

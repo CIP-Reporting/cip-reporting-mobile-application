@@ -257,7 +257,7 @@
         log.debug("Creating look up request");
         
         // Try and lookup the account details
-        $.ajax({ url: 'http://rslookup.cipreporting.com?i=' + escape(emailAddress), timeout: 30000, dataType: 'json' }).done(function (cfg) {
+        $.ajax({ url: 'https://rslookup.cipreporting.com?i=' + escape(emailAddress), timeout: 30000, dataType: 'json' }).done(function (cfg) {
           try {
             log.debug("Look up response received: " + cfg);
             

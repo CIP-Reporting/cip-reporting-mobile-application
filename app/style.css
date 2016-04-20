@@ -79,7 +79,7 @@ i#navbar-pending-reports {
 
 /* Position fixed CSS workaround for iOS */
 .navbar { 
-  position: absolute; 
+  position: fixed; 
 } 
 
 /****************************
@@ -350,10 +350,9 @@ div.cipform_boxheader_custom_field div span {
 }
 
 div.cipform_header_custom_field div span {
-  padding-left: 10px;
-  padding-bottom: 5px;
-  font-weight: bold;
   border-bottom: 2px solid black;
+  font-weight: bold;
+  padding: 5px;
 }
 
 div.cipform_instruction_custom_field div span {
@@ -622,3 +621,36 @@ div.casebtn a h5 {
   background-color: #83f083;
   background-image: linear-gradient(to bottom, #83f083, #03f403);
 }
+
+p.prepended-p {
+  margin: 0px;
+}
+
+/* http://stackoverflow.com/questions/5523735/how-to-make-a-radio-button-look-like-a-toggle-button */
+div.convert-to-push-buttons label.btn {
+  background-color: #EFEFEF;
+  border: 1px solid #D0D0D0;
+  border-radius: 4px;
+  overflow: auto;
+  padding: 0px;
+  width: 100px;
+  margin: 4px;
+}
+
+div.convert-to-push-buttons label.btn span {
+  text-align: center;
+  font-size: 22px;
+  padding: 7px 0px;
+  display: block;
+}
+
+div.convert-to-push-buttons label.btn input {
+  visibility: hidden;
+}
+
+div.convert-to-push-buttons label.btn input:checked + span {
+  background-color: #404040;
+  color: #F7F7F7;
+}
+
+div.ui-loader { display: none; }

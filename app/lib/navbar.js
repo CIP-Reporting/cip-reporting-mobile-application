@@ -34,8 +34,8 @@
     var html = '' +  
       '<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">' +
       '  <div class="navbar-header">' +
-      '    <div class="navbar-back-button"><a id="navbar-back-button" href="javascript: void(0)"><span class="glyphicon glyphicon-share-alt"></span></a></div>' +
-      '    <div class="navbar-network-access"><a id="navbar-network-access">' +
+      '    <div class="navbar-back-button"><a data-ajax="false" id="navbar-back-button" href="javascript: void(0)"><span class="glyphicon glyphicon-share-alt"></span></a></div>' +
+      '    <div class="navbar-network-access"><a data-ajax="false" id="navbar-network-access">' +
       '      <img id="cipapi-navbar-logo" src="' + logoURL + '" />' +
       '    </a></div>' +
       '    <div class="navbar-pending-reports"><i id="navbar-pending-reports" style="display: none;"><span class="glyphicon glyphicon-send"></span> <span id="navbar-pending-count">0</span> Pending</i></div>' +
@@ -52,17 +52,17 @@
     if (CIPAPI.credentials.areValid()) {
       // If authenticated...
       html += '' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#main!action=list"><span class="glyphicon glyphicon-list-alt"></span> ' + CIPAPI.translations.translate('Report List') + '</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" id="cipapi-server-synchronize" href="javascript: void(0)"><span class="glyphicon glyphicon-refresh"></span> ' + CIPAPI.translations.translate('Synchronize') + '</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> ' + CIPAPI.translations.translate('Help') + '</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> ' + CIPAPI.translations.translate('Diagnostics') + '</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> ' + CIPAPI.translations.translate('Sign Out') + '</a></li>';
+        '      <li><a data-ajax="false" data-toggle="collapse" data-target=".navbar-collapse" href="#main!action=list"><span class="glyphicon glyphicon-list-alt"></span> ' + CIPAPI.translations.translate('Report List') + '</a></li>' +
+        '      <li><a data-ajax="false" data-toggle="collapse" data-target=".navbar-collapse" id="cipapi-server-synchronize" href="javascript: void(0)"><span class="glyphicon glyphicon-refresh"></span> ' + CIPAPI.translations.translate('Synchronize') + '</a></li>' +
+        '      <li><a data-ajax="false" data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> ' + CIPAPI.translations.translate('Help') + '</a></li>' +
+        '      <li><a data-ajax="false" data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> ' + CIPAPI.translations.translate('Diagnostics') + '</a></li>' +
+        '      <li><a data-ajax="false" data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> ' + CIPAPI.translations.translate('Sign Out') + '</a></li>';
     } else {
       // If not authenticated...
       html += '' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> ' + CIPAPI.translations.translate('Help') + '</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> ' + CIPAPI.translations.translate('Diagnostics') + '</a></li>' +
-        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> ' + CIPAPI.translations.translate('Start Over') + '</a></li>';
+        '      <li><a data-ajax="false" data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> ' + CIPAPI.translations.translate('Help') + '</a></li>' +
+        '      <li><a data-ajax="false" data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> ' + CIPAPI.translations.translate('Diagnostics') + '</a></li>' +
+        '      <li><a data-ajax="false" data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> ' + CIPAPI.translations.translate('Start Over') + '</a></li>';
     }
     
     html += '' +
@@ -292,4 +292,11 @@
     $('#cipapi-screen-overlay').hide();
   });
 
+  $(document).on('cipapi-touch-hold', function(event, info) {
+    // Vibrate for a moment
+    if (window.cordova) {
+      navigator.vibrate(333);
+    }
+  });
+  
 })(window);

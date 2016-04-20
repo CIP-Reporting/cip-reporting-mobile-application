@@ -58,6 +58,7 @@
     log.error(msg);
     isLoaded = true;
     CIPAPI.router.validateMetadata();
+    $(document).trigger('cipapi-storage-ready');
   }
 
   // When configuration is set re-load the db
@@ -88,6 +89,7 @@
                   isLoaded = true;
                   log.debug("Storage Ready");
                   CIPAPI.router.validateMetadata();
+                  $(document).trigger('cipapi-storage-ready');
                 },
                 function(er) { initError(er.message); }
               );

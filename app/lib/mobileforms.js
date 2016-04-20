@@ -71,6 +71,7 @@
     $.when.apply(null, requests).then(function() {
       isLoaded = true;
       $(document).trigger('cipapi-mobile-forms-set');
+      $(document).trigger('cipapi-mobile-forms-updated');
       CIPAPI.stats.timestamp(statsGroup, 'Last Update');
         
       // Store the forms to local storage if so configured
@@ -93,7 +94,7 @@
   });
   
   // When configuration is set re-load the forms list
-  $(document).on('cipapi-config-set', function() {
+  $(document).on('cipapi-storage-ready', function() {
     CIPAPI.mobileforms = {};
 
     // If currently NOT loaded AND local storage is enabled try and load forms

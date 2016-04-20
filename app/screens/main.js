@@ -190,19 +190,13 @@
       }
     });
 
-    // Attach click and long click handlers
-    $('div#main-content-area form div div a').each(function() {
+    // Handle form clicks
+    $('div#main-content-area form div div a').on('tap', function(e) {
       var btn = $(this);
-      CIPAPI.longclick.monitor(this, function() { // Click
-        CIPAPI.router.goTo('main', { action: 'form', form: btn.attr('data-form'), case: caseUUID, uuid: btn.attr('data-uuid') });
-      }, function() { // Long Click
-        // Vibrate for a moment
-        if (window.cordova) {
-          navigator.vibrate(200);
-        }
-        
-        log.warn('No long click support yet');
-      })
+      CIPAPI.router.goTo('main', { action: 'form', form: btn.attr('data-form'), case: caseUUID, uuid: btn.attr('data-uuid') });
+    }).on('taphold', function(e) {
+      // TODO: Context menu of some sorts?
+      $(document).trigger('cipapi-touch-hold');
     });
     
     // Output a potential clear div
@@ -524,8 +518,65 @@ log.warn("TODO: Form value type: " + formValueType);
     }
     
     // Give camera and library access links a make over if present
-    $('a.cipform_image_from_camera').addClass('btn btn-primary btn-md btn-custom cipform-real-camera').html('<span class="glyphicon glyphicon-camera"></span> From Camera');
-    $('a.cipform_image_from_library').addClass('btn btn-primary btn-md btn-custom cipform-real-camera').html('<span class="glyphicon glyphicon-picture"></span> From Library');
+    $('a.cipform_image_from_camera').addClass('btn btn-primary btn-md btn-custom cipform-real-camera').html('<span class="glyphicon glyphicon-camera"></span><span class="media-description"> From Camera</span>');
+    $('a.cipform_image_from_library').addClass('btn btn-primary btn-md btn-custom cipform-real-camera').html('<span class="glyphicon glyphicon-picture"></span><span class="media-description"> From Library</span>');
+    
+    // Prepend P elements into the help blocks which can be used for styling
+    $('span.help-block').each(function() { $('<p class="prepended-p"></p>').prependTo($(this)); });
+    
+    // Fixups - Certain styles can be injected onto the form definitions that drive us to make changes
+    //          to the page.  This allows for servers to generate forms with some customizations on a per
+    //          customer basis.  This is extensible assuming new releases of the mobile application.
+    
+    // Apply wrapper DIV to fields if requested
+    $('div.start-of-field-grouping').each(function() {
+      var wrapperDiv = $('<div class="field-grouping-container"></div>');
+      wrapperDiv.insertBefore(this);
+      $(this).nextUntil(".start-of-field-grouping").appendTo(wrapperDiv);
+      $(this).prependTo(wrapperDiv);
+    });
+    
+    // Convert radios to buttons via CSS if so requested
+    $('div.convert-to-push-buttons label.radio').each(function() {      
+      $(this).addClass('btn').on('taphold', function(e) {
+        $(this).find('input').val([]).change(); 
+        $(document).trigger('cipapi-touch-hold');
+      }).find('span').attr('data-value', $(this).find('input').val());
+    });
+    
+    // Feature which will catch a swipe right, select the first radio in any group within, and scroll out of view
+    $('.swipe-right-first-group-picker').on('swiperight', function(e) {
+      var lastName = '';
+      $(this).parent().find('*').filter(':input').each(function() {
+        var elem = $(this);
+        
+        // Radio groups only work on first element
+        var currentName = elem.attr('name');
+        if (currentName == lastName) return;
+        lastName = currentName;
+        
+        // Make sure the element is visible
+        if (elem.is(':hidden') == true) return;
+        
+        var tagName = elem.get(0).tagName;
+        if (tagName == "INPUT") {
+          var inputType = elem.attr('type');
+          if (inputType == 'radio' || inputType == 'checkbox') {
+            elem.click().change();
+          }
+        }
+        
+        // TODO: Support other input types as needed such as selects
+      });
+      
+      // Scroll to top of the next element
+      var nextSibling = $(this).parent().next();
+      if (nextSibling.length) {
+        $('html, body').animate({
+          scrollTop: nextSibling.offset().top - $('div.navbar').height()
+        }, 500);
+      }
+    });
   }
 
 })(window);

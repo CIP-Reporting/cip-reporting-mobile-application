@@ -330,7 +330,7 @@
   }    
 
   // Monitor for forms updates ... a lazy way to hook into the process over all to update
-  $(document).on('cipapi-mobile-forms-set', function() { 
+  $(document).on('cipapi-mobile-forms-updated', function() { 
     var key = CIPAPI.config.caseModeSyncForm;
 
     if (key === false) {

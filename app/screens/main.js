@@ -536,7 +536,8 @@ log.warn("TODO: Form value type: " + formValueType);
       // If no changes, just go back...
       if (!fieldValuesChanged) return CIPAPI.navbar.goBack(skipHaptic);
       
-      $(document).trigger('cipapi-behaviors-haptic-feedback');
+      if (!skipHaptic) $(document).trigger('cipapi-behaviors-haptic-feedback');
+      
       bootbox.dialog({
         message: CIPAPI.translations.translate('WARNING: You attempting to go back without saving your changes.'),
         title: CIPAPI.translations.translate('Save Changes'),
@@ -546,7 +547,7 @@ log.warn("TODO: Form value type: " + formValueType);
             className: "btn-danger",
             callback: function() {
               // Go somewhere...
-              CIPAPI.navbar.goBack(skipHaptic);
+              CIPAPI.navbar.goBack();
               bootbox.hideAll();
             }
           },

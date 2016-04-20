@@ -86,6 +86,7 @@
     }
     
     // Configure jQuery Mobile parameters for touch events
+    $.event.special.swipe.horizontalDistanceThreshold = 10;
     $.event.special.tap.emitTapOnTaphold = false;
   }
   
@@ -97,6 +98,7 @@
   // Go back ... maybe!
   CIPAPI.navbar.goBack = function() {
     log.debug('Go back');
+    $(document).trigger('cipapi-behaviors-haptic-feedback');
     
     // Require at least 2 - one for current page and one to go back to
     if (backButtonQueue.length < 2) {
@@ -199,7 +201,12 @@
       return;
     }
     
-    CIPAPI.navbar.goBack();
+    if (oneTimeBackHandler) {
+      log.debug("Firing custom back handler (android)");
+      oneTimeBackHandler();
+    } else {
+      CIPAPI.navbar.goBack();
+    }
   });
   
   // Monitor for changes in the report store
@@ -315,7 +322,7 @@
   $(document).on('cipapi-behaviors-haptic-feedback', function(event, info) {
     // Vibrate for a moment
     if (window.cordova) {
-      navigator.vibrate(50);
+      navigator.vibrate(25);
     }
   });
   

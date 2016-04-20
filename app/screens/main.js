@@ -311,10 +311,9 @@ $(document).trigger('cipapi-case-form-hold', { form: $(this).attr('data-form'), 
     $('div#main-content-area form div div a.casebtn').each(function() {
       if ($(this).height() > highestBox) highestBox = $(this).height(); 
       
-      var btn = $(this);
-      btn.click(function() {
-        var btn = $(this);
-        CIPAPI.router.goTo('main', { action: 'case', case: btn.attr('data-form') });
+      $(this).click(function() {
+        $(document).trigger('cipapi-behaviors-haptic-feedback');
+        CIPAPI.router.goTo('main', { action: 'case', case: $(this).attr('data-form') });
       });
     });
     
@@ -555,8 +554,9 @@ log.warn("TODO: Form value type: " + formValueType);
             label: CIPAPI.translations.translate('Save Changes'),
             className: "btn-primary btn-custom",
             callback: function() {
-              bootbox.hideAll();
+              $(document).trigger('cipapi-behaviors-haptic-feedback');
               $('input.cipform-save-report').click();
+              bootbox.hideAll();
             }
           }
         }

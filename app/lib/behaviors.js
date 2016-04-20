@@ -73,6 +73,8 @@
   // scroll to the next sibling of the container if available.
   CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll = function() {
     $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().on('swipeleft', function(e) {
+      $(document).trigger('cipapi-behaviors-haptic-feedback');
+
       var lastName = '';
       $(this).find('*').filter(':input').each(function() {
         var elem = $(this);
@@ -103,7 +105,7 @@
       // Scroll to top of the next element
       var nextSibling = $(this).next();
       if (nextSibling.length) {
-        $('html, body').animate({
+        $('html, body').delay(500).animate({
           scrollTop: nextSibling.offset().top - $('div.navbar').height()
         }, 500);
       }
@@ -120,6 +122,8 @@
   // Issue a media capture, and when done with that, focus the last string element.
   CIPAPI.behaviors.forms.swipeRightSelectSecondThenImageThenString = function() {
     $('.cipapi-behaviors-swipe-right-select-second-then-image-then-string').parent().on('swiperight', function(e) {
+      $(document).trigger('cipapi-behaviors-haptic-feedback');
+
       var numChanges = 0; var lastName = ''; var me = this; var lastTextInput = false;
       $(this).find('*').filter(':input').each(function() {
         var elem = $(this);
@@ -152,10 +156,25 @@
       
       // If number of changes is greater than 1, we need to capture photos and notes
       if (numChanges > 1) {
-// TODO: Force image capture
+        // Force image capture
+        $(this).find('a.cipform_image_from_camera').click();
         
         // Focus the last string based input if found
         if (lastTextInput) lastTextInput.focus();
+
+        // Scroll ourselves to the top just to help out
+        $('html, body').animate({
+          scrollTop: $(this).offset().top - $('div.navbar').height()
+        }, 500);
+      } else {
+        // If a single item scroll to top of next element assuming this is a data 
+        // capture type yes / no question
+        var nextSibling = $(this).next();
+        if (nextSibling.length) {
+          $('html, body').delay(500).animate({
+            scrollTop: nextSibling.offset().top - $('div.navbar').height()
+          }, 500);
+        }
       }
     });
   }

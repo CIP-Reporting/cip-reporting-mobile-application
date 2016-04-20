@@ -116,8 +116,8 @@
 
   // jQM defaults
   $(document).bind("mobileinit", function(){
-    $.event.special.swipe.horizontalDistanceThreshold = 10;
-    $.event.special.swipe.scrollSupressionThreshold = 100;
+//    $.event.special.swipe.horizontalDistanceThreshold = 10;
+//    $.event.special.swipe.scrollSupressionThreshold = 100;
     $.event.special.tap.emitTapOnTaphold = false;
   });
   

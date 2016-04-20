@@ -321,11 +321,14 @@
                  formName: name,
                 timeStamp: Math.floor(Date.now() / 1000)
               });
+
+              $(document).trigger('cipapi-forms-media-complete');
             },
             // On Error
             function(msg) {
               log.error(msg);
               $('#form-cip-media-spinner').hide();
+              $(document).trigger('cipapi-forms-media-complete');
             }, 
             // Options
             {

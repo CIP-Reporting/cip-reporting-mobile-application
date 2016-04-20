@@ -159,13 +159,15 @@
         // Force image capture
         $(this).find('a.cipform_image_from_camera').click();
         
-        // Focus the last string based input if found
-        if (lastTextInput) lastTextInput.focus();
+        $(document).one('cipapi-forms-media-complete', function() {
+          // Focus the last string based input if found
+          if (lastTextInput) lastTextInput.focus();
 
-        // Scroll ourselves to the top just to help out
-        $('html, body').delay(500).animate({
-          scrollTop: $(this).offset().top - $('div.navbar').height()
-        }, 500);
+          // Scroll ourselves to the top just to help out
+          $('html, body').delay(500).animate({
+            scrollTop: $(this).offset().top - $('div.navbar').height()
+          }, 500);
+        });
       } else {
         // If a single item scroll to top of next element assuming this is a data 
         // capture type yes / no question

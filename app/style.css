@@ -622,12 +622,13 @@ div.casebtn a h5 {
   background-image: linear-gradient(to bottom, #83f083, #03f403);
 }
 
-p.prepended-p {
+p.cipapi-behaviors-prepend-p {
   margin: 0px;
 }
 
-/* http://stackoverflow.com/questions/5523735/how-to-make-a-radio-button-look-like-a-toggle-button */
-div.convert-to-push-buttons label.btn {
+div.ui-loader { display: none; }
+
+div.cipapi-behaviors-radios-to-buttons label.btn {
   background-color: #EFEFEF;
   border: 1px solid #D0D0D0;
   border-radius: 4px;
@@ -637,20 +638,149 @@ div.convert-to-push-buttons label.btn {
   margin: 4px;
 }
 
-div.convert-to-push-buttons label.btn span {
+div.cipapi-behaviors-radios-to-buttons label.btn span {
   text-align: center;
   font-size: 22px;
   padding: 7px 0px;
   display: block;
 }
 
-div.convert-to-push-buttons label.btn input {
+div.cipapi-behaviors-radios-to-buttons label.btn input {
   visibility: hidden;
 }
 
-div.convert-to-push-buttons label.btn input:checked + span {
+div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span {
   background-color: #404040;
   color: #F7F7F7;
 }
 
-div.ui-loader { display: none; }
+.cipapi-behaviors-glyph-spin {
+  -webkit-animation-name: spin;
+  -webkit-animation-duration: 1000ms;
+  -webkit-animation-iteration-count: infinite;
+  -webkit-animation-timing-function: linear;
+
+  -moz-animation-name: spin;
+  -moz-animation-duration: 1000ms;
+  -moz-animation-iteration-count: infinite;
+  -moz-animation-timing-function: linear;
+
+  -ms-animation-name: spin;
+  -ms-animation-duration: 1000ms;
+  -ms-animation-iteration-count: infinite;
+  -ms-animation-timing-function: linear;
+  
+  animation-name: spin;
+  animation-duration: 1000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+span.help-block p.cipapi-behaviors-prepend-p {
+  float: right;
+  height: 37px;
+  width: 37px;
+}
+
+a.cipform_image_from_library { display: none; }
+div.vantage-yes-no-field label { display: none; }
+div.cipapi-behaviors-field-type-string label { display: none; }
+div.cipapi-behaviors-field-type-file label { display: none; }
+
+div > span.help-block:first-of-type {
+  background-color: hsl(0, 0%, 16%) !important;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#282828", endColorstr="#5b5b5b");
+  background-image: -khtml-gradient(linear, left top, left bottom, from(#282828), to(#5b5b5b));
+  background-image: -moz-linear-gradient(top, #282828, #5b5b5b);
+  background-image: -ms-linear-gradient(top, #282828, #5b5b5b);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #282828), color-stop(100%, #5b5b5b));
+  background-image: -webkit-linear-gradient(top, #282828, #5b5b5b);
+  background-image: -o-linear-gradient(top, #282828, #5b5b5b);
+  background-image: linear-gradient(#282828, #5b5b5b);
+
+  font-weight: normal;
+  min-height: 42px;
+  font-size: 1.2em;
+  color: #ffffff;
+  border: 0px;
+}
+
+.form-cip-reporting div.form-group {
+  position: static;
+}
+
+.cipapi-behavior-element-grouping-container {
+  position: relative;
+}
+
+a.cipform_image_from_camera {
+  border: 1px solid white;
+  background-image: none;
+  background-color: #000;
+  color: #ffffff;
+  filter: none;
+
+  padding: 6px 6px 2px 6px;
+  position: absolute;
+  font-size: 1.2em;
+  width: auto;
+  right: 5px;
+  top: 10px;
+}
+
+a.cipform_image_from_camera span.glyphicon {
+  margin-right: 0px;
+}
+
+a.cipform_image_from_camera span.media-description {
+  display: none;
+}
+
+div.cipapi-behaviors-radios-to-buttons label.btn { border: 0px; }
+
+div.cipapi-behaviors-radios-to-buttons label.btn input + span {
+  border: 1px solid #aaaaaa;
+  border-radius: 4px;
+  color: #222222; 
+}
+
+div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span {
+  color: #222222; 
+}
+
+div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span[data-value="Yes"] { border: 1px solid #80ff80; background-color: #ccffcc; }
+div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span[data-value="No"] { border: 1px solid #eeee80; background-color: #ffffcc; }
+div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span[data-value="Good"] { border: 1px solid #80ff80; background-color: #ccffcc; }
+div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span[data-value="Minor"] { border: 1px solid #eeee80; background-color: #ffffcc; }
+div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span[data-value="Severe"] { border: 1px solid #eeaaaa; background-color: #ffcccc; }

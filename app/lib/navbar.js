@@ -82,6 +82,9 @@
       // Force an update of the reportstore monitor
       $(document).trigger('cipapi-reportstore-change');
     }
+    
+    // Configure jQuery Mobile parameters for touch events
+    $.event.special.tap.emitTapOnTaphold = false;
   }
   
   // Hide splash screen when routed
@@ -199,7 +202,7 @@
   $(document).on('cipapi-reportstore-empty', function(event, info) {
     // Vibrate for a second
     if (window.cordova) {
-      navigator.vibrate(1000);
+      navigator.vibrate(500);
     }
     
     if (CIPAPI.config.notifyReportSync === false) {
@@ -292,10 +295,10 @@
     $('#cipapi-screen-overlay').hide();
   });
 
-  $(document).on('cipapi-touch-hold', function(event, info) {
+  $(document).on('cipapi-behaviors-haptic-feedback', function(event, info) {
     // Vibrate for a moment
     if (window.cordova) {
-      navigator.vibrate(333);
+      navigator.vibrate(50);
     }
   });
   

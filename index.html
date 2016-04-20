@@ -165,6 +165,7 @@
     <script src="./app/lib/dynamiccss.js"></script>
     <script src="./app/lib/barcode.js"></script>
     <script src="./app/lib/filesize.js"></script>
+    <script src="./app/lib/behaviors.js"></script>
 
     <script src="./app/lib/jquery.mobile-1.4.5.min.js"></script>
     
@@ -209,11 +210,12 @@
       // Are we running in native app or in a browser?
       $(document).ready(function() {
         // Disable the context menu
-        $('body').attr('oncontextmenu', 'return false;');
+//        $('body').attr('oncontextmenu', 'return false;');
         
         if (window.cordova) {
           document.addEventListener("deviceready", function() { 
             // Initialize
+            $(body).addClass('cordova');
             $(document).trigger('cipapi-init'); 
           }, false);
         } else {

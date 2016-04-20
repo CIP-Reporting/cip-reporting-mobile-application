@@ -273,7 +273,7 @@
     equalizeElementSizes(formSelector + 'div.cipform_radio_custom_field label.radio');
     
     // If phonegap is loaded AND phonegap camera controls are available use it...
-    if (window.cordova && window.navigator && window.navigator.camera) {
+    if (true) { //window.cordova && window.navigator && window.navigator.camera) {
       $(formSelector + ' div.cipform_invisible_custom_field input[type=file]').each(function() {
         // Put a media gallery into place
         var name      = $(this).attr('name');

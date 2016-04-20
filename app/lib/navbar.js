@@ -84,10 +84,6 @@
       // Force an update of the reportstore monitor
       $(document).trigger('cipapi-reportstore-change');
     }
-    
-    // Configure jQuery Mobile parameters for touch events
-    $.event.special.swipe.horizontalDistanceThreshold = 10;
-    $.event.special.tap.emitTapOnTaphold = false;
   }
   
   // Register a one time back handler override
@@ -96,9 +92,10 @@
   }
   
   // Go back ... maybe!
-  CIPAPI.navbar.goBack = function() {
+  CIPAPI.navbar.goBack = function(skipHaptic) {
     log.debug('Go back');
-    $(document).trigger('cipapi-behaviors-haptic-feedback');
+    
+    if (!skipHaptic) $(document).trigger('cipapi-behaviors-haptic-feedback');
     
     // Require at least 2 - one for current page and one to go back to
     if (backButtonQueue.length < 2) {
@@ -117,6 +114,13 @@
     window.location.href = 'index.html' + goBackHash;
   }
 
+  // jQM defaults
+  $(document).bind("mobileinit", function(){
+    $.event.special.swipe.horizontalDistanceThreshold = 10;
+    $.event.special.swipe.scrollSupressionThreshold = 100;
+    $.event.special.tap.emitTapOnTaphold = false;
+  });
+  
   // Clear custom back handler
   $(document).on('cipapi-pre-handle cipapi-pre-update', function(event, info) {
     oneTimeBackHandler = false;
@@ -203,9 +207,9 @@
     
     if (oneTimeBackHandler) {
       log.debug("Firing custom back handler (android)");
-      oneTimeBackHandler();
+      oneTimeBackHandler(true);
     } else {
-      CIPAPI.navbar.goBack();
+      CIPAPI.navbar.goBack(true);
     }
   });
   

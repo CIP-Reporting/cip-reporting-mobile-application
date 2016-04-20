@@ -532,7 +532,7 @@ log.warn("TODO: Form value type: " + formValueType);
     $(document).on('cipapi-fieldvalues-change', function() { fieldValuesChanged = true; });
     
     // Put a custom back handler in place that can prompt to save on navigate away
-    CIPAPI.navbar.registerBackHandler(function() {
+    CIPAPI.navbar.registerBackHandler(function(skipHaptic) {
       // If no changes, just go back...
       if (!fieldValuesChanged) return CIPAPI.navbar.goBack();
       
@@ -546,7 +546,7 @@ log.warn("TODO: Form value type: " + formValueType);
             className: "btn-danger",
             callback: function() {
               // Go somewhere...
-              CIPAPI.navbar.goBack();
+              CIPAPI.navbar.goBack(skipHaptic);
               bootbox.hideAll();
             }
           },
@@ -555,8 +555,8 @@ log.warn("TODO: Form value type: " + formValueType);
             className: "btn-primary btn-custom",
             callback: function() {
               $(document).trigger('cipapi-behaviors-haptic-feedback');
-              $('input.cipform-save-report').click();
               bootbox.hideAll();
+              $('input.cipform-save-report').click();
             }
           }
         }

@@ -163,7 +163,7 @@
         if (lastTextInput) lastTextInput.focus();
 
         // Scroll ourselves to the top just to help out
-        $('html, body').animate({
+        $('html, body').delay(500).animate({
           scrollTop: $(this).offset().top - $('div.navbar').height()
         }, 500);
       } else {

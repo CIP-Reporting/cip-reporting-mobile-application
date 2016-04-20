@@ -115,9 +115,10 @@
   }
 
   // jQM defaults
-  $(document).bind("mobileinit", function(){
-//    $.event.special.swipe.horizontalDistanceThreshold = 10;
-//    $.event.special.swipe.scrollSupressionThreshold = 100;
+  $(document).bind("mobileinit", function() {
+    // TODO: Would love to get rid of these ... in fact, would like to not use jQM
+    $.event.special.swipe.horizontalDistanceThreshold = 10;
+    $.event.special.swipe.scrollSupressionThreshold = 100;
     $.event.special.tap.emitTapOnTaphold = false;
   });
   

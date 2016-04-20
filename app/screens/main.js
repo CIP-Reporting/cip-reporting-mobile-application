@@ -186,7 +186,7 @@
         var extraCss = percentComplete === false ? '-notexist' : '';
 
         var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
+        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-ajax="false" data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
       }
     });
 
@@ -206,7 +206,7 @@ $(document).trigger('cipapi-case-form-hold', { form: $(this).attr('data-form'), 
 
     // Output case ending button    
     var span = '<span class="glyphicon glyphicon-check"></span> ';
-    $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + caseUUID + '" class="formbtn btn btn-primary btn-lg btn-custom-end-case">' + span + CIPAPI.translations.translate('Complete Case') + '</a></div>');
+    $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-ajax="false" data-form="' + caseUUID + '" class="formbtn btn btn-primary btn-lg btn-custom-end-case">' + span + CIPAPI.translations.translate('Complete Case') + '</a></div>');
     
     // Assign click handler
     $('div#main-content-area form div div a.btn-custom-end-case').click(function() {
@@ -268,7 +268,7 @@ $(document).trigger('cipapi-case-form-hold', { form: $(this).attr('data-form'), 
     $.each(buttonCollection, function(key, val) {
       if (key != CIPAPI.config.caseModeForm) return;
       var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" ><a data-form="' + key + '" class="formbtn btn btn-primary btn-lg btn-custom btn-custom-start-case">' + span + key + '</a></div>');
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" ><a data-ajax="false" data-form="' + key + '" class="formbtn btn btn-primary btn-lg btn-custom btn-custom-start-case">' + span + key + '</a></div>');
     });
     
     // Assign click handler
@@ -286,7 +286,7 @@ $(document).trigger('cipapi-case-form-hold', { form: $(this).attr('data-form'), 
     // Output current cases
     $.each(CIPAPI.casestore.getCases(), function(caseKey, caseRecord) {
       var caseDiv = $('<div class="casebtn col-xs-12 col-sm-12 col-md-6 col-lg-6"></div>');
-      var caseLnk = $('<a data-form="' + caseKey + '" class="casebtn btn btn-primary btn-lg btn-custom"></a>');
+      var caseLnk = $('<a data-ajax="false" data-form="' + caseKey + '" class="casebtn btn btn-primary btn-lg btn-custom"></a>');
 
       // Output the button text
       var hLevel = 2;
@@ -339,14 +339,14 @@ $(document).trigger('cipapi-case-form-hold', { form: $(this).attr('data-form'), 
     if (CIPAPI.config.enableBarcodeScanner !== false) {
       var title = CIPAPI.translations.translate('Barcode Scanner');
       var span = '<span class="glyphicon glyphicon-barcode"></span> ';
-      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="barcode-scanner" class="btn btn-primary btn-lg btn-custom">' + span + title + '</a></div>');
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-ajax="false" data-form="barcode-scanner" class="btn btn-primary btn-lg btn-custom">' + span + title + '</a></div>');
     }
     
     $.each(buttonCollection, function(key, val) {
       if (-1 !== $.inArray(key, CIPAPI.config.hiddenForms)) return;
 
       var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="' + key + '" class="btn btn-primary btn-lg btn-custom">' + span + key + '</a></div>');
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-ajax="false" data-form="' + key + '" class="btn btn-primary btn-lg btn-custom">' + span + key + '</a></div>');
     });
     
     $('div#main-content-area form div div a').each(function() {
@@ -501,7 +501,7 @@ log.warn("TODO: Form value type: " + formValueType);
     // Again due to lack of direct HTML control over JSON forms we basically hide the default submit button on the form and
     // inject our own proxy button which clicks by proxy.
     var proxySubmit = '' +
-      '<a id="cipform-proxy-submit" class="btn btn-primary btn-lg btn-custom cipform-proxy-submit" href="javascript: void(0)">' +
+      '<a data-ajax="false" id="cipform-proxy-submit" class="btn btn-primary btn-lg btn-custom cipform-proxy-submit" href="javascript: void(0)">' +
       '  <span class="glyphicon glyphicon-save"></span>' +
       '  Save Report' +
       '</a>';
@@ -534,7 +534,7 @@ log.warn("TODO: Form value type: " + formValueType);
     // Put a custom back handler in place that can prompt to save on navigate away
     CIPAPI.navbar.registerBackHandler(function(skipHaptic) {
       // If no changes, just go back...
-      if (!fieldValuesChanged) return CIPAPI.navbar.goBack();
+      if (!fieldValuesChanged) return CIPAPI.navbar.goBack(skipHaptic);
       
       $(document).trigger('cipapi-behaviors-haptic-feedback');
       bootbox.dialog({

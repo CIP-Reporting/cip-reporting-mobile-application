@@ -120,6 +120,10 @@
     $.event.special.swipe.horizontalDistanceThreshold = 10;
     $.event.special.swipe.scrollSupressionThreshold = 100;
     $.event.special.tap.emitTapOnTaphold = false;
+
+    $.mobile.changePage.defaults.changeHash = false;
+    $.mobile.hashListeningEnabled = false;
+    $.mobile.pushStateEnabled = false;
   });
   
   // Clear custom back handler

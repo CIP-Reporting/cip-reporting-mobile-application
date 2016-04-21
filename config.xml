@@ -13,7 +13,7 @@
   <access origin="*" />
 
   <!-- Configure the Application -->
-  <preference name="phonegap-version"           value="cli-5.2.0" />      <!-- all: current version of PhoneGap -->
+  <preference name="phonegap-version"           value="3.6.3" />          <!-- all: current version of PhoneGap -->
   <preference name="orientation"                value="default" />        <!-- all: default means both landscape and portrait are enabled -->
   <preference name="target-device"              value="universal" />      <!-- all: possible values handset, tablet, or universal -->
   <preference name="fullscreen"                 value="false" />          <!-- all: hides the status bar at the top of the screen -->
@@ -68,10 +68,10 @@
   </gap:plugin>
 
   <!-- Bar Code Scanning -->
-  <gap:plugin name="com.jp.bc2" source="pgb" />
+  <gap:plugin name="com.jp.bc2" spec="1.0" source="pgb" />
 
   <!-- SQLite Support -->
-  <gap:plugin name="com.millerjames01.sqlite-plugin" source="pgb" />
+  <gap:plugin name="com.millerjames01.sqlite-plugin" spec="1.0.1" source="pgb" />
   
   <!-- Define platforms -->
   <gap:platform name="android" />

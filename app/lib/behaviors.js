@@ -68,11 +68,16 @@
       var inp = $(this).find('input');
 
       if (e.type == 'tap') {
-        $(inp).prop('checked', true);
+        if (!$(inp).prop('checked')) {
+          $(inp).prop('checked', true).change();
+        }
       } 
       
       if (e.type == 'press') {
-        $(inp).prop('checked', !$(inp).prop('checked'));
+        if ($(inp).prop('checked')) {
+          $(inp).prop('checked', false).change();
+        }
+
         $(document).trigger('cipapi-behaviors-haptic-feedback');
       }
     });

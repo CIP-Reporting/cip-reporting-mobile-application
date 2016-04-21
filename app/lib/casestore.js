@@ -71,13 +71,30 @@
   }
   
   // Helper to determine percent complete of a report
-  function calculatePercentageComplete(formDefinition, formValues) {
+  function calculatePercentageComplete(formDefinition, reportData) {
+    var formValues = reportData.serializedData;
+    
+    // First build a map of form fields and values
+    var fieldValueMap = {};
+    $.each(formDefinition.form, function(key, obj) {
+      if (!obj.key) return; // Non-input form elements have no key (like help text)
+      fieldValueMap[obj.key] = formValues[obj.key] ? formValues[obj.key] : null;
+    });
+    
+    var visibleFieldMap = CIPAPI.fielddeps.filterFieldValueMapByVisibleFields(fieldValueMap, reportData.fieldDependencies);
+    
     var visibleFields = 0;
     var completedFields = 0;
     $.each(formDefinition.form, function(key, obj) {
-      if (obj.htmlClass.match(/cipform_invisible/)) return; // Invisible
+      if (obj.htmlClass.match(/cipapi-behaviors-ignore-field-for-progress/)) return; // Not included...
+      if (obj.htmlClass.match(/cipform_invisible/)) return; // Invisible...
+
       if (obj.type && obj.type == 'help') return; // No value for help fields
       if (obj.type && obj.type == 'null') return; // No value for null fields
+      
+      if (!obj.key) return; // No key, no consideration (non-input type form elements like help)
+      
+      if (typeof visibleFieldMap[obj.key] == 'undefined') return; // Not currently visible...
       
       visibleFields++;
       if (formValues[obj.key]) completedFields++;
@@ -99,7 +116,7 @@
     }
 
     // Calculate the percentage complete for this item
-    var percentComplete = calculatePercentageComplete(info.reportData.formDefinition, info.reportData.serializedData);
+    var percentComplete = calculatePercentageComplete(info.reportData.formDefinition, info.reportData);
     log.debug("Percent complete: " + percentComplete);
     
     // If this is a new case just add it to the list...
@@ -230,12 +247,9 @@
   
   // Helper function to calculate the percent completion of a case
   CIPAPI.casestore.getCaseCompletePercent = function(caseRecord) {
-    var totalForms = Object.keys(CIPAPI.mobileforms).length;
+    var totalForms = caseRecord.relatedReports.length;
     var totalPoints = totalForms * 100; // 100 Percent / Points per form
     var actualPoints = 0; // Start at 0
-    
-    // First add in case form completion itself...
-    actualPoints += caseRecord.percentComplete;
     
     // Next add in percent complete of any child forms
     for (var i=0; i<caseRecord.relatedReports.length; i++) {
@@ -357,7 +371,7 @@
           for (var i=0; i<caseStore[h].relatedReports.length; i++) {
             caseStore[h].relatedReports[i].percentComplete = calculatePercentageComplete(
               caseStore[h].relatedReports[i].reportData.formDefinition,
-              caseStore[h].relatedReports[i].reportData.serializedData
+              caseStore[h].relatedReports[i].reportData
             );
           }
         }

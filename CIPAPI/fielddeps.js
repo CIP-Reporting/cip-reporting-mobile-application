@@ -37,6 +37,49 @@
   CIPAPI.fielddeps.setCurrentRules   = function(rules) { CIPAPI.fielddeps.currentRules = rules; }
   CIPAPI.fielddeps.getCurrentRules   = function() { return CIPAPI.fielddeps.currentRules ? CIPAPI.fielddeps.currentRules : CIPAPI.fielddeps.serverRules; }
   CIPAPI.fielddeps.resetCurrentRules = function() { CIPAPI.fielddeps.currentRules = false; }
+
+  // Given a map of field names, values, and rules ... remove all fields which would be hidden  
+  CIPAPI.fielddeps.filterFieldValueMapByVisibleFields = function(fieldValueMap, rules) {
+    if (!rules) rules = CIPAPI.fielddeps.getCurrentRules();
+    
+    var filteredMap = jQuery.extend(true, {}, fieldValueMap);
+    
+    var rules = CIPAPI.fielddeps.getCurrentRules();
+    for (var i=0; i<rules.length; i++) {
+      var fieldRule = rules[i];
+
+      // Right now we only support core object fields
+      if (fieldRule.object != 'core') continue;
+      
+      // If the target field does not exist in this map roll out
+      var encodedFieldName = CIPAPI.forms.asciiToHex(fieldRule.name);
+      if (typeof fieldValueMap[encodedFieldName] == 'undefined') continue;
+      
+      // Equality?
+      if (fieldRule.condition == 'eq' && fieldRule.value != fieldValueMap[encodedFieldName]) continue; // Not a match
+      
+      // Inequality?
+      if (fieldRule.condition == 'ne' && fieldRule.value == fieldValueMap[encodedFieldName]) continue; // Not a match
+      
+      // Hide fields ...
+      if (fieldRule.hide) {
+        for (var j=0; j<fieldRule.hide.length; j++) {
+          var formName = CIPAPI.forms.asciiToHex(fieldRule.hide[j]);
+          delete filteredMap[formName];
+        }
+      }
+      
+      // Show fields ...
+      if (fieldRule.show) {
+        for (var k=0; k<fieldRule.show.length; k++) {
+          var formName = CIPAPI.forms.asciiToHex(fieldRule.show[k]);
+          filteredMap[formName] = fieldValueMap[formName];
+        }
+      }
+    }    
+    
+    return filteredMap;
+  }
   
   function loadFieldDependencies() {
     if (!CIPAPI.credentials.areValid()) {
@@ -216,10 +259,10 @@
           if (container.hasClass('jsonform-was-required')) {
             container.removeClass('jsonform-was-required').addClass('jsonform-required');
             field.attr('required', 'required');
+            
+            if (info.jsonForm.formDesc.schema.properties[formName])
+              info.jsonForm.formDesc.schema.properties[formName].required = true;
           }
-          
-          if (info.jsonForm.formDesc.schema.properties[formName])
-            info.jsonForm.formDesc.schema.properties[formName].required = true;
           
           // If fieldName is false, this is a first pass full initialization - attempt to set field value
           if (!fieldName && info.jsonForm.formDesc.value[formName])

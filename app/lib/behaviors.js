@@ -58,11 +58,23 @@
   //  
   // For any element with this class, seek radio labels and conver them to buttons
   CIPAPI.behaviors.forms.radiosToButtons = function() {
-    $('.cipapi-behaviors-radios-to-buttons label.radio').each(function() {      
-      $(this).addClass('btn').on('taphold', function(e) {
-        $(this).find('input').val([]).change(); 
+    $('.cipapi-behaviors-radios-to-buttons label.radio').click(function(e) {
+      e.preventDefault();
+    }).each(function(e) {
+      $(this).addClass('btn').find('span').attr('data-value', $(this).find('input').val());
+    });
+    
+    $('.cipapi-behaviors-radios-to-buttons label.radio').hammer({}).bind('tap press', function(e) {
+      var inp = $(this).find('input');
+
+      if (e.type == 'tap') {
+        $(inp).prop('checked', true);
+      } 
+      
+      if (e.type == 'press') {
+        $(inp).prop('checked', !$(inp).prop('checked'));
         $(document).trigger('cipapi-behaviors-haptic-feedback');
-      }).find('span').attr('data-value', $(this).find('input').val());
+      }
     });
   }
   
@@ -72,7 +84,7 @@
   // select the left most value and continue iterating form elements.  When complete
   // scroll to the next sibling of the container if available.
   CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll = function() {
-    $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().on('swipeleft', function(e) {
+    $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().hammer({}).bind('swipeleft', function(e) {
       $(document).trigger('cipapi-behaviors-haptic-feedback');
 
       var lastName = '';
@@ -91,7 +103,7 @@
         if (tagName == "INPUT") {
           var inputType = elem.attr('type');
           if (inputType == 'radio' || inputType == 'checkbox') {
-            elem.click().change();
+            elem.prop('checked', true).change();
           }
           
           if (inputType == 'text') {
@@ -121,7 +133,7 @@
   // more than 2 changes were made assume we need to capture photos and notes;
   // Issue a media capture, and when done with that, focus the last string element.
   CIPAPI.behaviors.forms.swipeRightSelectSecondThenImageThenString = function() {
-    $('.cipapi-behaviors-swipe-right-select-second-then-image-then-string').parent().on('swiperight', function(e) {
+    $('.cipapi-behaviors-swipe-right-select-second-then-image-then-string').parent().hammer({}).bind('swiperight', function(e) {
       $(document).trigger('cipapi-behaviors-haptic-feedback');
 
       var numChanges = 0; var lastName = ''; var me = this; var lastTextInput = false;
@@ -142,7 +154,7 @@
         if (tagName == "INPUT") {
           var inputType = elem.attr('type');
           if (inputType == 'radio' || inputType == 'checkbox') {
-            elem.click().change();
+            elem.prop('checked', true).change();
             numChanges++;
           }
           
@@ -157,7 +169,7 @@
       // If number of changes is greater than 1, we need to capture photos and notes
       if (numChanges > 1) {
         // Force image capture
-        $(this).find('a.cipform_image_from_camera').click();
+        $(me).find('a.cipform_image_from_camera').click();
         
         $(document).one('cipapi-forms-media-complete', function() {
           // Focus the last string based input if found
@@ -165,7 +177,7 @@
 
           // Scroll ourselves to the top just to help out
           $('html, body').delay(500).animate({
-            scrollTop: $(this).offset().top - $('div.navbar').height()
+            scrollTop: $(me).offset().top - $('div.navbar').height()
           }, 500);
         });
       } else {

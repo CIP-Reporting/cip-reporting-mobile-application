@@ -123,7 +123,7 @@
       '  <p>You must be a customer of CIP Reporting in order to use this application.  You can learn more at <a id="form-visit-cip" href="javascript: void(0)">www.cipreporting.com</a>.</p>' +
       '  <p>Please help us find your account by entering your email address.  You can select manual sign in if you have been provided credentials.</p>' +
       '  <div class="form-group">'+
-      '    <input id="form-signin-email" type="text" class="form-control" placeholder="Email Address" autofocus>' +
+      '    <input id="form-signin-email" type="email" class="form-control" placeholder="Email Address" autofocus>' +
       '    <span for="firstname" class="help-block">You must provide a valid email address</span>' +
       '  </div>' +
       '  <button id="form-lookup" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-search"></span> Look Up Account</button>' +
@@ -144,11 +144,11 @@
       '  <p>You must be a customer of CIP Reporting in order to use this application.  You can learn more at <a href="http://www.cipreporting.com">www.cipreporting.com</a>.</p>' +
       '  <p>Please enter the full credential set provided to you in order to continue.  You can select account look up to if you do not have credentials.</p>' +
       '  <div class="form-group">'+
-      '    <input id="form-signin-host" type="text" class="form-control" placeholder="Server URL" autofocus>' +
+      '    <input id="form-signin-host" type="text" autocorrect="off" autocapitalize="none" class="form-control" placeholder="Server URL" autofocus>' +
       '    <span for="firstname" class="help-block">You must provide a valid server URL</span>' +
       '  </div>' +
       '  <div class="form-group">'+
-      '    <input id="form-signin-user" type="text" class="form-control" placeholder="User ID">' +
+      '    <input id="form-signin-user" type="text" autocorrect="off" autocapitalize="none" class="form-control" placeholder="User ID">' +
       '    <span for="firstname" class="help-block">You must provide a valid user ID</span>' +
       '  </div>' +
       '  <div class="form-group">'+

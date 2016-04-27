@@ -70,39 +70,6 @@
     return false;
   }
   
-  // Helper to determine percent complete of a report
-  function calculatePercentageComplete(formDefinition, reportData) {
-    var formValues = reportData.serializedData;
-    
-    // First build a map of form fields and values
-    var fieldValueMap = {};
-    $.each(formDefinition.form, function(key, obj) {
-      if (!obj.key) return; // Non-input form elements have no key (like help text)
-      fieldValueMap[obj.key] = formValues[obj.key] ? formValues[obj.key] : null;
-    });
-    
-    var visibleFieldMap = CIPAPI.fielddeps.filterFieldValueMapByVisibleFields(fieldValueMap, reportData.fieldDependencies);
-    
-    var visibleFields = 0;
-    var completedFields = 0;
-    $.each(formDefinition.form, function(key, obj) {
-      if (obj.htmlClass.match(/cipapi-behaviors-ignore-field-for-progress/)) return; // Not included...
-      if (obj.htmlClass.match(/cipform_invisible/)) return; // Invisible...
-
-      if (obj.type && obj.type == 'help') return; // No value for help fields
-      if (obj.type && obj.type == 'null') return; // No value for null fields
-      
-      if (!obj.key) return; // No key, no consideration (non-input type form elements like help)
-      
-      if (typeof visibleFieldMap[obj.key] == 'undefined') return; // Not currently visible...
-      
-      visibleFields++;
-      if (formValues[obj.key]) completedFields++;
-    });
-    
-    return Math.floor(100 * (completedFields / visibleFields));
-  }
-  
   // Monitor for reports added to the store
   $(document).on('cipapi-reportstore-add', function(event, info) {
     var storageKey = 'CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash();
@@ -115,21 +82,16 @@
       caseStore = new Array();
     }
 
-    // Calculate the percentage complete for this item
-    var percentComplete = calculatePercentageComplete(info.reportData.formDefinition, info.reportData);
-    log.debug("Percent complete: " + percentComplete);
-    
     // If this is a new case just add it to the list...
     if (CIPAPI.config.caseModeForm == info.reportData.formName) {
       var caseOffset = getCaseOffset(caseStore, info.reportData.serializedData.reportUUID);
       if (caseOffset === false) {
         log.debug("New case submitted");
-        caseStore.push({ reportData: info.reportData, relatedReports: [], percentComplete: percentComplete });
+        caseStore.push({ reportData: info.reportData, relatedReports: [] });
         CIPAPI.stats.count(statsGroup, 'New Case');
       } else {
         log.debug("Updating existing case");
         caseStore[caseOffset].reportData = info.reportData;
-        caseStore[caseOffset].percentComplete = percentComplete;
         CIPAPI.stats.count(statsGroup, 'Case Updates');
       }
     } else { // Child form
@@ -138,12 +100,11 @@
         var reportOffset = getChildReportOffset(caseStore[caseOffset], info.reportData.serializedData.reportUUID);
         if (reportOffset === false) {
           log.debug("New child report submitted");
-          caseStore[caseOffset].relatedReports.push({ reportData: info.reportData, percentComplete: percentComplete });
+          caseStore[caseOffset].relatedReports.push({ reportData: info.reportData });
           CIPAPI.stats.count(statsGroup, 'New Report');
         } else {
           log.debug("Updating existing child report");
           caseStore[caseOffset].relatedReports[reportOffset].reportData = info.reportData;
-          caseStore[caseOffset].relatedReports[reportOffset].percentComplete = percentComplete;
           CIPAPI.stats.count(statsGroup, 'Report Updates');
         }
       } else {
@@ -201,7 +162,7 @@
   }
   
   // Get child form UUIDs for a case by a given form name
-  CIPAPI.casestore.getCaseChildrenUUIDs = function(caseUUID, childFormName, atLeastOne) {
+  CIPAPI.casestore.getCaseChildrenMetadataDB = function(caseUUID, childFormName, atLeastOne) {
     var cases = CIPAPI.casestore.getCases();
     var caseOffset = getCaseOffset(cases, caseUUID);
     if (false === caseOffset) { 
@@ -209,11 +170,11 @@
       return false; 
     }
     
-    var UUIDs = []; var percents = [];
+    var UUIDs = []; var metadata = [];
     for (var i=0; i<cases[caseOffset].relatedReports.length; i++) {
       if (cases[caseOffset].relatedReports[i].reportData.formName == childFormName) {
         UUIDs.push(cases[caseOffset].relatedReports[i].reportData.serializedData.reportUUID);
-        percents.push(cases[caseOffset].relatedReports[i].percentComplete);
+        metadata.push(cases[caseOffset].relatedReports[i].reportData.formMetadata);
       }
     }
     
@@ -221,39 +182,22 @@
     // at least one of each form create a false UUID which may be created.
     if (atLeastOne && UUIDs.length == 0) {
       UUIDs.push(CIPAPI.uuid.get());
-      percents.push(0);
+      metadata.push(false);
     }
     
-    return { uuids: UUIDs, percents: percents }
-  }
-  
-  // Get percent complete for a given case and child form
-  CIPAPI.casestore.caseChildPercentComplete = function(caseUUID, childUUID) {
-    var cases = CIPAPI.casestore.getCases();
-    var caseOffset = getCaseOffset(cases, caseUUID);
-    if (false === caseOffset) { 
-      log.error("Failed to find case for child report " + caseUUID);
-      return false; 
-    }
-    
-    for (var i=0; i<cases[caseOffset].relatedReports.length; i++) {
-      if (cases[caseOffset].relatedReports[i].reportData.serializedData.reportUUID == childUUID) {
-        return cases[caseOffset].relatedReports[i].percentComplete;
-      }
-    }
-
-    return 0;
+    return { uuids: UUIDs, metadata: metadata }
   }
   
   // Helper function to calculate the percent completion of a case
   CIPAPI.casestore.getCaseCompletePercent = function(caseRecord) {
+
     var totalForms = caseRecord.relatedReports.length;
     var totalPoints = totalForms * 100; // 100 Percent / Points per form
     var actualPoints = 0; // Start at 0
     
     // Next add in percent complete of any child forms
     for (var i=0; i<caseRecord.relatedReports.length; i++) {
-      actualPoints += caseRecord.relatedReports[i].percentComplete;
+      actualPoints += caseRecord.relatedReports[i].reportData.formMetadata.percentComplete;
     }
     
     return Math.floor(100 * (actualPoints / totalPoints));
@@ -365,17 +309,6 @@
       success: function(response) { 
         var caseStore = response.data.item[0].data;
         CIPAPI.stats.count(statsGroup, 'Case Syncs');
-
-        // Recalculate percentage complete
-        for (var h=0; h<caseStore.length; h++) {
-          for (var i=0; i<caseStore[h].relatedReports.length; i++) {
-            caseStore[h].relatedReports[i].percentComplete = calculatePercentageComplete(
-              caseStore[h].relatedReports[i].reportData.formDefinition,
-              caseStore[h].relatedReports[i].reportData
-            );
-          }
-        }
-        
         CIPAPI.casestore.setCases(caseStore);
         $(document).trigger('cipapi-mobile-cases-set');
       }

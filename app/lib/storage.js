@@ -34,6 +34,18 @@
   if (window.openDatabase) persistenceEngine = window;
   if (window.sqlitePlugin) persistenceEngine = window.sqlitePlugin;
 
+  function resetDB() {
+    if (!storageDB) return;
+
+    log.debug("Reset Begin");
+    storageDB.transaction(function(tx) {
+      tx.executeSql('DELETE FROM kvp WHERE 1', [ ],
+        function(tx)     { log.debug('Reset complete'); },
+        function(tx, er) { log.error('Write back (del) failed:' + er.message); }
+      );
+    });
+  }
+  
   function writeBack() {
     if (!storageDB) return;
     
@@ -50,7 +62,7 @@
           )
         },
         function(tx, er) { log.error('Write back (del) failed:' + er.message); }
-      )
+      );
     });
   }
   
@@ -107,7 +119,7 @@
   CIPAPI.storage.getItem    = function(key)      { return db[key] ? db[key] : false; }
   CIPAPI.storage.setItem    = function(key, val) { db[key] = val; writeBack(); }
   CIPAPI.storage.removeItem = function(key)      { delete db[key]; writeBack(); }
-  CIPAPI.storage.clear      = function()         { db = {}; writeBack(); }
+  CIPAPI.storage.clear      = function()         { db = {}; resetDB(); }
   
   // Execute my veto power
   $(document).on('cipapi-metadata-validate', function(evt, validation) {

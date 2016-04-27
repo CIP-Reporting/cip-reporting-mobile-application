@@ -166,6 +166,7 @@
     <script src="./app/lib/barcode.js"></script>
     <script src="./app/lib/filesize.js"></script>
     <script src="./app/lib/behaviors.js"></script>
+    <script src="./app/lib/contextmenu.js"></script>
 
     <script src="./app/lib/hammer.min.js"></script>
     <script src="./app/lib/jquery.hammer.js"></script>
@@ -177,7 +178,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.4409',                     // Set by the packaging script to know our own version
+              applicationVersion: '1.0.4415',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -199,6 +200,8 @@
                       dynamicCSS: false,                              // Can be provided by server configuration to be injected into the application
             enableBarcodeScanner: false,                              // Can be provided by server configuration to enable bar code scanning
               caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
+          caseModeAlwaysShowForm: false,                              // If true, a case will always show at least 1 of any known form (except hidden)
+          caseOnlyCompleteIfDone: false,                              // If true, all forms must be complete within a case before it can be ended
                      hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
                         apiForms: { }                                 // Should most likely be loaded from the config override integration
                                                                       // In the form of the key is the form integration and the value is the

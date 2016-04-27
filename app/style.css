@@ -415,7 +415,7 @@ div.cipform_declaration_custom_field > div
   -webkit-font-smoothing: antialiased;
 }
 
-.btn-custom-notexist {
+.btn-custom-notexist, .btn-custom-disabled {
   background-color: hsl(0, 0%, 16%) !important;
   background-repeat: repeat-x;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr="#bbbbbb", endColorstr="#888888");
@@ -674,4 +674,26 @@ div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span {
   animation-duration: 1000ms;
   animation-iteration-count: infinite;
   animation-timing-function: linear;  
+}
+
+div.cipapi-case-context-menu div.modal-header {
+  display: none;
+}
+
+div.cipapi-case-context-menu div.list-group {
+  margin-bottom: 0px;
+}
+
+div.cipapi-case-context-menu div.modal-footer {
+  display: none;
+}
+
+div.cipapi-case-context-menu button.list-group-item {
+  text-align: left;
+  font-size: 1.3em;
+  width: 100%;
+}
+
+div.cipapi-case-context-menu button.list-group-item i.fa {
+  width: 20px;
 }

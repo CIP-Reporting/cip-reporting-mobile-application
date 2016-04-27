@@ -25,6 +25,9 @@
   
   var log = log4javascript.getLogger("CIPAPI.main");
   
+  var currentCaseUUID = false;
+  var imageStorage = [];
+
   // Main screen
   $(document).on('cipapi-handle-main', function(event, info) {
     renderMainScreen(info);
@@ -52,7 +55,6 @@
   });
 
   // Store images for packaging later  
-  var imageStorage = [];
   $(document).on('cipapi-forms-media-added', function(event, info) {
     log.debug('Parking image: ' + info.fileName);
     imageStorage.push(info);
@@ -119,7 +121,8 @@
     
     return n + '-' + d + '-' + y + ' ' + h + ":" + m + ":" + s;
   }
-  
+
+  // Helper to generate case headings  
   function getCaseHeadingField(caseRecord, fieldName) {
     // See if the form key is specified explicitly
     var formVal = caseRecord.reportData.serializedData[fieldName];
@@ -142,7 +145,7 @@
     return formVal;
   }
   
-  var currentCaseUUID = false;
+  // Render a single case (tab buttons)
   function renderCase(caseOffset, buttonCollection) {
     log.debug("Rendering case at offset " + caseOffset);
     
@@ -172,47 +175,104 @@
     currentCaseUUID = caseUUID; // Bookmark this case
     
     // Output everything EXCEPT the new case button
+    var caseHasWorkRemaining = false;
     $.each(buttonCollection, function(key, val) {
       if (key == CIPAPI.config.caseModeForm) return;
 
-      var childDB = CIPAPI.casestore.getCaseChildrenUUIDs(caseUUID, key, true);
-      var childrenPercents = childDB.percents;
+      var childDB = CIPAPI.casestore.getCaseChildrenMetadataDB(caseUUID, key, CIPAPI.config.caseModeAlwaysShowForm);
+      var childMetadata = childDB.metadata;
       var childrenUUIDs = childDB.uuids;
       
       for (var i=0; i<childrenUUIDs.length; i++)
       {
-        var percentComplete = childrenPercents[i];
-        var progress = '<div class="meter ' + (percentComplete === 100 ? 'green' : 'orange') + '"><span style="width: ' + (percentComplete === false ? 0 : percentComplete) + '%"></span></div>';
-        var extraCss = percentComplete === false ? '-notexist' : '';
-
+        var isRemoved = childMetadata[i] ? childMetadata[i].isRemoved : false;
+        if (isRemoved) {
+          log.debug('Not displaying removed child report');
+          continue;
+        }
+        
+        var percentComplete = childMetadata[i] ? childMetadata[i].percentComplete : false;
+        var extraCss   = percentComplete === false ? '-notexist' : '';
+        var meterColor = percentComplete === 100 ? 'green' : 'orange';
+        
+        var isDisabled = childMetadata[i] ? childMetadata[i].isDisabled : false;
+        if (isDisabled) {
+          extraCss = '-disabled';
+          percentComplete = 100;
+          meterColor = 'green';
+        }
+        
+        if (percentComplete !== 100) caseHasWorkRemaining = true;
+        
+        var progress = '<div class="meter ' + meterColor + '"><span style="width: ' + (percentComplete === false ? 0 : percentComplete) + '%"></span></div>';
+        var tabName  = childDB.metadata[i] && childDB.metadata[i].nameSuffix.length > 0 ? (key + ' - ' + childDB.metadata[i].nameSuffix) : key;
+        
         var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + key + progress + '</a></div>');
+        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + tabName + progress + '</a></div>');
       }
     });
 
     // Handle form taps and holds
-    $('div#main-content-area form div div a').hammer({}).bind("tap press", function(e) {
+    $('div#main-content-area form div div a').hammer({}).bind("tap pressup", function(e) {
       switch(e.type) {
         case 'tap':
+          if ($(this).hasClass('btn-custom-disabled')) {
+            $(document).trigger('cipapi-behaviors-haptic-feedback');
+            log.debug('Not allowing tap on disabled form');
+            break;
+          }
+          
           $(document).trigger('cipapi-behaviors-button-click', { button: $(this), callback: function(info) {
             CIPAPI.router.goTo('main', { action: 'form', form: info.button.attr('data-form'), case: caseUUID, uuid: info.button.attr('data-uuid') });
           }});
           break;
           
-        case 'press':
-          // TODO: Context menu of some sorts?
+        case 'pressup':
+          // Context menu of some sorts - for mobile touch
           $(document).trigger('cipapi-behaviors-haptic-feedback');
-          $(document).trigger('cipapi-case-form-hold', { form: $(this).attr('data-form'), case: caseUUID, uuid: $(this).attr('data-uuid') });
+
+          if ($(this).hasClass('btn-custom-notexist')) {
+            log.debug('Not allowing pressup on non-existent form');
+            break;
+          }
+          
+          $(document).trigger('cipapi-case-form-context-menu', { form: $(this).attr('data-form'), case: caseUUID, uuid: $(this).attr('data-uuid') });
           break;
       }
+    }).on('mousedown', function(e) {
+      if (e.button == 2) {
+        // Context menu of some sorts - for non-mobile
+        $(document).trigger('cipapi-behaviors-haptic-feedback');
+
+        if ($(this).hasClass('btn-custom-notexist')) {
+          log.debug('Not allowing right click on non-existent form');
+          return false;
+        }
+
+        $(document).trigger('cipapi-case-form-context-menu', { form: $(this).attr('data-form'), case: caseUUID, uuid: $(this).attr('data-uuid') });
+        return false;
+      }
+    }).on('click', function(e) {
+      if ($(this).hasClass('btn-custom-disabled')) {
+        $(document).trigger('cipapi-behaviors-haptic-feedback');
+        log.debug('Not allowing click on disabled form');
+        return false;
+      }
+      
+      $(document).trigger('cipapi-behaviors-button-click', { button: $(this), callback: function(info) {
+        CIPAPI.router.goTo('main', { action: 'form', form: info.button.attr('data-form'), case: caseUUID, uuid: info.button.attr('data-uuid') });
+      }});
+      return false;
     });
     
     // Output a potential clear div
     $('div#main-content-area form div.form-button-list').append('<div class="beforecasebtn"></div>');
 
-    // Output case ending button    
-    var span = '<span class="glyphicon glyphicon-check"></span> ';
-    $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + caseUUID + '" class="formbtn btn btn-primary btn-lg btn-custom-end-case">' + span + CIPAPI.translations.translate('Complete Case') + '</a></div>');
+    // Output case ending button (If allowed)
+    if (CIPAPI.config.caseOnlyCompleteIfDone == false || caseHasWorkRemaining == false) {
+      var span = '<span class="glyphicon glyphicon-check"></span> ';
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + caseUUID + '" class="formbtn btn btn-primary btn-lg btn-custom-end-case">' + span + CIPAPI.translations.translate('Complete Case') + '</a></div>');
+    }
     
     // Assign click handler
     $('div#main-content-area form div div a.btn-custom-end-case').click(function() {
@@ -377,15 +437,16 @@
     // Reset image storage
     imageStorage = [];
     
-    // Grab the form definition from the case definition if possible else from the global form definitions
-    var formDefinition = false;
-    var fieldDependencies = false;
+    // Grab the form definition from the case definition if possible else from the global form definitions.
+    var formDefinition = false; var fieldDependencies = false; formMetadata = false;
+
     if (caseUUID) {
       var childReport = CIPAPI.casestore.getChildReportForCaseByChildUUID(caseUUID, childUUID);
       if (childReport) {
         log.debug("Using form definition from existing case child");
         formDefinition = jQuery.extend(true, {}, childReport.formDefinition);
         fieldDependencies = jQuery.extend(true, [], childReport.fieldDependencies);
+        formMetadata = jQuery.extend(true, {}, childReport.formMetadata);
       } else {
         log.debug("Using form definition from global form data instead of case child");
         formDefinition = jQuery.extend(true, {}, CIPAPI.mobileforms[formName]);
@@ -474,21 +535,38 @@ log.warn("TODO: Form value type: " + formValueType);
             log.debug('New attachment name: ' + imageStorage[key].fileName);
           });        
         }
+
+        // Create an updated report record
+        var defaultFormMetadata = {
+                  version: 1,
+               canDisable: false,
+             canDuplicate: false,
+                canRemove: false,
+                canRename: false,
+               isDisabled: false,
+                isRemoved: false,
+               nameSuffix: '',
+          percentComplete: 0
+        };
         
-        // Store the report for transmission
-        CIPAPI.reportstore.storeReport({
-                    version: 1,
+        var updatedReportRecord = {
                    formName: formName,
              formDefinition: originalFormDefinition,
           fieldDependencies: originalFieldDependencies,
              serializedData: values,
            serializedImages: imageStorage,
-             mobileMetadata: CIPAPI.stats.fetch(),
              destinationURL: '/api/versions/current/integrations/' + escape(CIPAPI.config.useSingleURL ? CIPAPI.config.overrideIntegration : formName),
-           destinationQuery: CIPAPI.config.useSingleURL ? formName : false
-        });
+           destinationQuery: CIPAPI.config.useSingleURL ? formName : false,
+             mobileMetadata: CIPAPI.stats.fetch(),
+               formMetadata: formMetadata ? formMetadata : defaultFormMetadata
+        };
         
-        // Kick off a report send attempt
+        // Update the percent complete in the metadata
+        updatedReportRecord.formMetadata.percentComplete = CIPAPI.forms.calculatePercentageComplete(
+          originalFormDefinition, values, originalFieldDependencies);
+        
+        // Store and kick off a report send attempt
+        CIPAPI.reportstore.storeReport(updatedReportRecord);
         CIPAPI.reportstore.sendReports();
       
         // Go somewhere...

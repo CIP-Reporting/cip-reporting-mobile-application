@@ -141,6 +141,36 @@
   
     return arr.join('');    
   }
+
+  CIPAPI.forms.calculatePercentageComplete = function(formDefinition, formValues, fieldDependencies) {
+    // First build a map of form fields and values
+    var fieldValueMap = {};
+    $.each(formDefinition.form, function(key, obj) {
+      if (!obj.key) return; // Non-input form elements have no key (like help text)
+      fieldValueMap[obj.key] = formValues[obj.key] ? formValues[obj.key] : null;
+    });
+    
+    var visibleFieldMap = CIPAPI.fielddeps.filterFieldValueMapByVisibleFields(fieldValueMap, fieldDependencies);
+    
+    var visibleFields = 0;
+    var completedFields = 0;
+    $.each(formDefinition.form, function(key, obj) {
+      if (obj.htmlClass.match(/cipapi-behaviors-ignore-field-for-progress/)) return; // Not included...
+      if (obj.htmlClass.match(/cipform_invisible/)) return; // Invisible...
+
+      if (obj.type && obj.type == 'help') return; // No value for help fields
+      if (obj.type && obj.type == 'null') return; // No value for null fields
+      
+      if (!obj.key) return; // No key, no consideration (non-input type form elements like help)
+      
+      if (typeof visibleFieldMap[obj.key] == 'undefined') return; // Not currently visible...
+      
+      visibleFields++;
+      if (formValues[obj.key]) completedFields++;
+    });
+    
+    return Math.floor(100 * (completedFields / visibleFields));
+  }
   
   CIPAPI.forms.Render = function(formDefinition, formSelector, editExisting) {
     // Default form selector

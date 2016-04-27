@@ -186,6 +186,10 @@
         formData.append(key, val);
       });
 
+      // Embed form metadata
+      log.debug('Adding form metadata');
+      formData.append('__form_metadata', JSON.stringify(reportStore[0].formMetadata));
+
       // Embed mobile metadata
       log.debug('Adding mobile metadata');
       formData.append('__mobile_metadata', JSON.stringify(reportStore[0].mobileMetadata));

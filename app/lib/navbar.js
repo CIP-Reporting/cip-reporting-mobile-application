@@ -30,7 +30,7 @@
   var backButtonQueue = [];
   
   // Draw some navbar!
-  CIPAPI.navbar.render = function(conentID) {
+  CIPAPI.navbar.render = function(contentID) {
     var logoURL = CIPAPI.config.isPackaged ? './res/logo_mono_grey_thin.png' : '../../res/logo_mono_grey_thin.png';
   
     var html = '' +  
@@ -71,7 +71,7 @@
       '    </ul>' +
       '  </div>' +
       '</div>' +
-      '<div id="' + conentID + '"><form class="form-cip-reporting" role="form"></form></div>';
+      '<div id="' + contentID + '"><form class="form-cip-reporting" role="form"></form></div>';
     
     // Clean up like a good little boy...
     $('div#container > *').remove();

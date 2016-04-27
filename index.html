@@ -42,6 +42,7 @@
 		<link rel="stylesheet" media="all" type="text/css" href="./app/jquery-ui/themes/black-tie/jquery-ui.css" />
 		<link rel="stylesheet" media="all" type="text/css" href="./lib/jquery-ui-timepicker/jquery-ui-timepicker-addon.css" />
     <link href="./app/style.css" rel="stylesheet">
+    <link href="./app/spinner.css" rel="stylesheet">
     <link href="./app/customize/css/custom.css" rel="stylesheet">
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -52,6 +53,9 @@
     <![endif]-->
   </head>
   <body>
+    <!-- For extra long rendering time pages this can be displayed for improved user experience -->
+    <div style="display: none;" id="loading" class="loading">Loading&#8230;</div>
+    
     <div id="container">
       <div class="initializing">
         <img src="./res/logo_mono_blue_thin.png" />
@@ -178,7 +182,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.4415',                     // Set by the packaging script to know our own version
+              applicationVersion: '1.0.4416',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server

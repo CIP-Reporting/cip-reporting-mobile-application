@@ -212,37 +212,10 @@
       }
     });
 
-    // Handle form taps and holds
-    $('div#main-content-area form div div a').hammer({}).bind("tap pressup", function(e) {
-      switch(e.type) {
-        case 'tap':
-          if ($(this).hasClass('btn-custom-disabled')) {
-            $(document).trigger('cipapi-behaviors-haptic-feedback');
-            log.debug('Not allowing tap on disabled form');
-            break;
-          }
-          
-          $(document).trigger('cipapi-behaviors-button-click', { button: $(this), callback: function(info) {
-            CIPAPI.router.goTo('main', { action: 'form', form: info.button.attr('data-form'), case: caseUUID, uuid: info.button.attr('data-uuid') });
-          }});
-          break;
-          
-        case 'pressup':
-          // Context menu of some sorts - for mobile touch
-          $(document).trigger('cipapi-behaviors-haptic-feedback');
-
-          if ($(this).hasClass('btn-custom-notexist')) {
-            log.debug('Not allowing pressup on non-existent form');
-            break;
-          }
-          
-          $(document).trigger('cipapi-case-form-context-menu', { form: $(this).attr('data-form'), case: caseUUID, uuid: $(this).attr('data-uuid') });
-          break;
-      }
-    }).on('mousedown', function(e) {
-      if (e.button == 2) {
+    $('div#main-content-area form div div a').on('mousedown', function(e) {
+      if (e.button == 2) { // Right click (press)
         // Context menu of some sorts - for non-mobile
-        $(document).trigger('cipapi-behaviors-haptic-feedback');
+        $(document).trigger('cipapi-behaviors-haptic-feedback', 'Form mouse down');
 
         if ($(this).hasClass('btn-custom-notexist')) {
           log.debug('Not allowing right click on non-existent form');
@@ -254,7 +227,7 @@
       }
     }).on('click', function(e) {
       if ($(this).hasClass('btn-custom-disabled')) {
-        $(document).trigger('cipapi-behaviors-haptic-feedback');
+        $(document).trigger('cipapi-behaviors-haptic-feedback', 'Form click when disabled');
         log.debug('Not allowing click on disabled form');
         return false;
       }
@@ -378,7 +351,7 @@
       if ($(this).height() > highestBox) highestBox = $(this).height(); 
       
       $(this).click(function() {
-        $(document).trigger('cipapi-behaviors-haptic-feedback');
+        $(document).trigger('cipapi-behaviors-haptic-feedback', 'Case click');
         CIPAPI.router.goTo('main', { action: 'case', case: $(this).attr('data-form') });
       });
     });
@@ -620,7 +593,7 @@ log.warn("TODO: Form value type: " + formValueType);
       // If no changes, just go back...
       if (!fieldValuesChanged) return CIPAPI.navbar.goBack(skipHaptic);
       
-      if (!skipHaptic) $(document).trigger('cipapi-behaviors-haptic-feedback');
+      if (!skipHaptic) $(document).trigger('cipapi-behaviors-haptic-feedback', 'Form custom back handler');
       
       bootbox.dialog({
         message: CIPAPI.translations.translate('WARNING: You attempting to go back without saving your changes.'),
@@ -630,18 +603,16 @@ log.warn("TODO: Form value type: " + formValueType);
             label: CIPAPI.translations.translate('Abandon Changes'),
             className: "btn-danger",
             callback: function() {
-              // Go somewhere...
-              CIPAPI.navbar.goBack();
               bootbox.hideAll();
+              CIPAPI.navbar.goBack();
             }
           },
           main: {
             label: CIPAPI.translations.translate('Save Changes'),
             className: "btn-primary btn-custom",
             callback: function() {
-              $(document).trigger('cipapi-behaviors-haptic-feedback');
               bootbox.hideAll();
-              $('input.cipform-save-report').click();
+              $('a#cipform-proxy-submit').click();
             }
           }
         }

@@ -64,21 +64,22 @@
       $(this).addClass('btn').find('span').attr('data-value', $(this).find('input').val());
     });
     
-    $('.cipapi-behaviors-radios-to-buttons label.radio').hammer({}).bind('tap press', function(e) {
+    // Handle button click and right click (right click unselects)
+    $('.cipapi-behaviors-radios-to-buttons label.radio').on('click', function(e) {
       var inp = $(this).find('input');
-
-      if (e.type == 'tap') {
-        if (!$(inp).prop('checked')) {
-          $(inp).prop('checked', true).change();
-        }
-      } 
-      
-      if (e.type == 'press') {
+      if (!$(inp).prop('checked')) {
+        $(inp).prop('checked', true).change();
+        $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.radiosToButtons (click)');
+      }
+      return false;
+    }).on('mousedown', function(e) {
+      if (e.button == 2) { // Right click (press)
+        var inp = $(this).find('input');
         if ($(inp).prop('checked')) {
           $(inp).prop('checked', false).change();
+          $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.radiosToButtons (hold)');
         }
-
-        $(document).trigger('cipapi-behaviors-haptic-feedback');
+        return false;        
       }
     });
   }
@@ -90,7 +91,7 @@
   // scroll to the next sibling of the container if available.
   CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll = function() {
     $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().hammer({}).bind('swipeleft', function(e) {
-      $(document).trigger('cipapi-behaviors-haptic-feedback');
+      $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll');
 
       var lastName = '';
       $(this).find('*').filter(':input').each(function() {
@@ -139,7 +140,7 @@
   // Issue a media capture, and when done with that, focus the last string element.
   CIPAPI.behaviors.forms.swipeRightSelectSecondThenImageThenString = function() {
     $('.cipapi-behaviors-swipe-right-select-second-then-image-then-string').parent().hammer({}).bind('swiperight', function(e) {
-      $(document).trigger('cipapi-behaviors-haptic-feedback');
+      $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.swipeRightSelectSecondThenImageThenString');
 
       var numChanges = 0; var lastName = ''; var me = this; var lastTextInput = false;
       $(this).find('*').filter(':input').each(function() {
@@ -207,14 +208,26 @@
   $(document).on('cipapi-behaviors-apply-forms', function() { applyBehaviors(CIPAPI.behaviors.forms); });
   
   $(document).on('cipapi-behaviors-button-click', function(event, info) {
-    $(document).trigger('cipapi-behaviors-haptic-feedback');
+    $(document).trigger('cipapi-behaviors-haptic-feedback', 'cipapi-behaviors-button-click');
     
-    info.button.find('span.glyphicon').each(function() {
-      this.className = 'glyphicon glyphicon-refresh cipapi-behaviors-glyph-spin';
-    });
-    
+    $('div#loading').show();
+  
     // A little deferment ...
     setTimeout(function() { info.callback(info);}, 250);
+  });
+  
+  $(document).on('cipapi-routed', function(event, info) {
+    $('div#loading').hide();
+  });
+  
+  // Give the user a little tactile feedback
+  $(document).on('cipapi-behaviors-haptic-feedback', function(event, info) {
+    // Vibrate for a moment
+    if (window.cordova) {
+      navigator.vibrate(25);
+    } else {
+      log.warn("Haptic bzzzz - " + info);
+    }
   });
   
 })(window);

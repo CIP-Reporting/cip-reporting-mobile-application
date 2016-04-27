@@ -95,7 +95,7 @@
   CIPAPI.navbar.goBack = function(skipHaptic) {
     log.debug('Go back');
     
-    if (!skipHaptic) $(document).trigger('cipapi-behaviors-haptic-feedback');
+    if (!skipHaptic) $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.navbar.goBack');
     
     // Require at least 2 - one for current page and one to go back to
     if (backButtonQueue.length < 2) {
@@ -315,12 +315,4 @@
     $('#cipapi-screen-overlay').hide();
   });
 
-  // Give the user a little tactile feedback
-  $(document).on('cipapi-behaviors-haptic-feedback', function(event, info) {
-    // Vibrate for a moment
-    if (window.cordova) {
-      navigator.vibrate(25);
-    }
-  });
-  
 })(window);

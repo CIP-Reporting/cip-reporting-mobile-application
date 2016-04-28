@@ -11,8 +11,11 @@
 
   <author href="http://www.cipreporting.com" email="support@cipreporting.com">CIP Reporting</author>
   
+  <!-- Allow Ajax Requests to anywhere -->
   <access origin="*" />
-
+  <allow-intent href="*" />
+  <allow-navigation href="*" />
+  
   <!-- Configure the Application -->
   <preference name="phonegap-version"           value="cli-5.2.0" />      <!-- all: current version of PhoneGap -->
   <preference name="orientation"                value="default" />        <!-- all: default means both landscape and portrait are enabled -->
@@ -48,6 +51,7 @@
   <gap:plugin name="org.apache.cordova.splashscreen" />
   <gap:plugin name="org.apache.cordova.vibration" />
   <gap:plugin name="org.apache.cordova.inappbrowser" />
+  <gap:plugin name="org.apache.cordova.whitelist" />
 
   <!-- Not Used Plugins
   <gap:plugin name="org.apache.cordova.battery-status" />

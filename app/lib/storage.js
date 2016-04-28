@@ -28,7 +28,6 @@
   var db                = {}; // Start with an empty DB
   var isLoaded          = false;
   var storageDB         = false;
-  var persistenceEngine = false;
   
   function resetDB() {
     if (!storageDB) return;
@@ -73,19 +72,14 @@
   $(document).on('cipapi-config-set', function() {
     db = {}; // Clear the in-memory DB
     
-    // If available use HTML5 SQL API but prefers SQLite
-    if (window.openDatabase) persistenceEngine = window;
-    if (window.sqlitePlugin) persistenceEngine = window.sqlitePlugin;
-
-    if (persistenceEngine) {
-      if (persistenceEngine === window.sqlitePlugin) {
+    if (window.openDatabase || window.sqlitePlugin) {
+      // If available use HTML5 SQL API but prefers SQLite
+      if (window.sqlitePlugin) {
         log.debug("Using SQLite");
-        storageDB = persistenceEngine.openDatabase({name: "CIP-Reporting.db", location: 1, androidLockWorkaround: 1});
-      } 
-      
-      if (persistenceEngine === window) {
+        storageDB = window.sqlitePlugin.openDatabase({name: "CIP-Reporting.db", location: 1, androidLockWorkaround: 1});
+      } else {
         log.debug("Using native HTML5 SQL API");
-        storageDB = persistenceEngine.openDatabase("CIP-Reporting.db", "1.0", "CIP Reporting Persistent Report Store", -1);
+        storageDB = window.openDatabase("CIP-Reporting.db", "1.0", "CIP Reporting Persistent Report Store", -1);
       }
       
       if (storageDB) {

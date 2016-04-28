@@ -30,10 +30,6 @@
   var storageDB         = false;
   var persistenceEngine = false;
   
-  // If available use HTML5 SQL API but prefers SQLite
-  if (window.openDatabase) persistenceEngine = window;
-  if (window.sqlitePlugin) persistenceEngine = window.sqlitePlugin;
-
   function resetDB() {
     if (!storageDB) return;
 
@@ -77,6 +73,10 @@
   $(document).on('cipapi-config-set', function() {
     db = {}; // Clear the in-memory DB
     
+    // If available use HTML5 SQL API but prefers SQLite
+    if (window.openDatabase) persistenceEngine = window;
+    if (window.sqlitePlugin) persistenceEngine = window.sqlitePlugin;
+
     if (persistenceEngine) {
       if (persistenceEngine === window.sqlitePlugin) {
         log.debug("Using SQLite");

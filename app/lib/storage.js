@@ -78,10 +78,15 @@
     db = {}; // Clear the in-memory DB
     
     if (persistenceEngine) {
-      if (persistenceEngine === window) log.debug("Using native HTML5 SQL API");
-      if (persistenceEngine === window.sqlitePlugin) log.debug("Using SQLite");
+      if (persistenceEngine === window.sqlitePlugin) {
+        log.debug("Using SQLite");
+        storageDB = persistenceEngine.openDatabase({name: "CIP-Reporting.db", location: 1, androidLockWorkaround: 1});
+      } 
       
-      storageDB = persistenceEngine.openDatabase("CIP-Reporting", "1.0", "CIP Reporting Persistent Report Store", -1);
+      if (persistenceEngine === window) {
+        log.debug("Using native HTML5 SQL API");
+        storageDB = persistenceEngine.openDatabase("CIP-Reporting.db", "1.0", "CIP Reporting Persistent Report Store", -1);
+      }
       
       if (storageDB) {
         storageDB.transaction(function(tx) {

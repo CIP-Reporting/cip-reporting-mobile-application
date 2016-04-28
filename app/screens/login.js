@@ -148,7 +148,7 @@
       '    <span for="firstname" class="help-block">You must provide a valid server URL</span>' +
       '  </div>' +
       '  <div class="form-group">'+
-      '    <input id="form-signin-user" type="text" autocorrect="off" autocapitalize="none" class="form-control" placeholder="User ID">' +
+      '    <input id="form-signin-user" type="email" class="form-control" placeholder="User ID">' +
       '    <span for="firstname" class="help-block">You must provide a valid user ID</span>' +
       '  </div>' +
       '  <div class="form-group">'+

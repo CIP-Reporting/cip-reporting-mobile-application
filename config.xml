@@ -63,15 +63,15 @@
   -->
 
   <!-- Custom URL Schema -->
-  <gap:plugin name="nl.x-services.plugins.launchmyapp">
+  <gap:plugin name="nl.x-services.plugins.launchmyapp" source="npm">
     <param name="URL_SCHEME" value="cipreporting" />
   </gap:plugin>
 
   <!-- Bar Code Scanning -->
-  <gap:plugin name="com.jp.bc2" source="pgb" />
+  <gap:plugin name="com.jp.bc2" source="npm" />
 
   <!-- SQLite Support -->
-  <gap:plugin name="com.millerjames01.sqlite-plugin" source="pgb" />
+  <gap:plugin name="com.millerjames01.sqlite-plugin" source="npm" />
   
   <!-- Define platforms -->
   <gap:platform name="android" />

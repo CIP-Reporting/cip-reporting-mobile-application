@@ -131,8 +131,9 @@
   <gap:splash src="splash.png" />
 
   <!-- Enable debuggable target for Android - must be removed for a release build -->
+<!--
   <gap:config-file platform="android" parent="/manifest">
     <application android:debuggable="true" />
   </gap:config-file>
-
+-->
 </widget>

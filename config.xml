@@ -102,21 +102,24 @@
   <icon src="icon.png" />
 
   <!-- Define splash screens -->
-  <gap:splash src="res/screen/android/splash-port-320-426.png"   density="ldpi"        gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-320-470.png"   density="mdpi"        gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-480-640.png"   density="hdpi"        gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-720-960.png"   density="xhdpi"       gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-1080-1920.png" density="xxhdpi"      gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-land-426-320.png"   density="land-ldpi"   gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-land-470-320.png"   density="land-mdpi"   gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-land-640-480.png"   density="land-hdpi"   gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-land-960-720.png"   density="land-xhdpi"  gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-land-1920-1080.png" density="land-xxhdpi" gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-320-426.png"   density="port-ldpi"   gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-320-470.png"   density="port-mdpi"   gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-480-640.png"   density="port-hdpi"   gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-720-960.png"   density="port-xhdpi"  gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-port-1080-1920.png" density="port-xxhdpi" gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0200-0320.png" density="ldpi"         gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0320-0480.png" density="mdpi"         gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0480-0800.png" density="hdpi"         gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0720-1280.png" density="xhdpi"        gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0960-1600.png" density="xxhdpi"       gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-1280-1920.png" density="xxxhdpi"      gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0200-0320.png" density="land-ldpi"    gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0320-0480.png" density="land-mdpi"    gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0480-0800.png" density="land-hdpi"    gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0720-1280.png" density="land-xhdpi"   gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0960-1600.png" density="land-xxhdpi"  gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-1280-1920.png" density="land-xxxhdpi" gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0320-0200.png" density="port-ldpi"    gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0480-0320.png" density="port-mdpi"    gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-0800-0480.png" density="port-hdpi"    gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-1280-0720.png" density="port-xhdpi"   gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-1600-0960.png" density="port-xxhdpi"  gap:platform="android" />
+  <gap:splash src="res/screen/android/splash-1920-1280.png" density="port-xxxhdpi" gap:platform="android" />
 
   <gap:splash src="res/screen/ios/splash-port-320-480.png"   width="320"  height="480"  gap:platform="ios" />
   <gap:splash src="res/screen/ios/splash-port-640-960.png"   width="640"  height="960"  gap:platform="ios" />

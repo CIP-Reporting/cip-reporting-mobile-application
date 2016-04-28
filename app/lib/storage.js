@@ -76,7 +76,7 @@
       // If available use HTML5 SQL API but prefers SQLite
       if (window.sqlitePlugin) {
         log.debug("Using SQLite");
-        storageDB = window.sqlitePlugin.openDatabase({ name: "CIP-Reporting.db", location: 1 });
+        storageDB = window.sqlitePlugin.openDatabase({name: "CIP-Reporting.db", location: 1, androidLockWorkaround: 1});
       } else {
         log.debug("Using native HTML5 SQL API");
         storageDB = window.openDatabase("CIP-Reporting.db", "1.0", "CIP Reporting Persistent Report Store", -1);

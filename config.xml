@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.4418">
+  version = "1.0.4419">
 
   <name>CIP Reporting</name>
 
@@ -54,20 +54,20 @@
   <gap:plugin name="cordova-plugin-whitelist" source="npm" />
 
   <!-- Custom URL Schema -->
-  <gap:plugin name="nl.x-services.plugins.launchmyapp" source="pgb">
+  <gap:plugin name="cordova-plugin-customurlscheme" source="npm">
     <param name="URL_SCHEME" value="cipreporting" />
   </gap:plugin>
 
   <!-- Bar Code Scanning -->
-  <gap:plugin name="com.jp.bc2" source="pgb" />
+  <gap:plugin name="phonegap-plugin-barcodescanner" source="npm" />
 
   <!-- SQLite Support -->
-  <gap:plugin name="io.litehelpers.cordova.sqlite" source="pgb" />
+  <gap:plugin name="cordova-sqlite-storage" source="npm" />
   
   <!-- Define platforms -->
+  <gap:platform name="winphone" />
   <gap:platform name="android" />
   <gap:platform name="ios" />
-  <gap:platform name="winphone" />
 
   <!-- Define app icons -->
   <icon src="res/icon/android/icon-36-ldpi.png"     density="ldpi"    gap:platform="android" />

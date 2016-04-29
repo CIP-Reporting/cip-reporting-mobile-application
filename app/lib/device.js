@@ -25,6 +25,12 @@
 
   var log = log4javascript.getLogger("CIPAPI.device");
 
+  CIPAPI.device.cordova  = 'Unknown';
+  CIPAPI.device.model    = 'Unknown';
+  CIPAPI.device.platform = 'Unknown';
+  CIPAPI.device.uuid     = 'Unknown';
+  CIPAPI.device.version  = 'Unknown';
+  
   function loadFromDevice() {
     log.debug("Loading device info");
     
@@ -46,13 +52,16 @@
     });
   }
 
-  
   // If phonegap - reload when ready
   if (window.cordova) {
     document.addEventListener("deviceready", loadFromDevice);
   } else {
     // Else set defaults
     loadFromDevice();
+  }
+
+  CIPAPI.device.hasRightClick = function() {
+    return device.platform != 'iOS'; // Currently we know iOS has no right click emulation...
   }
   
 })(window);

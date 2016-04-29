@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.4419">
+  version = "1.0.4420">
 
   <name>CIP Reporting</name>
 
@@ -65,7 +65,6 @@
   <gap:plugin name="cordova-sqlite-storage" source="npm" />
   
   <!-- Define platforms -->
-  <gap:platform name="winphone" />
   <gap:platform name="android" />
   <gap:platform name="ios" />
 
@@ -96,9 +95,6 @@
   <icon src="res/icon/ios/icon-0180.png" width="180"  height="180"  gap:platform="ios" />
   <icon src="res/icon/ios/icon-1024.png" width="1024" height="1024" gap:platform="ios" />
 
-  <icon src="res/icon/windows/icon-62-tile.png"  gap:platform="winphone" />
-  <icon src="res/icon/windows/icon-173-tile.png" gap:platform="winphone" gap:role="background" />
-
   <icon src="icon.png" />
 
   <!-- Define splash screens -->
@@ -121,19 +117,25 @@
   <gap:splash src="res/screen/android/splash-1600-0960.png" density="port-xxhdpi"  gap:platform="android" />
   <gap:splash src="res/screen/android/splash-1920-1280.png" density="port-xxxhdpi" gap:platform="android" />
 
-  <gap:splash src="res/screen/ios/splash-port-320-480.png"   width="320"  height="480"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-port-640-960.png"   width="640"  height="960"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-port-640-1136.png"  width="640"  height="1136" gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-port-768-1024.png"  width="768"  height="1024" gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-port-1536-2048.png" width="1536" height="2048" gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-land-480-320.png"   width="480"  height="320"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-land-960-640.png"   width="960"  height="640"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-land-1136-640.png"  width="1136" height="640"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-land-1024-768.png"  width="1024" height="768"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-land-2048-1536.png" width="2048" height="1536" gap:platform="ios" />
+  <!-- iPad -->
+  <gap:splash src="res/screen/ios/splash-0768-1024.png" width="768"  height="1024" gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-1024-0768.png" width="1024" height="768"  gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-1536-2048.png" width="1536" height="2048" gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-2048-1536.png" width="2048" height="1536" gap:platform="ios" />
 
-  <gap:splash src="res/screen/windows/splash-port-480-800.png" gap:platform="winphone" />
+  <!-- iPhone -->
+  <gap:splash src="res/screen/ios/splash-0320-0480.png" width="320"  height="480"  gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-0480-0320.png" width="480"  height="320"  gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-0640-0960.png" width="640"  height="960"  gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-0960-0640.png" width="960"  height="640"  gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-0640-1136.png" width="640"  height="1136" gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-1136-0640.png" width="1136" height="640"  gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-0750-1334.png" width="750"  height="1334" gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-1334-0750.png" width="1334" height="750"  gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-1242-2208.png" width="1242" height="2208" gap:platform="ios" />
+  <gap:splash src="res/screen/ios/splash-2208-1242.png" width="2208" height="1242" gap:platform="ios" />
 
+  <!-- Generic -->
   <gap:splash src="splash.png" />
 
   <!-- Enable debuggable target for Android - must be removed for a release build -->

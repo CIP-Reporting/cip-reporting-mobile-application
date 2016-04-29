@@ -212,31 +212,46 @@
       }
     });
 
-    $('div#main-content-area form div div a').on('mousedown', function(e) {
-      if (e.button == 2) { // Right click (press)
-        // Context menu of some sorts - for non-mobile
-        $(document).trigger('cipapi-behaviors-haptic-feedback', 'Form mouse down');
-
-        if ($(this).hasClass('btn-custom-notexist')) {
-          log.debug('Not allowing right click on non-existent form');
-          return false;
-        }
-
-        $(document).trigger('cipapi-case-form-context-menu', { form: $(this).attr('data-form'), case: caseUUID, uuid: $(this).attr('data-uuid') });
-        return false;
-      }
-    }).on('click', function(e) {
-      if ($(this).hasClass('btn-custom-disabled')) {
+    function handleTap(elem) {
+      if ($(elem).hasClass('btn-custom-disabled')) {
         $(document).trigger('cipapi-behaviors-haptic-feedback', 'Form click when disabled');
         log.debug('Not allowing click on disabled form');
         return false;
       }
       
-      $(document).trigger('cipapi-behaviors-button-click', { button: $(this), callback: function(info) {
+      $(document).trigger('cipapi-behaviors-button-click', { button: $(elem), callback: function(info) {
         CIPAPI.router.goTo('main', { action: 'form', form: info.button.attr('data-form'), case: caseUUID, uuid: info.button.attr('data-uuid') });
       }});
       return false;
-    });
+    }
+    
+    // Context menu of some sorts - for non-mobile
+    function handlePress(elem) {
+      $(document).trigger('cipapi-behaviors-haptic-feedback', 'Form mouse down');
+
+      if ($(elem).hasClass('btn-custom-notexist')) {
+        log.debug('Not allowing right click on non-existent form');
+        return false;
+      }
+
+      $(document).trigger('cipapi-case-form-context-menu', { form: $(elem).attr('data-form'), case: caseUUID, uuid: $(elem).attr('data-uuid') });
+      return false;
+    }
+    
+    // Right click / press
+    if (CIPAPI.device.hasRightClick()) {
+      $('div#main-content-area form div div a').on('mousedown', function(e) { 
+        if (e.button == 2) return handlePress(this); 
+      }).on('click', function(e) { 
+        handleTap(this);
+      });      
+    } else {
+      // Device does not support right click or press so use hammer.js press events
+      $('div#main-content-area form div div a').hammer({}).bind('tap press', function(e) {
+        if (e.type == 'press') return handlePress(e.target);
+        if (e.type == 'tap') return handleTap(e.target);
+      });
+    }
     
     // Output a potential clear div
     $('div#main-content-area form div.form-button-list').append('<div class="beforecasebtn"></div>');

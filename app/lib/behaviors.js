@@ -64,7 +64,31 @@
       $(this).addClass('btn').find('span').attr('data-value', $(this).find('input').val());
     });
     
-    // Handle button click and right click (right click unselects)
+    // Right click / press (right click unselects)
+    if (CIPAPI.device.hasRightClick()) {
+      $('.cipapi-behaviors-radios-to-buttons label.radio').on('mousedown', function(e) {
+        if (e.button == 2) { // Right click (press)
+          var inp = $(this).find('input');
+          if ($(inp).prop('checked')) {
+            $(inp).prop('checked', false).change();
+            $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.radiosToButtons (hold)');
+          }
+          return false;        
+        }
+      });
+    } else {
+      // Device does not support right click or press so use hammer.js press events
+      $('.cipapi-behaviors-radios-to-buttons label.radio').hammer({}).bind('press', function(e) {
+        var inp = $(this).find('input');
+        if ($(inp).prop('checked')) {
+          $(inp).prop('checked', false).change();
+          $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.radiosToButtons (press)');
+        }
+        return false;        
+      });
+    }
+    
+    // Handle click
     $('.cipapi-behaviors-radios-to-buttons label.radio').on('click', function(e) {
       var inp = $(this).find('input');
       if (!$(inp).prop('checked')) {
@@ -72,15 +96,6 @@
         $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.radiosToButtons (click)');
       }
       return false;
-    }).on('mousedown', function(e) {
-      if (e.button == 2) { // Right click (press)
-        var inp = $(this).find('input');
-        if ($(inp).prop('checked')) {
-          $(inp).prop('checked', false).change();
-          $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.radiosToButtons (hold)');
-        }
-        return false;        
-      }
     });
   }
   

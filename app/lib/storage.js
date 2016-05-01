@@ -84,7 +84,7 @@
       
       if (storageDB) {
         log.debug("Initializing database ...");
-        storageDB.executeSql('CREATE TABLE IF NOT EXISTS kvp (kk VARCHAR PRIMARY KEY, vv BLOB)', [],
+        storageDB.executeSql('CREATE TABLE IF NOT EXISTS kvp (kk VARCHAR PRIMARY KEY, vv TEXT)', [],
           function(resultSet) { 
             log.debug("Storage Initialized ... Reading Back"); 
             storageDB.executeSql('SELECT vv FROM kvp WHERE kk = ?', [ CIPAPI.credentials.getCredentialHash() ],

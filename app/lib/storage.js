@@ -173,7 +173,7 @@ return readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(0, CIPAPI.c
     } else {
       initError("No persistence engine available, using in memory DB");
     }
-  });
+  }
   
   // The API
   CIPAPI.storage.getItem     = function(key)      { return db[key] ? db[key] : false; }

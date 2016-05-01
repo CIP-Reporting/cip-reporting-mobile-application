@@ -45,7 +45,7 @@
     log.debug("Write Back Begin");
     storageDB.executeSql('DELETE FROM kvp WHERE kk = ?', [ CIPAPI.credentials.getCredentialHash() ],
       function(resultSet) {
-        var serializedDB = JSON.stringify(db);
+        var serializedDB = Base64.encode(JSON.stringify(db));
         storageDB.executeSql('INSERT INTO kvp (kk, vv) VALUES(?, ?)', [ CIPAPI.credentials.getCredentialHash(), serializedDB ],
           function(resultSet) {
             log.debug("Write Back Complete (" + filesize(serializedDB.length) + ")");
@@ -95,7 +95,7 @@
                   var length = serializedDB ? filesize(serializedDB.length) : 'NULL';
                   log.debug("Record found (" + length + ") ... Deserializing");
 
-                  db = JSON.parse(serializedDB);
+                  db = JSON.parse(Base64.decode(serializedDB));
                   log.debug("Deserialized, ready for action");
                 } else {
                   log.warn("Key not found, using empty DB");

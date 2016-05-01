@@ -92,7 +92,7 @@
       if (storageDB) {
         var serializedDB = ''; var pageSize = 1024 * 512; // Half meg per request
         function readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(offset, hash) {
-log.debug("OFFSET: " + offset);
+          log.debug("Offset: " + offset);
           storageDB.executeSql('SELECT SUBSTR(vv, ' + offset + ', ' + pageSize + ') AS vv FROM kvp WHERE kk = ?', [ hash ],
           function(resultSet) {
             // If no results, it may be our first initialization for this user
@@ -106,7 +106,7 @@ log.debug("OFFSET: " + offset);
               
             var record = resultSet.rows.item(0).vv;
             var length = record ? record.length : 0;
-log.debug("LENGTH: " + length);
+            log.debug("Length: " + length);
             
             // Recurse...
             if (length > 0) {
@@ -130,37 +130,7 @@ log.debug("LENGTH: " + length);
         storageDB.executeSql('CREATE TABLE IF NOT EXISTS kvp (kk VARCHAR PRIMARY KEY, vv VARCHAR)', [],
           function(resultSet) { 
             log.debug("Storage Initialized ... Reading Back"); 
-            
-return readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(0, CIPAPI.credentials.getCredentialHash());
-            
-            
-            
-            
-            
-            storageDB.executeSql('SELECT vv FROM kvp WHERE kk = ?', [ CIPAPI.credentials.getCredentialHash() ],
-              function(resultSet) {
-                log.debug('Read Back Complete ...');
-                if (resultSet.rows.length) {
-                  var serializedDB = resultSet.rows.item(0).vv;
-                  var length = serializedDB ? filesize(serializedDB.length) : 'NULL';
-                  log.debug("Record found (" + length + ") ... Deserializing");
-
-                  db = JSON.parse(serializedDB);
-                  log.debug("Deserialized, ready for action");
-                } else {
-                  log.warn("Key not found, using empty DB");
-                }
-
-                isLoaded = true;
-                log.debug("Storage Ready");
-                CIPAPI.router.validateMetadata();
-                $(document).trigger('cipapi-storage-ready');
-              },
-              function(er) { 
-                log.error("Failed to read back");
-                initError(er.message); 
-              }
-            );
+            return readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(0, CIPAPI.credentials.getCredentialHash());
           },
           function(er) { 
             log.error("Failed to initialize");

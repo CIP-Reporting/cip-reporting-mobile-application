@@ -92,7 +92,7 @@
       if (storageDB) {
         var serializedDB = ''; var pageSize = 1024;
         function readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(offset, hash) {
-log.debug("OFFSET: " + offset");
+log.debug("OFFSET: " + offset);
           storageDB.executeSql('SELECT SUBSTR(vv, ' + offset + ', ' + pageSize + ') AS vv FROM kvp WHERE kk = ?', [ hash ],
           function(resultSet) {
             // If no results, it may be our first initialization for this user

@@ -28,7 +28,8 @@
   var db        = {}; // Start with an empty DB
   var isLoaded  = false;
   var storageDB = false;
-  
+  var pageSize  = 1024 * 512; // Half meg per request  
+
   function resetDB() {
     if (!storageDB) return;
 
@@ -75,8 +76,7 @@
     $(document).trigger('cipapi-storage-ready');
   }
   
-  // When configuration is set re-load the db
-  $(document).on('cipapi-config-set', function() {
+  function readBack() {
     db = {}; // Clear the in-memory DB
     
     if (window.openDatabase || window.sqlitePlugin) {
@@ -90,7 +90,7 @@
       }
       
       if (storageDB) {
-        var serializedDB = ''; var pageSize = 1024;
+        var serializedDB = ''; var pageSize = 1024 * 512; // Half meg per request
         function readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(offset, hash) {
 log.debug("OFFSET: " + offset);
           storageDB.executeSql('SELECT SUBSTR(vv, ' + offset + ', ' + pageSize + ') AS vv FROM kvp WHERE kk = ?', [ hash ],
@@ -176,12 +176,21 @@ return readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(0, CIPAPI.c
   });
   
   // The API
-  CIPAPI.storage.getItem    = function(key)      { return db[key] ? db[key] : false; }
-  CIPAPI.storage.setItem    = function(key, val) { db[key] = val; writeBack(); }
-  CIPAPI.storage.removeItem = function(key)      { delete db[key]; writeBack(); }
-  CIPAPI.storage.clear      = function()         { db = {}; resetDB(); }
-  CIPAPI.storage.getEngine  = function()         { return storageDB; }
+  CIPAPI.storage.getItem     = function(key)      { return db[key] ? db[key] : false; }
+  CIPAPI.storage.setItem     = function(key, val) { db[key] = val; writeBack(); }
+  CIPAPI.storage.removeItem  = function(key)      { delete db[key]; writeBack(); }
+  CIPAPI.storage.clear       = function()         { db = {}; resetDB(); }
+
+  // Some debuggery...
+  CIPAPI.storage.getEngine   = function()         { return storageDB; }
+  CIPAPI.storage.readBack    = function()         { return readBack(); }
+  CIPAPI.storage.writeBack   = function()         { return writeBack(); }
+  CIPAPI.storage.getPageSize = function()         { return pageSize; }
+  CIPAPI.storage.setPageSize = function(size)     { pageSize = size; return pageSize; }
   
+  // When configuration is set re-load the db
+  $(document).on('cipapi-config-set', function() { readBack(); });
+
   // Execute my veto power
   $(document).on('cipapi-metadata-validate', function(evt, validation) {
     log.debug("VETO: " + (isLoaded ? 'NO' : 'YES'));

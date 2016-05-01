@@ -237,9 +237,13 @@
   
   // Give the user a little tactile feedback
   $(document).on('cipapi-behaviors-haptic-feedback', function(event, info) {
-    // Give some user feedback...
-    if (window.nativeclick) {
-      nativeclick.trigger();
+    // Vibrate for a moment
+    if (window.cordova) {
+      if (window.TapticEngine) {
+        TapticEngine.generateTapticFeedback();
+      } else {
+        navigator.vibrate(25);
+      }
     } else {
       log.warn("Haptic bzzzz - " + info);
     }

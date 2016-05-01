@@ -84,6 +84,13 @@
       // Force an update of the reportstore monitor
       $(document).trigger('cipapi-reportstore-change');
     }
+    
+    // Style up the status bar a bit
+    if (window.StatusBar) {
+      StatusBar.show();
+      StatusBar.overlaysWebView(false);
+      StatusBar.backgroundColorByName('black');
+    }
   }
   
   // Register a one time back handler override
@@ -315,4 +322,5 @@
     $('#cipapi-screen-overlay').hide();
   });
 
+  
 })(window);

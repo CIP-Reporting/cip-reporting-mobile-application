@@ -92,6 +92,7 @@
       if (storageDB) {
         var serializedDB = ''; var pageSize = 1024;
         function readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(offset, hash) {
+log.debug("OFFSET: " + offset");
           storageDB.executeSql('SELECT SUBSTR(vv, ' + offset + ', ' + pageSize + ') AS vv FROM kvp WHERE kk = ?', [ hash ],
           function(resultSet) {
             // If no results, it may be our first initialization for this user
@@ -105,7 +106,7 @@
               
             var record = resultSet.rows.item(0).vv;
             var length = record ? record.length : 0;
-            log.debg("LENGTH: " + length);
+log.debug("LENGTH: " + length);
             
             // Recurse...
             if (length > 0) {
@@ -118,11 +119,6 @@
             db = JSON.parse(serializedDB);
             log.debug("Deserialized, ready for action");
             initSuccess();
-            
-            isLoaded = true;
-            log.debug("Storage Ready");
-            CIPAPI.router.validateMetadata();
-            $(document).trigger('cipapi-storage-ready');
           },
           function(er) { 
             log.error("Failed to read back");

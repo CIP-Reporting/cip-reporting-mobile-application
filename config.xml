@@ -62,10 +62,7 @@
   <gap:plugin name="phonegap-plugin-barcodescanner" source="npm" />
 
   <!-- SQLite Support -->
-  <gap:plugin name="cordova-plugin-nativeclicksound" source="npm" />
-
-  <!-- SQLite Support -->
-  <gap:plugin name="cordova-plugin-sqlite-2" source="npm" />
+  <gap:plugin name="cordova-sqlite-storage" source="npm" />
   
   <!-- Define platforms -->
   <gap:platform name="android" />

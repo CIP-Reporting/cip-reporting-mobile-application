@@ -79,22 +79,27 @@
         if (window.sqlitePlugin) {
           log.debug("Using SQLite");
           storageDB = window.sqlitePlugin.openDatabase({name: "CIP-Reporting.db", location: 'default', androidLockWorkaround: 1});
-        } else {
-          log.debug("Using native HTML5 SQL API");
-//          storageDB = window.openDatabase("CIP-Reporting.db", "1.0", "CIP Reporting Persistent Report Store", -1);
         }
+//        else {
+//          log.debug("Using native HTML5 SQL API");
+//          storageDB = window.openDatabase("CIP-Reporting.db", "1.0", "CIP Reporting Persistent Report Store", -1);
+//        }
       }
       
       if (storageDB) {
+        log.debug("Initializing database ...");
         storageDB.executeSql('CREATE TABLE IF NOT EXISTS kvp (kk VARCHAR PRIMARY KEY, vv BLOB)', [],
           function(resultSet) { 
             log.debug("Storage Initialized ... Reading Back"); 
             storageDB.executeSql('SELECT vv FROM kvp WHERE kk = ?', [ CIPAPI.credentials.getCredentialHash() ],
               function(resultSet) {
+                log.debug('Read Back Complete ...');
                 if (resultSet.rows.length) {
                   var serializedDB = resultSet.rows.item(0).vv;
+                  log.debug("Record found (" + filesize(serializedDB.length) + ") ... Deserializing");
+
                   db = JSON.parse(serializedDB);
-                  log.debug("Read Back Complete (" + filesize(serializedDB.length) + ")");
+                  log.debug("Deserialized, ready for action");
                 } else {
                   log.warn("Key not found, using empty DB");
                 }
@@ -105,11 +110,13 @@
                 $(document).trigger('cipapi-storage-ready');
               },
               function(er) { 
+                log.error("Failed to read back");
                 initError(er.message); 
               }
             );
           },
           function(er) { 
+            log.error("Failed to initialize");
             initError(er.message); 
           }
         );

@@ -80,10 +80,6 @@
           log.debug("Using SQLite");
           storageDB = window.sqlitePlugin.openDatabase({name: "CIP-Reporting.db", location: 'default', androidLockWorkaround: 1});
         }
-//        else {
-//          log.debug("Using native HTML5 SQL API");
-//          storageDB = window.openDatabase("CIP-Reporting.db", "1.0", "CIP Reporting Persistent Report Store", -1);
-//        }
       }
       
       if (storageDB) {
@@ -96,7 +92,8 @@
                 log.debug('Read Back Complete ...');
                 if (resultSet.rows.length) {
                   var serializedDB = resultSet.rows.item(0).vv;
-                  log.debug("Record found (" + filesize(serializedDB.length) + ") ... Deserializing");
+                  var length = serializedDB ? filesize(serializedDB.length) : 'NULL';
+                  log.debug("Record found (" + length + ") ... Deserializing");
 
                   db = JSON.parse(serializedDB);
                   log.debug("Deserialized, ready for action");

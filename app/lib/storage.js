@@ -68,6 +68,13 @@
     $(document).trigger('cipapi-storage-ready');
   }
 
+  function initSuccess() {
+    isLoaded = true;
+    log.debug("Storage Ready");
+    CIPAPI.router.validateMetadata();
+    $(document).trigger('cipapi-storage-ready');
+  }
+  
   // When configuration is set re-load the db
   $(document).on('cipapi-config-set', function() {
     db = {}; // Clear the in-memory DB
@@ -87,6 +94,15 @@
         function readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(offset, hash) {
           storageDB.executeSql('SELECT SUBSTR(vv, ' + offset + ', ' + pageSize + ') AS vv FROM kvp WHERE kk = ?', [ hash ],
           function(resultSet) {
+            // If no results, it may be our first initialization for this user
+            if (resultSet.rows.length == 0) {
+              if (serializedDB.length == 0) {
+                return initSuccess();
+              } else {
+                return initError("Failed to read back record"); 
+              }              
+            }
+              
             var record = resultSet.rows.item(0).vv;
             var length = record ? record.length : 0;
             log.debg("LENGTH: " + length);
@@ -101,6 +117,7 @@
 
             db = JSON.parse(serializedDB);
             log.debug("Deserialized, ready for action");
+            initSuccess();
             
             isLoaded = true;
             log.debug("Storage Ready");

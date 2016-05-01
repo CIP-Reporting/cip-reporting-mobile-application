@@ -45,7 +45,7 @@
     log.debug("Write Back Begin");
     storageDB.executeSql('DELETE FROM kvp WHERE kk = ?', [ CIPAPI.credentials.getCredentialHash() ],
       function(resultSet) {
-        var serializedDB = Base64.encode(JSON.stringify(db));
+        var serializedDB = JSON.stringify(db);
         storageDB.executeSql('INSERT INTO kvp (kk, vv) VALUES(?, ?)', [ CIPAPI.credentials.getCredentialHash(), serializedDB ],
           function(resultSet) {
             log.debug("Write Back Complete (" + filesize(serializedDB.length) + ")");
@@ -83,10 +83,47 @@
       }
       
       if (storageDB) {
+        var serializedDB = ''; var pageSize = 1024;
+        function readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(offset, hash) {
+          storageDB.executeSql('SELECT SUBSTR(vv, ' + offset + ', ' + pageSize + ') AS vv FROM kvp WHERE kk = ?', [ hash ],
+          function(resultSet) {
+            var record = resultSet.rows.item(0).vv;
+            var length = record ? record.length : 0;
+            log.debg("LENGTH: " + length);
+            
+            // Recurse...
+            if (length > 0) {
+              serializedDB += resultSet.rows.item(0).vv;
+              return readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(offset + pageSize, hash);
+            }
+            
+            log.debug("Record found (" + serializedDB.length + ") ... Deserializing");
+
+            db = JSON.parse(serializedDB);
+            log.debug("Deserialized, ready for action");
+            
+            isLoaded = true;
+            log.debug("Storage Ready");
+            CIPAPI.router.validateMetadata();
+            $(document).trigger('cipapi-storage-ready');
+          },
+          function(er) { 
+            log.error("Failed to read back");
+            initError(er.message); 
+          });
+        }
+        
         log.debug("Initializing database ...");
         storageDB.executeSql('CREATE TABLE IF NOT EXISTS kvp (kk VARCHAR PRIMARY KEY, vv VARCHAR)', [],
           function(resultSet) { 
             log.debug("Storage Initialized ... Reading Back"); 
+            
+return readDataInPaginatedFormatToWorkAroundStupidBugsInSQLIteDriver(0, CIPAPI.credentials.getCredentialHash());
+            
+            
+            
+            
+            
             storageDB.executeSql('SELECT vv FROM kvp WHERE kk = ?', [ CIPAPI.credentials.getCredentialHash() ],
               function(resultSet) {
                 log.debug('Read Back Complete ...');
@@ -95,7 +132,7 @@
                   var length = serializedDB ? filesize(serializedDB.length) : 'NULL';
                   log.debug("Record found (" + length + ") ... Deserializing");
 
-                  db = JSON.parse(Base64.decode(serializedDB));
+                  db = JSON.parse(serializedDB);
                   log.debug("Deserialized, ready for action");
                 } else {
                   log.warn("Key not found, using empty DB");

@@ -239,11 +239,7 @@
   $(document).on('cipapi-behaviors-haptic-feedback', function(event, info) {
     // Vibrate for a moment
     if (window.cordova) {
-      if (CIPAPI.device.isiOS()) {
-        TapticEngine.generateTapticFeedback();
-      } else {
-        navigator.vibrate(25);
-      }
+      navigator.vibrate(25);
     } else {
       log.warn("Haptic bzzzz - " + info);
     }

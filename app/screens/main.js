@@ -239,23 +239,18 @@
     }
     
     // Right click / press
-    if (!CIPAPI.device.isiOS()) {
+    if (CIPAPI.device.hasRightClick()) {
       $('div#main-content-area form div div a').on('mousedown', function(e) { 
         if (e.button == 2) return handlePress(this); 
       }).on('click', function(e) { 
         handleTap(this);
       });      
     } else {
-      // iOS does not support right click emulation so use click and double click
-      $('div#main-content-area form div div a').on('dblclick', function(e) { 
-        handlePress(this);
-      }).on('click', function(e) {
-        handleTap(this);
+      // Device does not support right click or press so use hammer.js press events
+      $('div#main-content-area form div div a').hammer({}).bind('tap press', function(e) {
+        if (e.type == 'press') return handlePress(e.target);
+        if (e.type == 'tap') return handleTap(e.target);
       });
-//      $('div#main-content-area form div div a').hammer({}).bind('tap pressup', function(e) {
-//        if (e.type == 'pressup') return handlePress(e.target);
-//        if (e.type == 'tap') return handleTap(e.target);
-//      });
     }
     
     // Output a potential clear div

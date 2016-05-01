@@ -62,8 +62,13 @@
     );
   }
   
-  function initError(msg) {
-    log.error(msg);
+  function initError(msg, warn) {
+    if (warn) {
+      log.warn(msg);
+    } else {
+      log.error(msg);
+    }
+    
     isLoaded = true;
     CIPAPI.router.validateMetadata();
     $(document).trigger('cipapi-storage-ready');
@@ -79,14 +84,11 @@
   function readBack() {
     db = {}; // Clear the in-memory DB
     
-    if (window.openDatabase || window.sqlitePlugin) {
+    if (window.sqlitePlugin) {
       // Initialize the storage engine (if not already initialized)
       if (!storageDB) {
-        // If available use HTML5 SQL API but prefers SQLite
-        if (window.sqlitePlugin) {
-          log.debug("Using SQLite");
-          storageDB = window.sqlitePlugin.openDatabase({name: "CIP-Reporting.db", location: 'default', androidLockWorkaround: 1});
-        }
+        log.debug("Using SQLite");
+        storageDB = window.sqlitePlugin.openDatabase({name: "CIP-Reporting.db", location: 'default', androidLockWorkaround: 1});
       }
       
       if (storageDB) {
@@ -141,7 +143,7 @@
         initError("No persistence engine available, using in memory DB");
       }
     } else {
-      initError("No persistence engine available, using in memory DB");
+      initError("No persistence engine available, using in memory DB", true); // Just warn
     }
   }
   

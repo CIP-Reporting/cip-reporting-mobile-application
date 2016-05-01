@@ -60,8 +60,8 @@
     loadFromDevice();
   }
 
-  CIPAPI.device.isiOS = function() {
-    return device.platform == 'iOS';
+  CIPAPI.device.hasRightClick = function() {
+    return CIPAPI.device.platform != 'iOS'; // Currently we know iOS has no right click emulation...
   }
   
 })(window);

@@ -214,6 +214,94 @@
     });
   }
   
+  // *.cipapi-behaviors-swipe-right-select-second-then-image-then-string
+  // 
+  // For any element with this class, seek form element children and if visible
+  // find the first two inputs of the same form name and use the last one found
+  // which is typically the second, but can be the first if only one is available.
+  // Select that item and move to the next visible form element.  When done, if
+  // more than 2 changes were made assume we need to capture photos and notes;
+  // Issue a media capture, and when done with that, focus the last string element.
+  CIPAPI.behaviors.forms.swipeRightSelectNextRightImageThenStringIfThree = function() {
+    $('.cipapi-behaviors-swipe-right-select-next-right-image-then-string-if-three').parent().hammer({}).bind('swiperight', function(e) {
+      $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.swipeRightSelectNextRightImageThenStringIfThree');
+
+      var numChanges = 0; var lastName = ''; var me = this; var lastTextInput = false; var farRight = false;
+      $(this).find('*').filter(':input').each(function() {
+        var elem = $(this);
+        
+        // Radio groups only work on first element
+        var currentName = elem.attr('name');
+        if (currentName == lastName) return;
+        lastName = currentName;
+        
+        // Go get the FIRST or SECOND VISIBLE form element with the same name - prefers the SECOND
+        var elements = $(me).find('*').filter(':input').filter(':visible').filter('[name="' + currentName + '"]');
+        if (elements.length == 0) return;
+        elem = $(elements.length > 1 ? elements[1] : elements[0]);
+        
+        if (elements.length > 2 && elem.prop('checked') === true) {
+          farRight = true;
+          elem = $(elements[2]);
+        }
+        
+        var tagName = elem.get(0).tagName;
+        if (tagName == "INPUT") {
+          var inputType = elem.attr('type');
+          if (inputType == 'radio' || inputType == 'checkbox') {
+            elem.prop('checked', true).change();
+            numChanges++;
+          }
+          
+          if (inputType == 'text') { // Keep for later
+            lastTextInput = elem;
+          }
+        }
+        
+        // TODO: Support other input types as needed such as selects
+      });
+      
+      // If number of changes is greater than 1, we need to capture photos and notes
+      if (numChanges > 1) {
+        if (farRight) {
+          log.debug("Taking far right actions")
+          
+          // Force image capture
+          $(me).find('a.cipform_image_from_camera').click();
+          
+          $(document).one('cipapi-forms-media-complete', function() {
+            // Focus the last string based input if found
+            if (lastTextInput) lastTextInput.focus();
+
+            // Scroll ourselves to the top just to help out
+            $('html, body').delay(500).animate({
+              scrollTop: $(me).offset().top - $('div.navbar').height()
+            }, 500);
+          });
+        } else {
+          log.debug("Not taking far right actions")
+          
+          // Focus the last string based input if found
+          if (lastTextInput) lastTextInput.focus();
+
+          // Scroll ourselves to the top just to help out
+          $('html, body').delay(500).animate({
+            scrollTop: $(me).offset().top - $('div.navbar').height()
+          }, 500);
+        }
+      } else {
+        // If a single item scroll to top of next element assuming this is a data 
+        // capture type yes / no question
+        var nextSibling = $(this).next();
+        if (nextSibling.length) {
+          $('html, body').delay(500).animate({
+            scrollTop: nextSibling.offset().top - $('div.navbar').height()
+          }, 500);
+        }
+      }
+    });
+  }
+  
   // Helper function to apply behaviors
   function applyBehaviors(behaviors) {
     $.each(behaviors, function(i, behavior) { behavior(); });

@@ -745,3 +745,18 @@ div.cipapi-case-context-menu button.list-group-item i.fa {
   -webkit-user-select: none;   /* disable selection/Copy of UIWebView */
   -webkit-touch-callout: none; /* disable the IOS popup when long-press on a link */
 }
+
+/* iPhone 5 */
+@media screen and (max-width: 320px) {
+  .form-cip-reporting div.form-button-list div a {
+    font-size: 14px;
+  }
+
+  div.cipapi-behaviors-radios-to-buttons label.btn {
+    width: 80px;
+  }
+
+  div.cipapi-behaviors-radios-to-buttons label.btn span {
+    font-size: 18px;
+  }
+}

@@ -59,7 +59,7 @@
   </gap:plugin>
 
   <!-- Bar Code Scanning -->
-  <gap:plugin name="phonegap-plugin-barcodescanner" source="pgb" />
+  <gap:plugin name="com.phonegap.plugins.barcodescanner" source="pgb" />
 
   <!-- Wrangle the Status Bar -->
   <gap:plugin name="cordova-plugin-statusbar" source="npm" />

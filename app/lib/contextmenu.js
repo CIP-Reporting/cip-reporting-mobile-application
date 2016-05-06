@@ -88,6 +88,7 @@
       newReport.formMetadata.isDisabled = false;
       newReport.formMetadata.nameSuffix = '';
       newReport.formMetadata.canRemove = true; // Assume we can remove if added manually
+      newReport.formMetadata.percentComplete = 0;
       
       saveReport(newReport);
     });

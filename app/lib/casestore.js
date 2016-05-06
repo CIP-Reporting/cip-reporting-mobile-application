@@ -191,13 +191,19 @@
   // Helper function to calculate the percent completion of a case
   CIPAPI.casestore.getCaseCompletePercent = function(caseRecord) {
 
-    var totalForms = caseRecord.relatedReports.length;
+    var enabledForms = caseRecord.relatedReports.filter(function(report) {
+      return report.reportData.formMetadata.isDisabled === false && report.reportData.formMetadata.isRemoved === false;
+    });
+
+    var totalForms = enabledForms.length;
     var totalPoints = totalForms * 100; // 100 Percent / Points per form
     var actualPoints = 0; // Start at 0
     
     // Next add in percent complete of any child forms
     for (var i=0; i<caseRecord.relatedReports.length; i++) {
-      actualPoints += caseRecord.relatedReports[i].reportData.formMetadata.percentComplete;
+      var formMetadata = caseRecord.relatedReports[i].reportData.formMetadata;
+      if (formMetadata.isDisabled === false && formMetadata.isRemoved === false)
+        actualPoints += formMetadata.percentComplete;
     }
     
     return Math.floor(100 * (actualPoints / totalPoints));

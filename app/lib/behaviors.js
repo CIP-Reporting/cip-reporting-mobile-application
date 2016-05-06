@@ -90,10 +90,18 @@
     
     // Handle click
     $('.cipapi-behaviors-radios-to-buttons label.radio').on('click', function(e) {
-      var inp = $(this).find('input');
+      var $this = $(this);
+
+      // Going to check if selected button is the leftmost button/input
+      var firstBtnLabel = $this.parent().children().first().text();
+
+      var inp = $this.find('input');
       if (!$(inp).prop('checked')) {
         $(inp).prop('checked', true).change();
-        $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.radiosToButtons (click)');
+
+        // Only give haptic feedback if not first button/input
+        if ($this.text() !== firstBtnLabel)
+          $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.radiosToButtons (click)');
       }
       return false;
     });
@@ -106,7 +114,8 @@
   // scroll to the next sibling of the container if available.
   CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll = function() {
     $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().hammer({}).bind('swipeleft', function(e) {
-      $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll');
+      // Disable per Customer Request
+      // $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll');
 
       var lastName = '';
       $(this).find('*').filter(':input').each(function() {
@@ -194,7 +203,7 @@
         
         $(document).one('cipapi-forms-media-complete', function() {
           // Focus the last string based input if found
-          if (lastTextInput) lastTextInput.focus();
+          //if (lastTextInput) lastTextInput.focus();
 
           // Scroll ourselves to the top just to help out
           $('html, body').delay(500).animate({
@@ -265,13 +274,13 @@
       if (numChanges > 1) {
         if (farRight) {
           log.debug("Taking far right actions")
-          
+
           // Force image capture
           $(me).find('a.cipform_image_from_camera').click();
           
           $(document).one('cipapi-forms-media-complete', function() {
             // Focus the last string based input if found
-            if (lastTextInput) lastTextInput.focus();
+            //if (lastTextInput) lastTextInput.focus();
 
             // Scroll ourselves to the top just to help out
             $('html, body').delay(500).animate({
@@ -282,7 +291,7 @@
           log.debug("Not taking far right actions")
           
           // Focus the last string based input if found
-          if (lastTextInput) lastTextInput.focus();
+          //if (lastTextInput) lastTextInput.focus();
 
           // Scroll ourselves to the top just to help out
           $('html, body').delay(500).animate({
@@ -298,6 +307,28 @@
             scrollTop: nextSibling.offset().top - $('div.navbar').height()
           }, 500);
         }
+      }
+    });
+  }
+
+  CIPAPI.behaviors.forms.clickRightThenImage = function() {
+    $('.cipapi-behaviors-click-right-then-image label.radio').on('click', function(e) {
+      var $this      = $(this);
+      var lastVal    = $this.parent().children().last().text();
+
+      // Yes/No questions don't render camera; requires a 3 option question
+      var numOptions = $this.parent().children().length;
+      if ( numOptions < 3 ) { return; } 
+
+      // Check the other btn group to see if already right clicked
+      var $otherBtnGroup = $this.closest('.cipapi-behaviors-radios-to-buttons').siblings('.cipapi-behaviors-radios-to-buttons');
+      var $lastRadioBtn  = $otherBtnGroup.find('*').filter(':input').filter(':visible').last();
+      var isLastRadioBtnChecked = $lastRadioBtn.prop('checked') === true ? true : false;
+      if ( isLastRadioBtnChecked ) { return; }
+
+      if ($this.text() == lastVal) { 
+        log.debug("Clicked right, capture photos");
+        $this.closest('a.cipform_image_from_camera').click();
       }
     });
   }

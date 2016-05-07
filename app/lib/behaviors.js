@@ -328,7 +328,7 @@
 
       if ($this.text() == lastVal) { 
         log.debug("Clicked right, capture photos");
-        $this.closest('a.cipform_image_from_camera').click();
+        $this.closest('.cipapi-behavior-element-grouping-container').find('a.cipform_image_from_camera').click();
       }
     });
   }

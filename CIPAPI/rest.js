@@ -109,7 +109,7 @@
     CIPAPI.stats.timestamp(statsGroup, 'Last Transaction');
     numTransactions++;
     
-    var credentials = CIPAPI.credentials.get();
+    var credentials = opts.credentials ? opts.credentials : CIPAPI.credentials.get();
 
     return $.ajax({
       type: "GET",
@@ -132,7 +132,7 @@
     CIPAPI.stats.timestamp(statsGroup, 'Last Transaction');
     numTransactions++;
     
-    var credentials = CIPAPI.credentials.get();
+    var credentials = opts.credentials ? opts.credentials : CIPAPI.credentials.get();
 
     return $.ajax({
       type: "POST",

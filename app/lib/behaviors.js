@@ -145,12 +145,12 @@
       });
       
       // Scroll to top of the next element
-      var nextSibling = $(this).next();
-      if (nextSibling.length) {
-        $('html, body').delay(500).animate({
-          scrollTop: nextSibling.offset().top - $('div.navbar').height()
-        }, 500);
-      }
+//      var nextSibling = $(this).next();
+//      if (nextSibling.length) {
+//        $('html, body').delay(500).animate({
+//          scrollTop: nextSibling.offset().top - $('div.navbar').height()
+//        }, 500);
+//      }
     });
   }
   

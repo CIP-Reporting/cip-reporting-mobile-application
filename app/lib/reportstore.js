@@ -181,7 +181,8 @@
       formData.append('__mobile_metadata', JSON.stringify(reportStore[0].mobileMetadata));
       
       // Add in images which were serialized
-      $.each(serializedImages, function(index, serializedImage) {
+      log.debug('Adding captured images');
+      $.each(reportStore[0].serializedImages, function(index, serializedImage) {
         if (serializedImage.formType == 'jsonfile') {
           log.debug('Adding image as jsonfile for submission');
           

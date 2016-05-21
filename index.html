@@ -164,6 +164,7 @@
     <script src="./app/lib/storage.js"></script>
     <script src="./app/lib/mobileforms.js"></script>
     <script src="./app/lib/reportstore.js"></script>
+    <script src="./app/lib/images.js"></script>
     <script src="./app/lib/help.js"></script>
     <script src="./app/lib/geolocation.js"></script>
     <script src="./app/lib/device.js"></script>
@@ -185,7 +186,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.4434',                     // Set by the packaging script to know our own version
+              applicationVersion: '1.0.4441',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -209,6 +210,7 @@
               caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
           caseModeAlwaysShowForm: false,                              // If true, a case will always show at least 1 of any known form (except hidden)
           caseOnlyCompleteIfDone: false,                              // If true, all forms must be complete within a case before it can be ended
+           autoScrollInBehaviors: true,                               // Enable auto scroll in behaviors
                      hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
                         apiForms: { }                                 // Should most likely be loaded from the config override integration
                                                                       // In the form of the key is the form integration and the value is the

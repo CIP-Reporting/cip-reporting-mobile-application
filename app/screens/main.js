@@ -26,7 +26,6 @@
   var log = log4javascript.getLogger("CIPAPI.main");
   
   var currentCaseUUID = false;
-  var imageStorage = [];
 
   // Main screen
   $(document).on('cipapi-handle-main', function(event, info) {
@@ -52,12 +51,6 @@
       else
         renderButtons(CIPAPI.config.apiForms);
     }
-  });
-
-  // Store images for packaging later  
-  $(document).on('cipapi-forms-media-added', function(event, info) {
-    log.debug('Parking image: ' + info.fileName);
-    imageStorage.push(info);
   });
 
   // Helper to render the main screen from initial navigation and hash tag updates
@@ -422,9 +415,6 @@
       return;
     }
 
-    // Reset image storage
-    imageStorage = [];
-    
     // Grab the form definition from the case definition if possible else from the global form definitions.
     var formDefinition = false; var fieldDependencies = false; formMetadata = false;
 
@@ -513,17 +503,6 @@ log.warn("TODO: Form value type: " + formValueType);
         values.reportUUID = reportUUID ? reportUUID : CIPAPI.uuid.get();
         values.reportRelUUID = reportRelUUID ? reportRelUUID : values.reportUUID;
         
-        // If in case mode rename the attachments to have enough information to know what tab and input the image is for
-        if (caseUUID) {
-          $.each(imageStorage, function(key, value) {
-            var nameParts = imageStorage[key].fileName.split('.')
-            var extension = nameParts.length > 1 ? ('.' + nameParts.pop()) : '';
-            
-            imageStorage[key].fileName = reportUUID + '_' + imageStorage[key].formName + '_' + imageStorage[key].timeStamp + extension;
-            log.debug('New attachment name: ' + imageStorage[key].fileName);
-          });        
-        }
-
         // Create an updated report record
         var defaultFormMetadata = {
                   version: 1,
@@ -542,7 +521,7 @@ log.warn("TODO: Form value type: " + formValueType);
              formDefinition: originalFormDefinition,
           fieldDependencies: originalFieldDependencies,
              serializedData: values,
-           serializedImages: imageStorage,
+           serializedImages: CIPAPI.images.get(),
              destinationURL: '/api/versions/current/integrations/' + escape(CIPAPI.config.useSingleURL ? CIPAPI.config.overrideIntegration : formName),
            destinationQuery: CIPAPI.config.useSingleURL ? formName : false,
              mobileMetadata: CIPAPI.stats.fetch(),
@@ -562,6 +541,9 @@ log.warn("TODO: Form value type: " + formValueType);
       }
     }
 
+    // Reset image storage
+    CIPAPI.images.reset(reportUUID);
+    
     // Show me some form
     CIPAPI.fielddeps.setCurrentRules(fieldDependencies);
     CIPAPI.forms.Render(formDefinition, false, editExisting);

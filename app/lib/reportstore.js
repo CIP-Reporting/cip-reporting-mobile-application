@@ -25,18 +25,10 @@
 
   var log = log4javascript.getLogger("CIPAPI.reportstore");
 
-  // Since packaging images requires call backs we have to track the number of images
-  // currently being processed and defer any automated attempts of sending reports
-  // from happening while one is already under way...  We also have to track the 
-  // images loading so we know when the final one is added to the form to kick the 
-  // send.
-  var imagesBeingQueued = 0;
-  
   // Statistics
   var statsGroup = 'Report Store';
   CIPAPI.stats.total(statsGroup, 'Total Stored', 0);
   CIPAPI.stats.total(statsGroup, 'Total Sent',   0);
-  CIPAPI.stats.total(statsGroup, 'Total Images', 0);
 
   CIPAPI.stats.total(statsGroup, 'Last Attempt', 'Never');
   CIPAPI.stats.total(statsGroup, 'Last Check',   'Never');
@@ -139,12 +131,6 @@
         return;
       }
 
-      // Images are currently queuing for transmission
-      if (imagesBeingQueued != 0) {
-        log.debug("Images currently queueing - not sending");
-        return;
-      }
-      
       CIPAPI.stats.timestamp(statsGroup, 'Last Attempt');
       
       // Build a new form to send
@@ -195,94 +181,25 @@
       formData.append('__mobile_metadata', JSON.stringify(reportStore[0].mobileMetadata));
       
       // Add in images which were serialized
-      $.each(reportStore[0].serializedImages, function(index, stored) {
-        log.debug('Adding image: ' + stored.fileName);
-        imagesBeingQueued++;
-
-        CIPAPI.stats.count(statsGroup, 'Total Images');
-
-        // The phonegap way...
-        if (typeof window.resolveLocalFileSystemURL != 'undefined') {
-          log.debug("Resolving local file URL");
-          window.resolveLocalFileSystemURL(stored.imageURI, function(fileEntry) { 
-            fileEntry.file(function(file) {
-              log.debug("Reading image");
-              var reader = new FileReader();
-              reader.onloadend = function(evt) {
-                log.debug("Parsing mime type from data URI");
-                var matches   = evt.target.result.match(/^data:(.*?);base64/);
-                var mimeType  = matches[1];
-                
-                log.debug("Mime type from URL: " + mimeType);
-
-                // Verify mime type matches up to file name because some URLs do not and the server
-                // determines the mime type by the inbound file name.  The mime type known here is
-                // most accurate because it was parsed from a data url with embedded mime type. The
-                // file name can be really weird especially when grabbing from the library or album.
-                // If they do not match up, generate a new file name and matching extension.
-                if (mimeType != CIPAPI.mime.getMimeTypeForFileName(stored.fileName)) {
-                  var newExt = CIPAPI.mime.getExtensionForMimeType(mimeType);
-                  var timeStamp = Math.round(new Date().getTime() / 1000);
-                  stored.fileName = timeStamp + newExt;
-                  log.debug("Changed file name to " + stored.fileName);
-                }
-
-                formData.append('jsonfile[]', JSON.stringify({
-                  mimeType: mimeType,
-                  fileName: stored.fileName,
-                   b64File: evt.target.result
-                }));
-
-                imagesBeingQueued--;
-                    
-                if (imagesBeingQueued == 0) {
-                  log.debug("All images loaded - sending report");
-                  sendCurrentReport();
-                } else {
-                  log.debug("Not sending report - still images pending");
-                }
-              };
-              reader.readAsDataURL(file);
-            }, function(err) {
-              imagesBeingQueued--;
-              log.error("Error reading image: " + err.code);
-            });
-          }, function(err) {
-            imagesBeingQueued--;
-            log.error("Error resolving file: " + err.code);
-          }); 
-        }
-        
-        // Else the old fashioned way which does not seem to work for phonegap anyhow
-        else {
-          var deferredImage = $('<img />');
+      $.each(serializedImages, function(index, serializedImage) {
+        if (serializedImage.formType == 'jsonfile') {
+          log.debug('Adding image as jsonfile for submission');
           
-          deferredImage.on('load', function(evt) {
-            // Convert to data URI and parse then add to existing form
-            var dataURL   = CIPAPI.forms.imageToDataURL(deferredImage.get(0));
-            var matches   = dataURL.match(/^data:(.*?);base64,(.*)$/);
-            var mimeType  = matches[1];
-            var imageData = matches[2];
-
-            formData.append("file[]", CIPAPI.forms.b64toBlob(imageData, mimeType), stored.fileName);
-            log.debug('Added image: ' + stored.fileName);
-            imagesBeingQueued--;
+          formData.append('jsonfile[]', JSON.stringify({
+            mimeType: serializedImage.mimeType,
+            fileName: serializedImage.fileName,
+             b64File: serializedImage.b64File
+          }));
+        } else {
+          log.debug('Adding image as file for submission');
           
-            if (imagesBeingQueued == 0) {
-              log.debug("All images loaded - sending report");
-              sendCurrentReport();
-            }
-          });
-          
-          deferredImage.attr('src', stored.imageURI);
+          formData.append("file[]", serializedImage.content, serializedImage.fileName);
         }
       });
       
-      // Kick the send now if there are no deferred image loads
-      if (imagesBeingQueued == 0) {
-        log.debug("Sending without deferred image load");
-        sendCurrentReport();
-      }
+      // Kick the send
+      log.debug("Sending...");
+      sendCurrentReport();
     }
     
     sendNextReport(); // Kick it off!

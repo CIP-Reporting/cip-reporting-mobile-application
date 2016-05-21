@@ -25,8 +25,6 @@
 
   var log = log4javascript.getLogger("CIPAPI.behaviors");
 
-  var scrollEnabled = false;
-  
   // Certain styles can be injected onto the form definitions that drive us to make changes
   // to the page.  This allows for servers to generate forms with some customizations on a per
   // customer basis.  This is extensible assuming new releases of the mobile application.
@@ -147,7 +145,7 @@
       });
       
       // Scroll to top of the next element
-      if (scrollEnabled) {
+      if (CIPAPI.config.autoScrollInBehaviors) {
         var nextSibling = $(this).next();
         if (nextSibling.length) {
           $('html, body').delay(500).animate({
@@ -210,7 +208,7 @@
           //if (lastTextInput) lastTextInput.focus();
 
           // Scroll ourselves to the top just to help out
-          if (scrollEnabled) {
+          if (CIPAPI.config.autoScrollInBehaviors) {
             $('html, body').delay(500).animate({
               scrollTop: $(me).offset().top - $('div.navbar').height()
             }, 500);
@@ -219,7 +217,7 @@
       } else {
         // If a single item scroll to top of next element assuming this is a data 
         // capture type yes / no question
-        if (scrollEnabled) {
+        if (CIPAPI.config.autoScrollInBehaviors) {
           var nextSibling = $(this).next();
           if (nextSibling.length) {
             $('html, body').delay(500).animate({
@@ -291,7 +289,7 @@
             //if (lastTextInput) lastTextInput.focus();
 
             // Scroll ourselves to the top just to help out
-            if (scrollEnabled) {
+            if (CIPAPI.config.autoScrollInBehaviors) {
               $('html, body').delay(500).animate({
                 scrollTop: $(me).offset().top - $('div.navbar').height()
               }, 500);
@@ -304,7 +302,7 @@
           //if (lastTextInput) lastTextInput.focus();
 
           // Scroll ourselves to the top just to help out
-          if (scrollEnabled) {
+          if (CIPAPI.config.autoScrollInBehaviors) {
             $('html, body').delay(500).animate({
               scrollTop: $(me).offset().top - $('div.navbar').height()
             }, 500);
@@ -313,7 +311,7 @@
       } else {
         // If a single item scroll to top of next element assuming this is a data 
         // capture type yes / no question
-        if (scrollEnabled) {
+        if (CIPAPI.config.autoScrollInBehaviors) {
           var nextSibling = $(this).next();
           if (nextSibling.length) {
             $('html, body').delay(500).animate({

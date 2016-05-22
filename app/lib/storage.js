@@ -56,8 +56,8 @@
   function writeBack() {
     if (!storageDB) return;
 
-    if (Math.floor(Date.now() / 1000) > inProgress + maxLockTime) {
-      if (inProgress + 5) {
+    if (inProgress > 0) {
+      if (Math.floor(Date.now() / 1000) > inProgress + maxLockTime) {
         log.error("Write in progress exceeded maximum time - releasing lock");
         inProgress = 0;
       } else {

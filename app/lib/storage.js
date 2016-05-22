@@ -63,6 +63,7 @@
       } else {
         log.warn("Write in progress - write back deferred");
         isDeferred = true;
+        return;
       }
     }
     

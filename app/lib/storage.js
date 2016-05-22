@@ -29,7 +29,12 @@
   var isLoaded  = false;
   var storageDB = false;
   var pageSize  = 1024 * 512; // Half meg per request  
-
+  
+  // Deferred write tracking
+  var inProgress  = 0;
+  var isDeferred  = false;
+  var maxLockTime = 120; // Seconds
+  
   function resetDB() {
     if (!storageDB) return;
 
@@ -40,8 +45,29 @@
     );
   }
   
+  function checkDeferred() {
+    if (isDeferred) {
+      isDeferred = false;
+      log.warn("Firing deferred write back");
+      setTimeout(writeBack, 100);
+    }
+  }
+  
   function writeBack() {
     if (!storageDB) return;
+
+    if (Math.floor(Date.now() / 1000) > inProgress + maxLockTime) {
+      if (inProgress + 5) {
+        log.error("Write in progress exceeded maximum time - releasing lock");
+        inProgress = 0;
+      } else {
+        log.warn("Write in progress - write back deferred");
+        isDeferred = true;
+      }
+    }
+    
+    // Use a timestamp as a mutex so we can avoid locking forever some how...
+    inProgress = Math.floor(Date.now() / 1000);
     
     log.debug("Write Back Begin");
     storageDB.executeSql('DELETE FROM kvp WHERE kk = ?', [ CIPAPI.credentials.getCredentialHash() ],
@@ -50,14 +76,20 @@
         storageDB.executeSql('INSERT INTO kvp (kk, vv) VALUES(?, ?)', [ CIPAPI.credentials.getCredentialHash(), serializedDB ],
           function(resultSet) {
             log.debug("Write Back Complete (" + filesize(serializedDB.length) + ")");
+            inProgress = 0;
+            checkDeferred();
           },
           function(er) { 
             log.error('Write back (ins) failed: ' + er.message); 
+            inProgress = 0;
+            checkDeferred();
           }
         )
       },
       function(er) { 
         log.error('Write back (del) failed:' + er.message); 
+        inProgress = 0;
+        checkDeferred();
       }
     );
   }
@@ -148,17 +180,18 @@
   }
   
   // The API
-  CIPAPI.storage.getItem     = function(key)      { return db[key] ? db[key] : false; }
-  CIPAPI.storage.setItem     = function(key, val) { db[key] = val; writeBack(); }
-  CIPAPI.storage.removeItem  = function(key)      { delete db[key]; writeBack(); }
-  CIPAPI.storage.clear       = function()         { db = {}; resetDB(); }
+  CIPAPI.storage.getItem       = function(key)      { return db[key] ? db[key] : false; }
+  CIPAPI.storage.setItem       = function(key, val) { db[key] = val; writeBack(); }
+  CIPAPI.storage.removeItem    = function(key)      { delete db[key]; writeBack(); }
+  CIPAPI.storage.clear         = function()         { db = {}; resetDB(); }
 
   // Some debuggery...
-  CIPAPI.storage.getEngine   = function()         { return storageDB; }
-  CIPAPI.storage.readBack    = function()         { return readBack(); }
-  CIPAPI.storage.writeBack   = function()         { return writeBack(); }
-  CIPAPI.storage.getPageSize = function()         { return pageSize; }
-  CIPAPI.storage.setPageSize = function(size)     { pageSize = size; return pageSize; }
+  CIPAPI.storage.getEngine     = function()         { return storageDB; }
+  CIPAPI.storage.readBack      = function()         { return readBack(); }
+  CIPAPI.storage.writeBack     = function()         { return writeBack(); }
+  CIPAPI.storage.checkDeferred = function()         { checkDeferred(); }
+  CIPAPI.storage.getPageSize   = function()         { return pageSize; }
+  CIPAPI.storage.setPageSize   = function(size)     { pageSize = size; return pageSize; }
   
   // When configuration is set re-load the db
   $(document).on('cipapi-config-set', function() { readBack(); });

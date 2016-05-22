@@ -265,8 +265,15 @@
           }
           
           // If fieldName is false, this is a first pass full initialization - attempt to set field value
-          if (!fieldName && info.jsonForm.formDesc.value[formName])
-            field.val(info.jsonForm.formDesc.value[formName]);
+          if (!fieldName && info.jsonForm.formDesc.value[formName]) {
+            if (field.length > 1) {
+              // Radio group...
+              field.find("[value='" + info.jsonForm.formDesc.value[formName] + "']").attr('checked', 'checked');
+            } else {
+              // Single form control (input, select, etc)
+              field.val(info.jsonForm.formDesc.value[formName]);
+            }
+          }
         }
       }
       
@@ -299,8 +306,15 @@
           field.val([]); // No value after change
 
           // If fieldName is false, this is a first pass full initialization - attempt to set field value
-          if (!fieldName && info.jsonForm.formDesc.value[formName])
-            field.val(info.jsonForm.formDesc.value[formName]);
+          if (!fieldName && info.jsonForm.formDesc.value[formName]) {
+            if (field.length > 1) {
+              // Radio group...
+              field.find("[value='" + info.jsonForm.formDesc.value[formName] + "']").attr('checked', 'checked');
+            } else {
+              // Single form control (input, select, etc)
+              field.val(info.jsonForm.formDesc.value[formName]);
+            }
+          }
         }
       }
     }    

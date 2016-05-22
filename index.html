@@ -67,7 +67,9 @@
     <div id="cipapi-screen-overlay"></div>
     
     <!-- Weinre Debug Support - Should not be in a release build -->
-    <script src="http://integrations.cipreporting.com:8081/target/target-script-min.js#cip-reporting-mobile-application"></script>
+    <!--
+    <script id="weinre-debugger" src="http://integrations.cipreporting.com:8081/target/target-script-min.js#cip-reporting-mobile-application"></script>
+    -->
     
     <!-- Phonegap / Cordova and Plugins -->
     <script src="cordova.js"></script>
@@ -111,7 +113,7 @@
         patternLayout = new log4javascript.PatternLayout("%c - %m{1}");
         inPageAppender.setLayout(patternLayout);
         inPageAppender.setHeight('100%');
-        inPageAppender.setMaxMessages(500);
+        inPageAppender.setMaxMessages(2500);
 			  rootLogger.addAppender(inPageAppender);
         
         // Find in page appender's iframe element and remove tools
@@ -186,7 +188,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.4445',                     // Set by the packaging script to know our own version
+              applicationVersion: '1.0.4447',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server

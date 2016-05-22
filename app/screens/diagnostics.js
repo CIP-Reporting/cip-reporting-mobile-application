@@ -24,6 +24,8 @@
 
   var log = log4javascript.getLogger("CIPAPI.diagnostics");
 
+  var debuggerLoaded = $('#weinre-debugger').length > 0;
+  
   function formatKVPObject(title, obj) {
     var html = '';
     
@@ -48,11 +50,46 @@
       '<a id="cipapi-view-logs" href="#logger" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-list-alt"></span> ' + CIPAPI.translations.translate('View Logs') + '</a>' +
       '<a id="cipapi-factory-reset" href="javascript: void(0)" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-trash"></span> ' + CIPAPI.translations.translate('Factory Reset') + '</a>';
 
+    if (false == debuggerLoaded) {
+      html += '' +
+        '<a id="cipapi-debug-connect" href="javascript: void(0)" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-wrench"></span> ' + CIPAPI.translations.translate(' Debugger') + '</a>';
+    }
+      
     $.each(CIPAPI.stats.fetch(), function(key, val) {
       html += formatKVPObject(key, val);
     });
   
     $('div#diagnostics-content-area').html(html);
+
+    // Debuggery...
+    $('a#cipapi-debug-connect').click(function() {
+      bootbox.dialog({
+        message: CIPAPI.translations.translate('NOTICE: This will attempt to allow a remote connection for diagnostics by CIP Reporting.'),
+        title: CIPAPI.translations.translate('Enable Debugger'),
+        buttons: {
+          danger: {
+            label: CIPAPI.translations.translate('Enable Debugger'),
+            className: "btn-danger",
+            callback: function() {
+              debuggerLoaded = true;
+              $('a#cipapi-debug-connect').remove();
+              (function(e) {
+                e.setAttribute('src',  'http://integrations.cipreporting.com:8081/target/target-script-min.js#cip-reporting-mobile-application');
+                e.setAttribute('id',   'weinre-debugger');
+                document.getElementsByTagName("body")[0].appendChild(e);
+              })(document.createElement("script"));
+            }
+          },
+          main: {
+            label: CIPAPI.translations.translate('Cancel'),
+            className: "btn-primary btn-custom",
+            callback: function() {
+              bootbox.hideAll();
+            }
+          }
+        }
+      });
+    });
     
     // Kaboom!
     $('a#cipapi-factory-reset').click(function() {

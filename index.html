@@ -226,7 +226,7 @@
       // Are we running in native app or in a browser?
       $(document).ready(function() {
         // Disable the context menu
-//        $('body').attr('oncontextmenu', 'return false;');
+        $('body').attr('oncontextmenu', 'return false;');
         
         if (window.cordova) {
           document.addEventListener("deviceready", function() { 

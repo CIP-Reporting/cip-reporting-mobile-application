@@ -412,7 +412,19 @@
     
     if (typeof CIPAPI.mobileforms[formName] == 'undefined') {
       log.error("Form does not exist: " + formName);
-      return;
+      
+      bootbox.dialog({
+          title: CIPAPI.translations.translate('Form Does Not Exist'),
+        message: CIPAPI.translations.translate('The form you are attempting to submit does not exist: ' + formName),
+        buttons: {
+          success: {
+                label: '<span class="glyphicon glyphicon-warning-sign"></span> ' + CIPAPI.translations.translate('OK'),
+            className: "btn btn-lg btn-primary btn-custom",
+          }
+        }
+      });
+      
+      CIPAPI.router.goTo('main', { action: 'list' });
     }
 
     // Grab the form definition from the case definition if possible else from the global form definitions.

@@ -216,32 +216,47 @@
       });
     });
 
-    // Bind date and time pickers to the picker dialog ... must make fields read only
-    // to stop virtual keyboards from popping open!
+    // Bind date and time pickers to the picker dialog
     if ($().datetimepicker) {
-      $(formSelector + ' .cipform-datetime-datetime input').datetimepicker({
-           showAnim: '',
-        controlType: 'select',
-         dateFormat: "yy-mm-dd",
-         timeFormat: "HH:mm:ss Z",
-         beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'datetime'); },
-            onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'datetime'); }
-      }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+      // Put the buttons on these bad boys...
+      $([ formSelector + ' .cipform-datetime-datetime input',
+          formSelector + ' .cipform-datetime-time input',
+          formSelector + ' .cipform-datetime-date input'
+        ].join(', ')).each(function() {
+        var inp = $(this);
+        inp.parent().addClass('input-group date');
+        inp.after('<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>');
+      });
       
-      $(formSelector + ' .cipform-datetime-time input').timepicker({
-           showAnim: '',
-        controlType: 'select',
-         timeFormat: "HH:mm:ss",
-         beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'time'); },
-            onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'time'); }
-      }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+      $(formSelector + ' .cipform-datetime-datetime input').each(function() {
+        $(this).parent().datetimepicker({
+          showTodayButton: true,
+              focusOnShow: false,
+                showClose: true,
+                showClear: true,
+                   format: 'YYYY-MM-DD HH:mm:ss Z'
+        });
+      });
 
-      $(formSelector + ' .cipform-datetime-date input').datepicker({
-           showAnim: '',
-        dateFormat: "yy-mm-dd",
-         beforeShow: function() { $(document).trigger('cipapi-datepicker-show', 'date'); },
-            onClose: function() { $(document).trigger('cipapi-datepicker-hide', 'date'); }
-      }).prop('readonly', 'readonly').addClass('cipapi-fau-read-only');
+      $(formSelector + ' .cipform-datetime-time input').each(function() {
+        $(this).parent().datetimepicker({
+          showTodayButton: true,
+              focusOnShow: false,
+                showClose: true,
+                showClear: true,
+                   format: 'HH:mm:ss'
+        });
+      });
+
+      $(formSelector + ' .cipform-datetime-date input').each(function() {
+        $(this).parent().datetimepicker({
+          showTodayButton: true,
+              focusOnShow: false,
+                showClose: true,
+                showClear: true,
+                   format: 'YYYY-MM-DD'
+        });
+      });
     }
     
     // Deal with selects that have no default value

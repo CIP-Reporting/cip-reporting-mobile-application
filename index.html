@@ -39,8 +39,7 @@
     <link href="./lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="./lib/summernote/dist/summernote.css" />
     <link rel="stylesheet" href="./lib/font-awesome/css/font-awesome.min.css" />
-		<link rel="stylesheet" media="all" type="text/css" href="./app/jquery-ui/themes/black-tie/jquery-ui.css" />
-		<link rel="stylesheet" media="all" type="text/css" href="./lib/jquery-ui-timepicker/jquery-ui-timepicker-addon.css" />
+    <link rel="stylesheet" href="./lib/bootstrap-datetimepicker/bootstrap-datetimepicker.css" />
     <link href="./app/style.css" rel="stylesheet">
     <link href="./app/spinner.css" rel="stylesheet">
     <link href="./app/customize/css/custom.css" rel="stylesheet">
@@ -79,9 +78,8 @@
     <script src="./lib/jquery-1.11.1.min.js"></script>
     <script src="./lib/jsonform-bootstrap3/deps/underscore.js"></script>
     <script src="./lib/jsonform-bootstrap3/deps/opt/jsv.js"></script>
-		<script src="./lib/jquery-ui-1.11.2/jquery-ui.min.js"></script>
-		<script src="./lib/jquery-ui-timepicker/jquery-ui-timepicker-addon.js"></script>
-		<script src="./lib/jquery-ui-timepicker/i18n/jquery-ui-timepicker-addon-i18n.min.js"></script>
+    <script src="./lib/moment.js"></script>
+    <script src="./lib/bootstrap-datetimepicker/bootstrap-datetimepicker.js"></script>
     <script src="./lib/jquery.actual.js"></script>
     <script src="./lib/jquery.image-scale.js"></script>
     <script src="./lib/bootstrap/js/bootstrap.min.js"></script>
@@ -188,7 +186,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.4447',                     // Set by the packaging script to know our own version
+              applicationVersion: '1.0.4448',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -212,7 +210,10 @@
               caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
           caseModeAlwaysShowForm: false,                              // If true, a case will always show at least 1 of any known form (except hidden)
           caseOnlyCompleteIfDone: false,                              // If true, all forms must be complete within a case before it can be ended
-           autoScrollInBehaviors: true,                               // Enable auto scroll in behaviors
+           autoScrollInBehaviors: false,                              // Enable auto scroll in behaviors
+                  swipeThreshold: 10,                                 // Number of pixels required to recognize a swipe
+                   swipeVelocity: 0.3,                                // Swipe velocity required in PX per MS
+                   swipeDebounce: 750,                                // Swipe debounce in MS, 0 for no debounce
                      hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
                         apiForms: { }                                 // Should most likely be loaded from the config override integration
                                                                       // In the form of the key is the form integration and the value is the
@@ -225,7 +226,7 @@
       // Are we running in native app or in a browser?
       $(document).ready(function() {
         // Disable the context menu
-        $('body').attr('oncontextmenu', 'return false;');
+//        $('body').attr('oncontextmenu', 'return false;');
         
         if (window.cordova) {
           document.addEventListener("deviceready", function() { 

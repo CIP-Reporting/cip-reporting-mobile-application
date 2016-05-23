@@ -25,6 +25,24 @@
 
   var log = log4javascript.getLogger("CIPAPI.behaviors");
 
+  // Helper function to debounce events by name and duration
+  var debounceEventList = {};
+  function debouncedEventIsAllowable(eventName, durationInMS) {
+    if (durationInMS == 0) {
+      return true;
+    }
+    
+    if (typeof debounceEventList[eventName] == 'undefined') {
+      debounceEventList[eventName] = 0;
+    }
+    
+    var now = Date.now();
+    var elapsed = now - debounceEventList[eventName];
+
+    debounceEventList[eventName] = now;
+    return elapsed > durationInMS;
+  }
+  
   // Certain styles can be injected onto the form definitions that drive us to make changes
   // to the page.  This allows for servers to generate forms with some customizations on a per
   // customer basis.  This is extensible assuming new releases of the mobile application.
@@ -113,10 +131,15 @@
   // select the left most value and continue iterating form elements.  When complete
   // scroll to the next sibling of the container if available.
   CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll = function() {
-    $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().hammer({}).bind('swipeleft', function(e) {
-      // Disable per Customer Request
-      // $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll');
-
+    $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().hammer({
+      threshold: CIPAPI.config.swipeThreshold,
+       velocity: CIPAPI.config.swipeVelocity
+    }).bind('swipeleft', function(e) {
+      if (false == debouncedEventIsAllowable('cipapi-behaviors-swipe-left-select-left-and-scroll-next', CIPAPI.config.swipeDebounce)) {
+        log.warn('swipeleft event ignored due to debounce');
+        return;
+      }
+      
       var lastName = '';
       $(this).find('*').filter(':input').each(function() {
         var elem = $(this);
@@ -165,7 +188,15 @@
   // more than 2 changes were made assume we need to capture photos and notes;
   // Issue a media capture, and when done with that, focus the last string element.
   CIPAPI.behaviors.forms.swipeRightSelectSecondThenImageThenString = function() {
-    $('.cipapi-behaviors-swipe-right-select-second-then-image-then-string').parent().hammer({}).bind('swiperight', function(e) {
+    $('.cipapi-behaviors-swipe-right-select-second-then-image-then-string').parent().hammer({
+      threshold: CIPAPI.config.swipeThreshold,
+       velocity: CIPAPI.config.swipeVelocity
+    }).bind('swiperight', function(e) {
+      if (false == debouncedEventIsAllowable('cipapi-behaviors-swipe-right-select-second-then-image-then-string', CIPAPI.config.swipeDebounce)) {
+        log.warn('swipeleft event ignored due to debounce');
+        return;
+      }
+      
       $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.swipeRightSelectSecondThenImageThenString');
 
       var numChanges = 0; var lastName = ''; var me = this; var lastTextInput = false;
@@ -204,9 +235,6 @@
         $(me).find('a.cipform_image_from_camera').click();
         
         $(document).one('cipapi-forms-media-complete', function() {
-          // Focus the last string based input if found
-          //if (lastTextInput) lastTextInput.focus();
-
           // Scroll ourselves to the top just to help out
           if (CIPAPI.config.autoScrollInBehaviors) {
             $('html, body').delay(500).animate({
@@ -238,7 +266,15 @@
   // more than 2 changes were made assume we need to capture photos and notes;
   // Issue a media capture, and when done with that, focus the last string element.
   CIPAPI.behaviors.forms.swipeRightSelectNextRightImageThenStringIfThree = function() {
-    $('.cipapi-behaviors-swipe-right-select-next-right-image-then-string-if-three').parent().hammer({}).bind('swiperight', function(e) {
+    $('.cipapi-behaviors-swipe-right-select-next-right-image-then-string-if-three').parent().hammer({
+      threshold: CIPAPI.config.swipeThreshold,
+       velocity: CIPAPI.config.swipeVelocity
+    }).bind('swiperight', function(e) {
+      if (false == debouncedEventIsAllowable('cipapi-behaviors-swipe-right-select-next-right-image-then-string-if-three', CIPAPI.config.swipeDebounce)) {
+        log.warn('swipeleft event ignored due to debounce');
+        return;
+      }
+      
       $(document).trigger('cipapi-behaviors-haptic-feedback', 'CIPAPI.behaviors.forms.swipeRightSelectNextRightImageThenStringIfThree');
 
       var numChanges = 0; var lastName = ''; var me = this; var lastTextInput = false; var farRight = false;
@@ -254,6 +290,11 @@
         var elements = $(me).find('*').filter(':input').filter(':visible').filter('[name="' + currentName + '"]');
         if (elements.length == 0) return;
         elem = $(elements.length > 1 ? elements[1] : elements[0]);
+        
+        if (elements.length > 2 && $(elements[2]).prop('checked') === true) {
+          log.debug("Already far right actioned, taking no further action");
+          return;
+        }
         
         if (elements.length > 2 && elem.prop('checked') === true) {
           farRight = true;
@@ -285,9 +326,6 @@
           $(me).find('a.cipform_image_from_camera').click();
           
           $(document).one('cipapi-forms-media-complete', function() {
-            // Focus the last string based input if found
-            //if (lastTextInput) lastTextInput.focus();
-
             // Scroll ourselves to the top just to help out
             if (CIPAPI.config.autoScrollInBehaviors) {
               $('html, body').delay(500).animate({
@@ -297,10 +335,6 @@
           });
         } else {
           log.debug("Not taking far right actions")
-          
-          // Focus the last string based input if found
-          //if (lastTextInput) lastTextInput.focus();
-
           // Scroll ourselves to the top just to help out
           if (CIPAPI.config.autoScrollInBehaviors) {
             $('html, body').delay(500).animate({
@@ -347,7 +381,10 @@
   
   // Helper function to apply behaviors
   function applyBehaviors(behaviors) {
-    $.each(behaviors, function(i, behavior) { behavior(); });
+    $.each(behaviors, function(i, behavior) { 
+      log.debug(i);
+      behavior(); 
+    });
   }
   
   // Apply forms behaviors

@@ -72,6 +72,10 @@
   
   // Monitor for reports added to the store
   $(document).on('cipapi-reportstore-add', function(event, info) {
+    if (CIPAPI.config.caseModeForm === false) {
+      return; // Take no action when not in case mode
+    }
+    
     var storageKey = 'CIPAPI.casestore.' + CIPAPI.credentials.getCredentialHash();
 
     var caseStore = null;

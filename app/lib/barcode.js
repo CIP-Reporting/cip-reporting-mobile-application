@@ -124,7 +124,11 @@
           if (result.format == 'QR_CODE') {
             if (result.text.lastIndexOf('https://www.cipreporting.com/qr/', 0) === 0) {
               log.debug('Processing CIP Form QR code');
-              return processCIPFormQRURL(result.text);
+              try {
+                return processCIPFormQRURL(result.text);
+              } catch(err) {
+                return handleError(err);
+              }
             }
           }
           

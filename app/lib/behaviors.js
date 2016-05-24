@@ -379,6 +379,28 @@
     });
   }
   
+  // *.cipapi-behaviors-remember-field-value-by-field-name
+  //
+  // For any element with this class, use onchange to capture and store field changes and
+  // always restore the last value to this field on a new form load.
+  CIPAPI.behaviors.forms.rememberFieldValueByFieldName = function() {
+    $('.cipapi-behaviors-remember-field-value-by-field-name div input.form-control').each(function() {
+      var field = $(this);
+      var fieldName = field.attr('name');
+      var fieldValue = CIPAPI.storage.getItem('cipapi-behaviors-remember-field-value-by-field-name - ' + fieldName);
+      if (false !== fieldValue) {
+        field.val(fieldValue);
+        log.debug('Rememebred field value: ' + fieldName + ' <- ' + fieldValue);
+      }
+    }).on('change', function() {
+      var field = $(this);
+      var fieldName = field.attr('name');
+      var fieldValue = field.val();
+      CIPAPI.storage.setItem('cipapi-behaviors-remember-field-value-by-field-name - ' + fieldName, fieldValue);
+      log.debug('Remembering field value: ' + fieldName + ' -> ' + fieldValue);
+    });
+  }
+  
   // Helper function to apply behaviors
   function applyBehaviors(behaviors) {
     $.each(behaviors, function(i, behavior) { 

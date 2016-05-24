@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.4449">
+  version = "1.0.4450">
 
   <name>CIP Reporting</name>
 
@@ -142,7 +142,9 @@
   <gap:splash src="splash.png" />
 
   <!-- Enable debuggable target for Android - must be removed for a release build -->
+  <!--
   <gap:config-file platform="android" parent="/manifest">
     <application android:debuggable="true" />
   </gap:config-file>
+  -->
 </widget>

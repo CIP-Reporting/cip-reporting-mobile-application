@@ -63,8 +63,11 @@
           log.debug("Reading image");
           var reader = new FileReader();
           reader.onloadend = function(evt) {
+            var dataURI = "data:image/jpeg;base64," + window.btoa(evt.target.result);
+            log.debug("Composed data URI - length = " + dataURI.length);
+            
             log.debug("Parsing mime type from data URI");
-            var matches  = evt.target.result.match(/^data:(.*?);base64/);
+            var matches  = dataURI.match(/^data:(.*?);base64/);
             var mimeType = matches[1];
             
             log.debug("Mime type from URL: " + mimeType);
@@ -86,12 +89,12 @@
               formType: 'jsonfile',
               mimeType: mimeType,
               fileName: info.fileName,
-               b64File: evt.target.result
+               b64File: dataURI
             });
             
             log.debug("Image stored as base64 for jsonfile upload");
           };
-          reader.readAsDataURL(file);
+          reader.readAsBinaryString(file);
         }, function(err) {
           log.error("Error reading image: " + err.code);
         });

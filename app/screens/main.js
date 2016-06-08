@@ -240,9 +240,10 @@
       });      
     } else {
       // Device does not support right click or press so use hammer.js press events
-      $('div#main-content-area form div div a').hammer({}).bind('tap press', function(e) {
-        if (e.type == 'press') return handlePress(e.target);
+      $('div#main-content-area form div div a').hammer({}).bind('tap pressup', function(e) {
+        if (e.type == 'pressup') setTimeout(function() { handlePress(e.target); }, 100); // Had to use pressup on iOS with a timeout to avoid bug with immediate close on release
         if (e.type == 'tap') return handleTap(e.target);
+        return false;
       });
     }
     

@@ -676,16 +676,8 @@ div.cipapi-behaviors-radios-to-buttons label.btn input:checked + span {
   animation-timing-function: linear;  
 }
 
-div.cipapi-case-context-menu div.modal-header {
-  display: none;
-}
-
 div.cipapi-case-context-menu div.list-group {
   margin-bottom: 0px;
-}
-
-div.cipapi-case-context-menu div.modal-footer {
-  display: none;
 }
 
 div.cipapi-case-context-menu button.list-group-item {

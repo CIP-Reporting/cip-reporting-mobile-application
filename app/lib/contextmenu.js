@@ -161,7 +161,10 @@
     $('#cipapi-application-general-dialog div.modal-body').html(html);
     
     if (numButtons > 0) {
-      $('#cipapi-application-general-dialog').modal();
+      $('#cipapi-application-general-dialog').modal({
+        backdrop: 'static',
+        keyboard: false
+      });
       
       // Handle button clicks
       $('#cipapi-application-general-dialog button').on('click', function(e) {

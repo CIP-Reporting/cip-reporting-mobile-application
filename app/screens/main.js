@@ -240,10 +240,9 @@
       });      
     } else {
       // Device does not support right click or press so use hammer.js press events
-      $('div#main-content-area form div div a').hammer({}).bind('tap pressup', function(e) {
-        if (e.type == 'pressup') setTimeout(function() { handlePress(e.target); }, 100); // Had to use pressup on iOS with a timeout to avoid bug with immediate close on release
+      $('div#main-content-area form div div a').hammer({}).bind('tap press', function(e) {
+        if (e.type == 'press') return handlePress(e.target);
         if (e.type == 'tap') return handleTap(e.target);
-        return false;
       });
     }
     
@@ -580,7 +579,11 @@ log.warn("TODO: Form value type: " + formValueType);
     
     $('a#cipform-proxy-submit').on('click', function(evt) {
       $(document).trigger('cipapi-behaviors-haptic-feedback', 'cipapi-main-save-click');
-      $('input.cipform-save-report').click();
+
+      $('div#loading').show();
+
+      // A little deferment ...
+      setTimeout(function() { $('input.cipform-save-report').click(); }, 250);
     });
     
     // Have we been requested to just submit this?

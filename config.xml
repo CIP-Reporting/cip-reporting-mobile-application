@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.4460">
+  version = "1.0.4473">
 
   <name>CIP Reporting</name>
 
@@ -27,7 +27,6 @@
   <preference name="auto-hide-splash-screen"    value="false" />          <!-- all: if set to false, the splash screen must be hidden using a JavaScript API -->
   <preference name="SplashScreen"               value="screen" />         <!-- all: Enable splash screen -->
   <preference name="SplashScreenDelay"          value="30000" />          <!-- all: control how long the splash screen is displayed -->
-  <preference name="AppendUserAgent"            value="CIPGAP" />         <!-- all: specify a custom user agent addition -->
   <preference name="show-splash-screen-spinner" value="false" />          <!-- ios: if set to false, the spinner won't appear on the splash screen during app loading -->
   <preference name="webviewbounce"              value="true" />           <!-- ios: control whether the screen 'bounces' when scrolled beyond the top -->
   <preference name="prerendered-icon"           value="true" />           <!-- ios: if icon is prerendered, iOS will not apply it's gloss to the app's icon on the user's home screen -->
@@ -37,7 +36,7 @@
   <preference name="android-installLocation"    value="auto" />           <!-- android: app install location. 'auto' will choose. 'internalOnly' is device memory. 'preferExternal' is SDCard. -->
 
   <!-- Specify a custom user agent most notably to not output www-authenticate header to iOS under phonegap -->
-  <preference name="OverrideUserAgent"          value="CIPGAP/CIP Reporting/1.0.4460" />
+  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/1.0.4473" />
   
   <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->
   <preference name="permissions" value="none"/>  

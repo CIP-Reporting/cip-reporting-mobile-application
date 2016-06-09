@@ -131,10 +131,7 @@
   // select the left most value and continue iterating form elements.  When complete
   // scroll to the next sibling of the container if available.
   CIPAPI.behaviors.forms.swipeLeftSelectLeftAndScroll = function() {
-    $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().hammer({
-      threshold: CIPAPI.config.swipeThreshold,
-       velocity: CIPAPI.config.swipeVelocity
-    }).bind('swipeleft', function(e) {
+    $('.cipapi-behaviors-swipe-left-select-left-and-scroll-next').parent().hammer({}).bind('swipeleft', function(e) {
       if (false == debouncedEventIsAllowable('cipapi-behaviors-swipe-left-select-left-and-scroll-next', CIPAPI.config.swipeDebounce)) {
         log.warn('swipeleft event ignored due to debounce');
         return;
@@ -188,10 +185,7 @@
   // more than 2 changes were made assume we need to capture photos and notes;
   // Issue a media capture, and when done with that, focus the last string element.
   CIPAPI.behaviors.forms.swipeRightSelectSecondThenImageThenString = function() {
-    $('.cipapi-behaviors-swipe-right-select-second-then-image-then-string').parent().hammer({
-      threshold: CIPAPI.config.swipeThreshold,
-       velocity: CIPAPI.config.swipeVelocity
-    }).bind('swiperight', function(e) {
+    $('.cipapi-behaviors-swipe-right-select-second-then-image-then-string').parent().hammer({}).bind('swiperight', function(e) {
       if (false == debouncedEventIsAllowable('cipapi-behaviors-swipe-right-select-second-then-image-then-string', CIPAPI.config.swipeDebounce)) {
         log.warn('swipeleft event ignored due to debounce');
         return;
@@ -266,10 +260,7 @@
   // more than 2 changes were made assume we need to capture photos and notes;
   // Issue a media capture, and when done with that, focus the last string element.
   CIPAPI.behaviors.forms.swipeRightSelectNextRightImageThenStringIfThree = function() {
-    $('.cipapi-behaviors-swipe-right-select-next-right-image-then-string-if-three').parent().hammer({
-      threshold: CIPAPI.config.swipeThreshold,
-       velocity: CIPAPI.config.swipeVelocity
-    }).bind('swiperight', function(e) {
+    $('.cipapi-behaviors-swipe-right-select-next-right-image-then-string-if-three').parent().hammer({}).bind('swiperight', function(e) {
       if (false == debouncedEventIsAllowable('cipapi-behaviors-swipe-right-select-next-right-image-then-string-if-three', CIPAPI.config.swipeDebounce)) {
         log.warn('swipeleft event ignored due to debounce');
         return;

@@ -752,3 +752,25 @@ div.cipapi-case-context-menu button.list-group-item i.fa {
     font-size: 18px;
   }
 }
+
+/**********************************************
+ * Optional Footer for trial/dev environments
+ *********************************************/
+
+#trial-footer {
+    position: fixed;
+    z-index: 100; 
+    bottom: 0; 
+    left: 0;
+    text-align : center;
+    width: 100%;
+    background-color: #C2D49A;
+    font-weight: bold;
+    color: white;
+    height: 30px;
+    line-height: 30px;
+}
+
+.footer-offset {
+  margin-bottom: 15px;
+}

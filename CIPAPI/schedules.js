@@ -43,7 +43,6 @@
         CIPAPI.schedules.collection.schedules = response.data.item[0].data;
         $(document).trigger('cipapi-schedules-set');
         log.debug("Schedules loaded");
-        log.debug(JSON.stringify(CIPAPI.schedules.collection.schedules));
         isLoaded = true;
         
         // Store the schedules to local storage if so configured

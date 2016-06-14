@@ -129,6 +129,15 @@
   // Attach to pre-route automagically
   $(document).on('cipapi-pre-handle', function(event, info) {
     CIPAPI.navbar.render(info.hash + '-content-area');
+ 
+    // In addtiion to navbar, we tag along and add a footer if we're in the dev environment
+    if (CIPAPI.config.devEnvironment) {
+      $('body').append('<div id="trial-footer">' + CIPAPI.translations.translate("Trial Environment") + '</div>')
+               .addClass('footer-offset');
+    } else {
+      $('div#trial-footer').remove();
+      $('body').removeClass('footer-offset');
+    }
   });
   
   // Hide splash screen when routed

@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.4475">
+  version = "1.0.4493">
 
   <name>CIP Reporting</name>
 
@@ -36,7 +36,7 @@
   <preference name="android-installLocation"    value="auto" />           <!-- android: app install location. 'auto' will choose. 'internalOnly' is device memory. 'preferExternal' is SDCard. -->
 
   <!-- Specify a custom user agent most notably to not output www-authenticate header to iOS under phonegap -->
-  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/1.0.4475" />
+  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/1.0.4493" />
   
   <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->
   <preference name="permissions" value="none"/>  
@@ -75,6 +75,8 @@
   <gap:platform name="ios" />
 
   <!-- Define app icons -->
+  <icon src="icon.png" />
+
   <icon src="res/icon/android/icon-0036.png" density="ldpi"    gap:platform="android" />
   <icon src="res/icon/android/icon-0048.png" density="mdpi"    gap:platform="android" />
   <icon src="res/icon/android/icon-0072.png" density="hdpi"    gap:platform="android" />
@@ -100,8 +102,6 @@
   <icon src="res/icon/ios/icon-0167.png" width="167"  height="167"  gap:platform="ios" />
   <icon src="res/icon/ios/icon-0180.png" width="180"  height="180"  gap:platform="ios" />
   <icon src="res/icon/ios/icon-1024.png" width="1024" height="1024" gap:platform="ios" />
-
-  <icon src="icon.png" />
 
   <!-- Define splash screens -->
   <gap:splash src="res/screen/android/splash-0200-0320.png" density="ldpi"         gap:platform="android" />

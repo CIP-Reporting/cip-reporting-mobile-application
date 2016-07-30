@@ -103,6 +103,17 @@ div#help-content-area {
 }
 
 /****************************
+ ** Settings...
+ ***************************/
+div#settings-content-area {
+  padding: 0 10px;
+}
+
+div.cipapi-user-setting {
+  border-top: 1px solid #ccc;
+}
+
+/****************************
  ** Loading...
  ***************************/
 div.initializing img {

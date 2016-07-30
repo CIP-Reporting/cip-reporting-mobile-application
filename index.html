@@ -159,8 +159,12 @@
     <script src="./app/screens/diagnostics.js"></script>
     <script src="./app/screens/logger.js"></script>
     <script src="./app/screens/help.js"></script>
+    <script src="./app/screens/settings.js"></script>
 
     <!-- Application Libraries -->
+    <script src="./app/lib/storage.memory.js"></script>
+    <script src="./app/lib/storage.file.js"></script>
+    <script src="./app/lib/storage.sqlite.js"></script>
     <script src="./app/lib/storage.js"></script>
     <script src="./app/lib/mobileforms.js"></script>
     <script src="./app/lib/reportstore.js"></script>
@@ -178,6 +182,7 @@
     <script src="./app/lib/fastclick.js"></script>
     <script src="./app/lib/hammer.js"></script>
     <script src="./app/lib/jquery.hammer.js"></script>
+    <script src="./app/lib/usersettings.js"></script>
     
     <!-- Customer Provided -->
     <script src="./app/customize/js/custom.js"></script>
@@ -186,7 +191,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.4475',                     // Set by the packaging script to know our own version
+              applicationVersion: '1.0.4493',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server

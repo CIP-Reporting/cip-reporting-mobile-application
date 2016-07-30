@@ -56,6 +56,7 @@
       html += '' +
         '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#main!action=list"><span class="glyphicon glyphicon-list-alt"></span> ' + CIPAPI.translations.translate('Report List') + '</a></li>' +
         '      <li><a data-toggle="collapse" data-target=".navbar-collapse" id="cipapi-server-synchronize" href="javascript: void(0)"><span class="glyphicon glyphicon-refresh"></span> ' + CIPAPI.translations.translate('Synchronize') + '</a></li>' +
+        '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#settings"><span class="glyphicon glyphicon-cog"></span> ' + CIPAPI.translations.translate('Settings') + '</a></li>' +
         '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#help"><span class="glyphicon glyphicon-question-sign"></span> ' + CIPAPI.translations.translate('Help') + '</a></li>' +
         '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#diagnostics"><span class="glyphicon glyphicon-check"></span> ' + CIPAPI.translations.translate('Diagnostics') + '</a></li>' +
         '      <li><a data-toggle="collapse" data-target=".navbar-collapse" href="#logout"><span class="glyphicon glyphicon-log-out"></span> ' + CIPAPI.translations.translate('Sign Out') + '</a></li>';

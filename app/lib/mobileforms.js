@@ -77,7 +77,7 @@
       // Store the forms to local storage if so configured
       if (CIPAPI.config.persistForms) {
         var storageKey = 'CIPAPI.mobileforms.' + CIPAPI.credentials.getCredentialHash();
-        CIPAPI.storage.setItem(storageKey, CIPAPI.mobileforms);
+        localStorage.setItem(storageKey, JSON.stringify(CIPAPI.mobileforms));
         log.debug("Forms stored in local storage");
       }
       
@@ -94,7 +94,7 @@
   });
   
   // When configuration is set re-load the forms list
-  $(document).on('cipapi-storage-ready', function() {
+  $(document).on('cipapi-config-set', function() {
     CIPAPI.mobileforms = {};
 
     // If currently NOT loaded AND local storage is enabled try and load forms
@@ -102,7 +102,7 @@
     if (!isLoaded && CIPAPI.config.persistForms) {
       try {
         var storageKey = 'CIPAPI.mobileforms.' + CIPAPI.credentials.getCredentialHash();
-        var storedForms = CIPAPI.storage.getItem(storageKey);
+        var storedForms = JSON.parse(localStorage.getItem(storageKey));
         if (storedForms !== null && typeof storedForms === 'object') {
           CIPAPI.mobileforms = storedForms;
           log.debug("Forms merged from local storage");
@@ -129,7 +129,7 @@
 
     // If backed by local storage delete the contents
     if (CIPAPI.config.persistForms) {
-      CIPAPI.storage.removeItem('CIPAPI.mobileforms.' + CIPAPI.credentials.getCredentialHash());
+      localStorage.removeItem('CIPAPI.mobileforms.' + CIPAPI.credentials.getCredentialHash());
       log.debug("Local storage cleared");
     }
   });

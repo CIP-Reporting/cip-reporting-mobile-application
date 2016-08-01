@@ -68,7 +68,7 @@
   <gap:plugin name="cordova-plugin-statusbar" source="npm" />
 
   <!-- SQLite Support -->
-  <gap:plugin name="cordova-sqlite-legacy" source="npm" />
+  <gap:plugin name="cordova-plugin-sqlite-2" source="npm" />
 
   <!-- Define platforms -->
   <gap:platform name="android" />

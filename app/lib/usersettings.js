@@ -94,6 +94,17 @@
               '65536': CIPAPI.translations.translate('64M')
         }
       },
+      preferNativeSQLite: { 
+              title: CIPAPI.translations.translate('Prefer Native SQLite'),
+        description: CIPAPI.translations.translate('If enabled and a native SQLite storage system is available it will be used instead of a plugin'),
+                set: function(vv) { return __set('preferNativeSQLite', vv); },
+              reset: function()   { return __set('preferNativeSQLite', 'disabled'); },
+            current: 'enabled', 
+            options: {
+                'enabled': CIPAPI.translations.translate('Enabled'),
+               'disabled': CIPAPI.translations.translate('Disabled')
+        }
+      },
       autoScrollInBehaviors: { 
               title: CIPAPI.translations.translate('Auto Scroll on Swipe Behaviors'),
         description: CIPAPI.translations.translate('If enabled the screen will auto scroll to the next field when swiping'),

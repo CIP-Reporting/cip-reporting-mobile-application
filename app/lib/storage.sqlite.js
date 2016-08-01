@@ -39,8 +39,35 @@
     if (false === sqlDB) {
       log.debug('Initializing');
       
-      sqlDB = typeof sqlitePlugin == 'undefined' ? openDatabase('CIP-Reporting.db', '1.0', '', 1) :
-        sqlitePlugin.openDatabase('CIP-Reporting.db', '1.0', '', 1);
+      var openFunc = false;
+      if (CIPAPI.usersettings.preferNativeSQLite.current == 'enabled') {
+        log.debug('Prefer native SQLite');
+        
+        if (typeof openDatabase == 'function') {
+          log.debug('Using native SQLite');
+          openFunc = openDatabase;
+        } else {
+          log.debug('Using plugin SQLite');
+          openFunc = sqlitePlugin.openDatabase;
+        }        
+      } else {
+        log.debug('Prefer plugin SQLite');
+        
+        if (typeof sqlitePlugin != 'undefined') {
+          log.debug('Using plugin SQLite');
+          openFunc = sqlitePlugin.openDatabase;
+        } else {
+          log.debug('Using native SQLite');
+          openFunc = openDatabase;
+        }
+      }
+      
+      if (openFunc === false) {
+        log.error('Failed to acquire an SQL storage engine');
+        return cb(false);
+      }
+      
+      sqlDB = openFunc('CIP-Reporting.db', '1.0', '', 1);
         
       sqlDB.transaction(function(tx) {
         log.debug('Started initialization transaction scope');
@@ -97,6 +124,7 @@
         return cb(false);
       }
 
+      log.debug('Starting write back transaction scope');
       sqlDB.transaction(function(tx) {
         log.debug('Started write back transaction scope');
         tx.executeSql('DELETE FROM kvp WHERE kk = ?', [ CIPAPI.credentials.getCredentialHash() ]);

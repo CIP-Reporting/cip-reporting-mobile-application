@@ -107,14 +107,39 @@
   $(document).on('cipapi-usersettings-loaded', function() { 
     log.debug('Setting engine and reading back');
     
+    // It has been observed that local storage is problematic to put it gently.  Issues
+    // with local storage can make the app not fully initialize by holding the veto
+    // forever.  In an attempt to avoid disaster we will set a timeout to check on 
+    // storage and release our veto power to allow the app to initialize.
+    var safetyTimer = false;
+    if (CIPAPI.config.storageFailSafeTimeout > 0) {
+      safetyTimer = setTimeout(function() {
+        if (isLoaded) return log.error('Local storage is initialized, taking no action');
+        log.error('Storage did not initialize within the allotted time, releasing veto');
+
+        isLoaded = true;
+        CIPAPI.router.validateMetadata();
+        $(document).trigger('cipapi-storage-ready');
+  
+      }, CIPAPI.config.storageFailSafeTimeout);
+      
+      log.debug('Fail safe timeout created');
+    } else {
+      log.debug('Fail safe timeout is disabled');
+    }
+
     // Choose engine if available based on user setting
     CIPAPI.storage.setEngine();
     
     readBack(function(success) { 
+      if (safetyTimer !== false) {
+        log.debug('Clearing initialization safety timer');
+        clearTimeout(safetyTimer);
+      }
+
+      log.debug("Storage Ready");
       isLoaded = true;
       CIPAPI.router.validateMetadata();
-      
-      log.debug("Storage Ready");
       $(document).trigger('cipapi-storage-ready');
     }); 
   });

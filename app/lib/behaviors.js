@@ -165,7 +165,7 @@
       });
       
       // Scroll to top of the next element
-      if (CIPAPI.config.autoScrollInBehaviors) {
+      if (CIPAPI.usersettings.autoScrollInBehaviors.current == 'enabled') {
         var nextSibling = $(this).next();
         if (nextSibling.length) {
           $('html, body').delay(500).animate({
@@ -230,7 +230,7 @@
         
         $(document).one('cipapi-forms-media-complete', function() {
           // Scroll ourselves to the top just to help out
-          if (CIPAPI.config.autoScrollInBehaviors) {
+          if (CIPAPI.usersettings.autoScrollInBehaviors.current == 'enabled') {
             $('html, body').delay(500).animate({
               scrollTop: $(me).offset().top - $('div.navbar').height()
             }, 500);
@@ -239,7 +239,7 @@
       } else {
         // If a single item scroll to top of next element assuming this is a data 
         // capture type yes / no question
-        if (CIPAPI.config.autoScrollInBehaviors) {
+        if (CIPAPI.usersettings.autoScrollInBehaviors.current == 'enabled') {
           var nextSibling = $(this).next();
           if (nextSibling.length) {
             $('html, body').delay(500).animate({
@@ -318,7 +318,7 @@
           
           $(document).one('cipapi-forms-media-complete', function() {
             // Scroll ourselves to the top just to help out
-            if (CIPAPI.config.autoScrollInBehaviors) {
+            if (CIPAPI.usersettings.autoScrollInBehaviors.current == 'enabled') {
               $('html, body').delay(500).animate({
                 scrollTop: $(me).offset().top - $('div.navbar').height()
               }, 500);
@@ -327,7 +327,7 @@
         } else {
           log.debug("Not taking far right actions")
           // Scroll ourselves to the top just to help out
-          if (CIPAPI.config.autoScrollInBehaviors) {
+          if (CIPAPI.usersettings.autoScrollInBehaviors.current == 'enabled') {
             $('html, body').delay(500).animate({
               scrollTop: $(me).offset().top - $('div.navbar').height()
             }, 500);
@@ -336,7 +336,7 @@
       } else {
         // If a single item scroll to top of next element assuming this is a data 
         // capture type yes / no question
-        if (CIPAPI.config.autoScrollInBehaviors) {
+        if (CIPAPI.usersettings.autoScrollInBehaviors.current == 'enabled') {
           var nextSibling = $(this).next();
           if (nextSibling.length) {
             $('html, body').delay(500).animate({

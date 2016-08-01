@@ -191,7 +191,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.4493',                     // Set by the packaging script to know our own version
+              applicationVersion: '1.0.4496',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -216,7 +216,7 @@
               caseModeListFields: [],                                 // The name of the field(s) to display for a case listing
           caseModeAlwaysShowForm: false,                              // If true, a case will always show at least 1 of any known form (except hidden)
           caseOnlyCompleteIfDone: false,                              // If true, all forms must be complete within a case before it can be ended
-           autoScrollInBehaviors: false,                              // Enable auto scroll in behaviors
+          storageFailSafeTimeout: 30000,                              // Number of MS to wait for storage to readback and initialize, 0 disables
                   swipeThreshold: 10,                                 // Number of pixels required to recognize a swipe
                    swipeVelocity: 0.3,                                // Swipe velocity required in PX per MS
                    swipeDebounce: 750,                                // Swipe debounce in MS, 0 for no debounce

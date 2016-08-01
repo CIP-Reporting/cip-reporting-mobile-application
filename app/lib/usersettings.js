@@ -93,6 +93,17 @@
               '32768': CIPAPI.translations.translate('32M'),
               '65536': CIPAPI.translations.translate('64M')
         }
+      },
+      autoScrollInBehaviors: { 
+              title: CIPAPI.translations.translate('Auto Scroll on Swipe Behaviors'),
+        description: CIPAPI.translations.translate('If enabled the screen will auto scroll to the next field when swiping'),
+                set: function(vv) { return __set('autoScrollInBehaviors', vv); },
+              reset: function()   { return __set('autoScrollInBehaviors', 'disabled'); },
+            current: 'disabled', 
+            options: {
+                'enabled': CIPAPI.translations.translate('Enabled'),
+               'disabled': CIPAPI.translations.translate('Disabled')
+        }
       }
     };
     

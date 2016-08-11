@@ -419,10 +419,11 @@
   // Give the user a little tactile feedback
   $(document).on('cipapi-behaviors-haptic-feedback', function(event, info) {
     // Vibrate for a moment
-    if (window.cordova) {
+    if (window.cordova && CIPAPI.usersettings.enableHapticFeedback.current == 'enabled') {
+      log.debug("Haptic bzzzz - " + info);
       navigator.vibrate(25);
     } else {
-      log.warn("Haptic bzzzz - " + info);
+      log.debug("Haptic disabled - " + info);
     }
   });
   

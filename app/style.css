@@ -785,3 +785,69 @@ div.cipapi-case-context-menu button.list-group-item i.fa {
 .footer-offset {
   margin-bottom: 15px;
 }
+
+/**********************************************
+ * Signatures
+ *********************************************/
+.signaure-outer {
+    display: table;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
+
+.signaure-middle {
+    display: table-cell;
+    vertical-align: middle;
+}
+
+.signaure-inner {
+    margin-left: auto;
+    margin-right: auto; 
+}
+
+.signaure-wrapper {
+  width: 80%;
+  margin: 0% 10%;
+  display: inline-block;
+  position: relative;
+}
+
+.signaure-wrapper:after {
+  padding-top: 25%; /* 4:1 ratio */
+  display: block;
+  content: '';
+}
+
+.signature-block {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  top: 0;
+
+  background-color: white;
+  color: black;
+}
+
+.signature-buttons {
+  position: absolute;
+  bottom: 10px;
+  width: 100%;
+}
+
+.disclosure-content {
+  position: absolute;
+  bottom: 60px;
+  right: 10px;
+  left: 10px;
+  top: 10px;
+
+  overflow-y: scroll;
+  color: white;
+}
+
+.signature-button {
+  margin-top: 5px;
+  width: 150px;
+}

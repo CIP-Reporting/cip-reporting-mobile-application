@@ -69,7 +69,7 @@
         description: CIPAPI.translations.translate('What storage system to use for storing reports pending transmission'),
                 set: function(vv) { return __set('storageDB', vv); },
               reset: function()   { return __set('storageDB', 'sqlite'); },
-            current: 'sqlite', 
+            current: typeof codova == 'undefined' ? 'memory' : 'sqlite', 
             options: {
               'sqlite': CIPAPI.translations.translate('Use an SQLite database stored in a single file on the device file system (default)'),
                 'file': CIPAPI.translations.translate('Use a JSON database stored in a single file on the device file system'),
@@ -111,6 +111,17 @@
                 set: function(vv) { return __set('autoScrollInBehaviors', vv); },
               reset: function()   { return __set('autoScrollInBehaviors', 'disabled'); },
             current: 'disabled', 
+            options: {
+                'enabled': CIPAPI.translations.translate('Enabled'),
+               'disabled': CIPAPI.translations.translate('Disabled')
+        }
+      },
+      enableHapticFeedback: { 
+              title: CIPAPI.translations.translate('Tactile Feedback'),
+        description: CIPAPI.translations.translate('If enabled certain presses will provide a mechanical tactile feedback'),
+                set: function(vv) { return __set('enableHapticFeedback', vv); },
+              reset: function()   { return __set('enableHapticFeedback', 'enabled'); },
+            current: 'enabled', 
             options: {
                 'enabled': CIPAPI.translations.translate('Enabled'),
                'disabled': CIPAPI.translations.translate('Disabled')

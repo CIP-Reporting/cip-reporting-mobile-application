@@ -25,9 +25,14 @@
   if (typeof CIPAPI.storage.engines == 'undefined') CIPAPI.storage.engines = {};
   
   var log = log4javascript.getLogger("CIPAPI.storage.sqlite");
+
+  if (typeof codova == 'undefined') {
+    log.warn('Storage not available - no cordova engine');
+    return;
+  }
   
   if (typeof sqlitePlugin == 'undefined' && typeof openDatabase == 'undefined') {
-    log.warn('Storage not available');
+    log.warn('Storage not available - not found');
     return;
   }
   

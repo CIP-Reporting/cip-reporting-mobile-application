@@ -348,6 +348,11 @@
     });
   }
 
+  // *.cipapi-behaviors-click-right-then-image
+  //
+  // For any element with this class, which has 3 state radios, on the first right
+  // click (severe) of any radio group, launch the camera.  Basically the first time
+  // you make something severe within a group launch the camera.
   CIPAPI.behaviors.forms.clickRightThenImage = function() {
     $('.cipapi-behaviors-click-right-then-image label.radio').on('click', function(e) {
       var $this      = $(this);
@@ -391,6 +396,25 @@
       log.debug('Remembering field value: ' + fieldName + ' -> ' + fieldValue);
     });
   }
+  
+  // *.cipform_image_from_camera *.cipform_image_from_library
+  //
+  // For any element with this class, set attributes for image width, height, and quality
+  CIPAPI.behaviors.forms.applyImageMaxSizeAndQualityAttributes = function() {
+    var sizes   = CIPAPI.usersettings.maxImageSize.current.split(',');
+    
+    var quality = parseInt(CIPAPI.usersettings.imageQuality.current, 10);
+    var width   = parseInt(sizes[0]);
+    var height  = parseInt(sizes[1]);
+    
+    log.debug('Setting image size and quality attributes: ' + width + '/' + height + ' (' + quality + ')');
+    
+    $('.cipform_image_from_camera, .cipform_image_from_library').each(function() {
+      $(this).attr('data-max-height', height);
+      $(this).attr('data-max-width', width);
+      $(this).attr('data-quality', quality);
+    });
+  }  
   
   // Helper function to apply behaviors
   function applyBehaviors(behaviors) {

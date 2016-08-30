@@ -317,8 +317,19 @@
     equalizeElementSizes(formSelector + 'div.cipform_check_a_custom_field label.checkbox');
     equalizeElementSizes(formSelector + 'div.cipform_radio_custom_field label.radio');
     
+    // A little debug help
+    var debug = false;
+    if (debug) {
+      // Create a fake camera object for the required constants
+      window.Camera = {
+        PictureSourceType: { CAMERA: 'Camera', PHOTOLIBRARY: 'Library' },
+          DestinationType: { FILE_URI: 1 },
+             EncodingType: { JPEG: 1 }
+      }
+    }
+    
     // If phonegap is loaded AND phonegap camera controls are available use it...
-    if (window.cordova && window.navigator && window.navigator.camera) {
+    if (debug == true || (window.cordova && window.navigator && window.navigator.camera)) {
       $(formSelector + ' div.cipform_invisible_custom_field input[type=file]').each(function() {
         // Put a media gallery into place
         var name      = $(this).attr('name');
@@ -333,9 +344,40 @@
         container.append(fromCam).append(fromLib).append(gallery).append(spinner).append(clearfix);
         
         // Shared camera code
-        function captureImage(src) {
-          $('#form-cip-media-spinner').show();
-          log.debug("Showing spinner");
+        function captureImage(btn, src) {
+          if (!debug) {
+            $('#form-cip-media-spinner').show();
+            log.debug("Showing spinner");
+          }
+          
+          var cameraOptions = {
+               destinationType: Camera.DestinationType.FILE_URI,
+                 encodingType : Camera.EncodingType.JPEG,
+            correctOrientation: true,
+                    sourceType: src
+          }
+
+          // Set a max width and height if specified in the button attributes          
+          var maxHeight = $(btn).attr('data-max-height');
+          var maxWidth = $(btn).attr('data-max-width');
+          if (typeof maxHeight != 'undefined' && typeof maxWidth != 'undefined') {
+            log.debug('Setting image max to ' + maxWidth + '/' + maxHeight);
+            cameraOptions.targetHeight = parseInt(maxHeight, 10);
+            cameraOptions.targetWidth = parseInt(maxWidth, 10);
+          }
+
+          // Set quality if specified in the button attributes          
+          var quality = $(btn).attr('data-quality');
+          if (typeof quality != 'undefined') {
+            log.debug('Setting image quality to ' + quality);
+            cameraOptions.quality = parseInt(quality, 10);
+          }
+          
+          // If debugging in a browser do not attempt to capture a picture
+          if (debug) {
+            alert('Image capture would be initiated from ' + src);
+            return;
+          }
           
           navigator.camera.getPicture(
             // On Success
@@ -369,27 +411,24 @@
 
               $(document).trigger('cipapi-forms-media-complete');
             },
+            
             // On Error
             function(msg) {
               log.error(msg);
               $('#form-cip-media-spinner').hide();
               $(document).trigger('cipapi-forms-media-complete');
-            }, 
+            },
+            
             // Options
-            {
-                 destinationType: Camera.DestinationType.FILE_URI,
-                   encodingType : Camera.EncodingType.JPEG,
-              correctOrientation: true,
-                      sourceType: src
-            }
+            cameraOptions
           );
         };
         
         // From the camera
-        fromCam.on('click', function() { captureImage(Camera.PictureSourceType.CAMERA); });
+        fromCam.on('click', function() { captureImage(this, Camera.PictureSourceType.CAMERA); });
 
         // From the library
-        fromLib.on('click', function() { captureImage(Camera.PictureSourceType.PHOTOLIBRARY); });
+        fromLib.on('click', function() { captureImage(this, Camera.PictureSourceType.PHOTOLIBRARY); });
 
         $(this).remove(); // Nuke the file input all together...
       });

@@ -126,6 +126,36 @@
                 'enabled': CIPAPI.translations.translate('Enabled'),
                'disabled': CIPAPI.translations.translate('Disabled')
         }
+      },
+      maxImageSize: { 
+              title: CIPAPI.translations.translate('Maximum Image Size'),
+        description: CIPAPI.translations.translate('Max image size for images captured via the built-in camera'),
+                set: function(vv) { return __set('maxImageSize', vv); },
+              reset: function()   { return __set('maxImageSize', '800,600'); },
+            current: '800,600', 
+            options: {
+                '320,240': CIPAPI.translations.translate('320x240'),
+                '640,480': CIPAPI.translations.translate('640x480'),
+                '800,600': CIPAPI.translations.translate('800x600'),
+               '1024,768': CIPAPI.translations.translate('1024x768'),
+               '1280,960': CIPAPI.translations.translate('1280x960 (1MP)'),
+              '1600,1200': CIPAPI.translations.translate('1600x1200 (2MP)'),
+              '2048,1536': CIPAPI.translations.translate('2048x1536 (3MP)'),
+              '2240,1680': CIPAPI.translations.translate('2240x1680 (4MP)'),
+              '2560,1920': CIPAPI.translations.translate('2560x1920 (5MP)')
+        }
+      },
+      imageQuality: { 
+              title: CIPAPI.translations.translate('Image Quality'),
+        description: CIPAPI.translations.translate('Image quality for images captured via the built-in camera'),
+                set: function(vv) { return __set('imageQuality', vv); },
+              reset: function()   { return __set('imageQuality', '50'); },
+            current: '50', 
+            options: {
+               '25': CIPAPI.translations.translate('Low Quality'),
+               '50': CIPAPI.translations.translate('Medium Quality'),
+              '100': CIPAPI.translations.translate('High Quality')
+        }
       }
     };
     

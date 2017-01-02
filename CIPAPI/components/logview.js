@@ -97,7 +97,7 @@
     // Update the view - will create if not exists
     function update() {
       var updateGuid = config.guid + '_ug_' + Math.random().toString(16).slice(2);
-      log.debug("Updating log view " + config.name + ' (' + updateGuid + ')');
+      //log.debug("Updating log view " + config.name + ' (' + updateGuid + ')');
       
       // Get or create the pagination controls
       var pgn = $(config.selector + ' > div.logview-pagination');
@@ -172,7 +172,7 @@
         
         var row1 = $('tr#' + row1ID);
         if (!row1.length) {
-          log.debug("Primary row does not exist, creating primary and secondary for " + row1ID);
+          //log.debug("Primary row does not exist, creating primary and secondary for " + row1ID);
           
           // Create the primary row and load the basics
           row1 = $('<tr></tr>');
@@ -286,7 +286,7 @@
       // Delete abandoned rows
       tbl.find('> tbody > tr[data-guid!="' + updateGuid + '"]').each(function(offset, item) {
         var elem = $(item);
-        log.debug("Removing row" + elem.attr('data-id'));
+        //log.debug("Removing row" + elem.attr('data-id'));
         elem.remove();
       });
 
@@ -353,7 +353,16 @@
     
     // Load data from the API with callback
     function refresh(callback) {
-      log.debug("Refreshing view data for " + config.name);
+
+      // Check to see if refresh is running (prevent multiple requests)
+      if ($(config.selector).hasClass('requestRunning')) {
+        log.debug(config.name + " refresh request is already running");
+        $(config.selector).addClass('tailendRefresh');
+        return;
+      }
+
+      $(config.selector).addClass('requestRunning');
+      //log.debug("Refreshing view data for " + config.name);
 
       // Preserve scroll Pos before refresh/updates
       var scrollPos = 0;
@@ -368,7 +377,8 @@
         fields: getFieldList(config.columnFields, config.summaryFields),
         query: config.query,
         success: function(response) { 
-          log.debug("View data received for " + config.name);
+          //log.debug("Received view data received for " + config.name);
+
           config.viewData = response;
           
           config.total    = parseInt(config.viewData.metadata.pagination.total,  10);
@@ -378,6 +388,21 @@
           
           if (callback) {
             callback.call(config, response);
+          }
+        },
+
+        complete: function(response, message) {
+          log.debug("Completed view data for " + config.name + " - STATUS: " + message);
+          $(config.selector).removeClass('requestRunning');
+
+          // Check for any updates during refresh
+          if ($(config.selector).hasClass('tailendRefresh')) {
+            log.debug('TAILEND REFRESH FOR ' + config.name);
+
+            $(config.selector).removeClass('tailendRefresh');
+            
+            //One more tailend refresh to catch any changes during last refresh
+            refresh(callback);
           }
         }
       });

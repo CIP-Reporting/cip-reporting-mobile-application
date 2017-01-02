@@ -503,9 +503,6 @@ log.warn("TODO: Form value type: " + formValueType);
 
     formDefinition.onSubmit = function(errors, values) {
       if (!errors) {
-        // Throw up the loading screen if saving...
-        $('div#loading').show();
-        
         // Inject two UUIDs into the values - a reportUUID and a reportRelUUID
         //
         // The reportUUID is just that - a UUID for this report which can be used as needed
@@ -554,6 +551,7 @@ log.warn("TODO: Form value type: " + formValueType);
         // Go somewhere...
         CIPAPI.navbar.goBack();
       }
+      else $('div#loading').hide();
     }
 
     // Reset image storage

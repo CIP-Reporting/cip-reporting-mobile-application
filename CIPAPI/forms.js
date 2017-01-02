@@ -200,6 +200,9 @@
     jsonForm = $(formSelector).jsonForm(formDefinition);
     $(formSelector).append($('<div class="clearfix"></div>'));
     
+    // Disable native browser form validation in HTML5
+    $(formSelector).attr('novalidate', 'novalidate');
+    
     // Before form validation and submit we must perform some actions
 
     // Give currency fields an auto-complete handler

@@ -572,6 +572,29 @@ div#cipapi-screen-overlay {
 }
 
 /*********************************
+ * Signature Controls
+ *********************************/
+.btn-signature {
+  position: absolute;
+  right: 15px;
+  top: 0px;
+}  
+
+img.cip-signature {
+  min-width: 80%;
+  display: block;
+  margin: 0 auto;
+}
+
+div.cipform_signature_custom_field textarea {
+  display: none;
+}
+
+.btn-signature span.glyphicon {
+  margin-right: 0px;
+}
+
+/*********************************
  * Case list
  *********************************/
 div.beforecasebtn {

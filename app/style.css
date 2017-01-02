@@ -581,7 +581,7 @@ div#cipapi-screen-overlay {
 }  
 
 img.cip-signature {
-  min-width: 80%;
+  width: 80%;
   display: block;
   margin: 0 auto;
 }

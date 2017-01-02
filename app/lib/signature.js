@@ -51,7 +51,7 @@
       $('.signature-block').jSignature({
         'background-color': 'transparent',
              'decor-color': 'transparent',
-               'lineWidth': 10
+               'lineWidth': CIPAPI.usersettings.signatureWidth.current
       });
       
       $('#signature-save').on('click', function(e) {
@@ -138,7 +138,7 @@
       
       var imgSrc = $.trim(textarea.val());
       if (imgSrc == '') {
-        imgSrc = 'no_signature.png';
+        imgSrc = CIPAPI.config.applicationVersion == '[APPVERSION]' ? './no_signature.png' : './app/no_signature.png';
       }
       
       var image = $('<img src="' + imgSrc + '" class="cip-signature"></img>');
@@ -147,7 +147,7 @@
       var signBtn = $('<a class="btn btn-primary btn-lg btn-custom btn-signature" href="javascript: void(0)"><span class="glyphicon glyphicon-pencil"></span></a>');
       signBtn.on('click', function() {
         var captureSignature = function() {
-          image.attr('src', 'no_signature.png');
+          image.attr('src', CIPAPI.config.applicationVersion == '[APPVERSION]' ? './no_signature.png' : './app/no_signature.png');
           textarea.val('');
           
           CIPAPI.signature.name = false;

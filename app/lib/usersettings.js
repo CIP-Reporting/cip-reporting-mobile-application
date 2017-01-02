@@ -156,6 +156,21 @@
                '50': CIPAPI.translations.translate('Medium Quality'),
               '100': CIPAPI.translations.translate('High Quality')
         }
+      },
+      signatureWidth: { 
+              title: CIPAPI.translations.translate('Signature Width'),
+        description: CIPAPI.translations.translate('Signature width for signatures captured via the touch screen'),
+                set: function(vv) { return __set('signatureWidth', vv); },
+              reset: function()   { return __set('signatureWidth', '5'); },
+            current: '5', 
+            options: {
+               '1': CIPAPI.translations.translate('1px'),
+               '2': CIPAPI.translations.translate('2px'),
+               '5': CIPAPI.translations.translate('5px'),
+               '7': CIPAPI.translations.translate('7px'),
+              '10': CIPAPI.translations.translate('10px'),
+              '15': CIPAPI.translations.translate('15px')
+        }
       }
     };
     

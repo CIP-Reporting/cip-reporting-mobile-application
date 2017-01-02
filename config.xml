@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "1.0.4839">
+  version = "1.0.4840">
 
   <name>CIP Reporting</name>
 
@@ -37,7 +37,7 @@
   <preference name="android-build-tool"         value="gradle" />         <!-- android: apparently required to build the barcode scanner plugin -->
   
   <!-- Specify a custom user agent most notably to not output www-authenticate header to iOS under phonegap -->
-  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/1.0.4839" />
+  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/1.0.4840" />
   
   <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->
   <preference name="permissions" value="none"/>  
@@ -47,29 +47,27 @@
   <feature name="http://api.phonegap.com/1.0/notification"/>
   <feature name="http://api.phonegap.com/1.0/device"/>
   
-  <!-- In-Use Plugins -->
-  <gap:plugin name="cordova-plugin-camera" source="npm" />
-  <gap:plugin name="cordova-plugin-device" source="npm" />
-  <gap:plugin name="cordova-plugin-file" source="npm" />
-  <gap:plugin name="cordova-plugin-geolocation" source="npm" />
-  <gap:plugin name="cordova-plugin-splashscreen" source="npm" />
-  <gap:plugin name="cordova-plugin-vibration" source="npm" />
-  <gap:plugin name="cordova-plugin-inappbrowser" source="npm" />
-  <gap:plugin name="cordova-plugin-whitelist" source="npm" />
+  <!-- Plugins -->
+  <gap:plugin name="cordova-plugin-camera"          source="npm" />
+  <gap:plugin name="cordova-plugin-device"          source="npm" />
+  <gap:plugin name="cordova-plugin-file"            source="npm" />
+  <gap:plugin name="cordova-plugin-geolocation"     source="npm" />
+  <gap:plugin name="cordova-plugin-splashscreen"    source="npm" />
+  <gap:plugin name="cordova-plugin-vibration"       source="npm" />
+  <gap:plugin name="cordova-plugin-inappbrowser"    source="npm" />
+  <gap:plugin name="cordova-plugin-whitelist"       source="npm" />
+  <gap:plugin name="cordova-plugin-barcodescanner"  source="npm" />
+  <gap:plugin name="cordova-plugin-statusbar"       source="npm" />
+  <gap:plugin name="cordova-plugin-sqlite-2"        source="npm" />
 
-  <!-- Custom URL Schema -->
+  <gap:plugin name="cordova-plugin-media-capture"   source="npm" spec="*">
+    <variable name="CAMERA_USAGE_DESCRIPTION"       value="CIP Reporting would like to access the camera." />
+    <variable name="PHOTOLIBRARY_USAGE_DESCRIPTION" value="CIP Reporting would like to access the library." />  
+  </gap:plugin>
+
   <gap:plugin name="cordova-plugin-customurlscheme" source="npm">
     <param name="URL_SCHEME" value="cipreporting" />
   </gap:plugin>
-
-  <!-- Bar Code Scanning -->
-  <gap:plugin name="cordova-plugin-barcodescanner" source="npm" />
-
-  <!-- Wrangle the Status Bar -->
-  <gap:plugin name="cordova-plugin-statusbar" source="npm" />
-
-  <!-- SQLite Support -->
-  <gap:plugin name="cordova-plugin-sqlite-2" source="npm" />
 
   <!-- Define platforms -->
   <gap:platform name="android" />

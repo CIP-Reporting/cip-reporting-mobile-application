@@ -35,6 +35,8 @@
     
     log.debug("Starting request");
 
+    var deferred = new $.Deferred(); // We will return a promise for tracking the requests
+    
     var originalSuccess = opts.success; // We will call this later
 
     opts.success = function(response) { 
@@ -86,8 +88,13 @@
         if (originalSuccess) {
           originalSuccess(requests[0].responseJSON);
         }
-
+        
+        deferred.resolve(); // Resolve the promise
+        
       });  // End of multiple requests      
     }) // End of 'done' section
+    
+    // return promise so that outside code cannot reject/resolve the deferred
+    return deferred.promise();
   } // End of batch.GET
 })(window);

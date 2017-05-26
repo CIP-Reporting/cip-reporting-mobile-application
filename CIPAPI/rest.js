@@ -27,6 +27,8 @@
 
   var numTransactions = 0;
   
+  var simulateOffline = false;
+  
   // Statistics
   var statsGroup = 'API Transactions';
   CIPAPI.stats.total(statsGroup, 'Total GET',        0);
@@ -92,6 +94,8 @@
     log.error('(' + xhr.status + ') ' + xhr.responseText + ' -> ' + thrownError);
   }
 
+  CIPAPI.rest.simulateOffline = function(status) { simulateOffline = status === true; return simulateOffline; }
+  
   // Is the REST engine idle?
   CIPAPI.rest.isIdle = function() { return numTransactions == 0; }
   
@@ -104,6 +108,8 @@
 
   // GET  
   CIPAPI.rest.GET = function(opts) {
+    if (simulateOffline) return false;
+    
     $(document).trigger('cipapi-rest-active');
     CIPAPI.stats.count(statsGroup, 'Total GET');
     CIPAPI.stats.timestamp(statsGroup, 'Last Transaction');
@@ -127,6 +133,8 @@
   
   // POST  
   CIPAPI.rest.post = function(opts) {
+    if (simulateOffline) return false;
+
     $(document).trigger('cipapi-rest-active');
     CIPAPI.stats.count(statsGroup, 'Total POST');
     CIPAPI.stats.timestamp(statsGroup, 'Last Transaction');

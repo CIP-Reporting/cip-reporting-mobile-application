@@ -41,7 +41,7 @@
   });
 
   // Monitor for config changes and update button lists when displayed
-  $(document).on('cipapi-mobile-forms-set cipapi-mobile-cases-set', function(event, info) {
+  $(document).on('cipapi-mobile-forms-set cipapi-mobile-cases-set cipapi-mobile-inventories-set', function(event, info) {
     if ($('div#main-content-area form div.form-button-list').length > 0) {
       // Clean up and re-draw buttons
       $('div#main-content-area form > *').remove();
@@ -49,7 +49,7 @@
       if (CIPAPI.config.caseModeForm !== false)
         renderCases(CIPAPI.config.apiForms);
       else
-        renderButtons(CIPAPI.config.apiForms);
+        renderButtons(CIPAPI.config.apiForms, CIPAPI.inventories);
     }
   });
 
@@ -65,11 +65,11 @@
       if (CIPAPI.config.caseModeForm !== false)
         renderCases(CIPAPI.config.apiForms);
       else
-        renderButtons(CIPAPI.config.apiForms);
+        renderButtons(CIPAPI.config.apiForms, CIPAPI.inventories);
     }
     // Show a form
     else if (info.params.action == 'form') {
-      CIPAPI.main.renderForm(info.params.form, info.params.case, info.params.uuid);
+      CIPAPI.main.renderForm(info.params.form, info.params.case, info.params.uuid, false, false, info.params.links);
     }
     // Show a case
     else if (info.params.action == 'case') {
@@ -368,13 +368,12 @@
   }
   
   // Render form list
-  function renderButtons(buttonCollection) {
+  function renderButtons(buttonCollection, inventoryCollection) {
     log.debug("Rendering form button collection");
     
     // Configurable title
     var title = CIPAPI.translations.translate('Submit a Report');
     var description = CIPAPI.translations.translate('To submit a report select and complete one of these available forms:');
-    
     var header = '' +
       '<div class="col-xs-12">' +
       '  <h2>' + title + '</h2>' +
@@ -389,6 +388,11 @@
       $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="barcode-scanner" class="btn btn-primary btn-lg btn-custom">' + span + title + '</a></div>');
     }
     
+    $.each(CIPAPI.config.inventories, function(key, val) {
+      var span = '<span class="glyphicon ' + val.glyphIcon + '"></span> ';
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-inventory="' + val.name + '" class="btn btn-primary btn-lg btn-custom">' + span + val.name + '</a></div>');
+    });
+    
     $.each(buttonCollection, function(key, val) {
       if (-1 !== $.inArray(key, CIPAPI.config.hiddenForms)) return;
 
@@ -401,13 +405,21 @@
       btn.click(function() {
         var btn = $(this);
         var form = btn.attr('data-form');
-        CIPAPI.router.goTo('main', { action: form == 'barcode-scanner' ? 'barcode' : 'form', form: form });
+
+        if (form) {
+          return CIPAPI.router.goTo('main', { action: form == 'barcode-scanner' ? 'barcode' : 'form', form: form });
+        }
+        
+        var inventory = btn.attr('data-inventory');
+        if (inventory) {
+          return CIPAPI.router.goTo('inventory', { inventory: inventory });
+        }
       });
     });
   }
   
   // Render a form
-  CIPAPI.main.renderForm = function(formName, caseUUID, childUUID, fieldValues, autoSubmit) {
+  CIPAPI.main.renderForm = function(formName, caseUUID, childUUID, fieldValues, autoSubmit, links) {
     log.debug("Rendering form button collection");
     
     if (typeof CIPAPI.mobileforms[formName] == 'undefined') {
@@ -514,6 +526,11 @@ log.warn("TODO: Form value type: " + formValueType);
         // mode this UUID is set to the owning case reportUUID.
         values.reportUUID = reportUUID ? reportUUID : CIPAPI.uuid.get();
         values.reportRelUUID = reportRelUUID ? reportRelUUID : values.reportUUID;
+        
+        // Inject object links if they are provided
+        if (links) {
+          values.reportObjectLinks = links;
+        }
         
         // Create an updated report record
         var defaultFormMetadata = {

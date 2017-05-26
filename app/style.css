@@ -874,3 +874,150 @@ div.cipapi-case-context-menu button.list-group-item i.fa {
   margin-top: 5px;
   width: 150px;
 }
+
+/****************************
+ ** Striped Double Row Table
+ ***************************/
+.table-striped-doublerow {
+  width: 100%;
+}
+
+.table-striped-doublerow > thead > tr > th {
+  background-color: #cccccc;
+  border: 1px solid #888888;
+  padding: 5px;
+}
+
+.table-striped-doublerow > tbody > tr > td {
+  vertical-align: top;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.table-striped-doublerow>tbody>tr.table-striped-doublerow:nth-child(4n+1)>td,
+.table-striped-doublerow>tbody>tr.table-striped-doublerow:nth-child(4n+2)>td {
+  background-color: #ffffff;
+}
+.table-striped-doublerow>tbody>tr.table-striped-doublerow:nth-child(4n+3)>td,
+.table-striped-doublerow>tbody>tr.table-striped-doublerow:nth-child(4n+4)>td {
+  background-color: #eeeeee;
+}
+
+.table-striped-doublerow>tbody>tr.table-striped-doublerow:nth-child(4n+2)>td,
+.table-striped-doublerow>tbody>tr.table-striped-doublerow:nth-child(4n+4)>td {
+  border-bottom: 1px solid #cccccc;
+}
+
+.table-striped-doublerow td.logview-summary {
+  font-size: .85em; 
+}
+
+.table-striped-doublerow td.logview-summary span span.summary-key {
+  font-weight: bold;
+}
+
+.table-striped-doublerow td.logview-summary span.prefix-delimiter span.summary-key:before {
+  padding: 5px 10px 0px 10px;
+  font-family: FontAwesome; 
+  font-weight: normal;
+  line-height: 24px;
+  content: "\f068";
+  font-size: 12px;
+}
+
+.table-striped-doublerow td.logview-summary span.breaking-delimiter {
+  clear: left;
+  display: block;
+  margin-top: 10px;
+}
+
+.table-striped-doublerow td.logview-summary span.broken-summary-key {
+  display: inline-block;
+  text-align: right;
+}
+
+.table-striped-doublerow>tbody>tr.table-striped-doublerow-hover td {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  background-color: #ffffe0 !important;
+}
+
+/****************************
+ ** Inventory
+ ***************************/
+div#inventory-content-area .search-bar-container {
+  margin: 5px;
+}
+
+div#inventory-content-area #results,
+div#inventory-content-area #records {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  left: 0px;
+  top: 102px;
+  overflow-y: scroll;
+}
+
+div#inventory-content-area div#results.results-shown {
+  display: block;
+}
+
+div#inventory-content-area div#records.results-shown {
+  display: none;
+}
+
+div#inventory-item-content-area {
+  margin-top: 45px;
+}
+
+div#inventory-item-content-area div.clear {
+  clear: both;
+}
+
+div#inventory-item-content-area div.title-first,
+div#inventory-item-content-area div.title {
+  border-bottom: 1px solid #888;
+  border-top: 1px solid #888;
+  font-weight: bold;
+  font-size: 1.2em;
+  background: #ddd;
+  padding: 5px;
+  margin: 5px;
+}
+
+div#inventory-item-content-area div.title-first {
+  position: fixed;
+  top: 57px;
+  left: 0px;
+  right: 0px;
+  z-index: 2;
+}
+
+div#inventory-item-content-area table.datatable td {
+  border: 1px solid #eee;
+  border-bottom: 1px solid #ccc;
+  font-size: 14px !important;
+  padding: 4px;
+}
+
+div#inventory-item-content-area table.datatable tr:first-child>td {
+  background-color: #eee;
+  border: 0px;
+  border-top: 1px solid #ccc;
+}
+
+div#inventory-item-content-area table.datatable tr:nth-child(2n+2)>td {
+  background-color: #f8f8f8;
+}
+
+div#inventory-item-content-area .cipmobile-item-form-btn {
+  position: fixed;
+  padding: 3px 9px;
+  right: 10px;
+  z-index: 3;
+  top: 65px;
+}
+
+div#inventory-item-content-area .cipmobile-item-form-btn span {
+  margin-right: 0px;
+}

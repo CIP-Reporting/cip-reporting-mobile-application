@@ -47,6 +47,13 @@
     }
   });
   
+  // Try and send when credentials are set / sync
+  $(document).on('cipapi-credentials-set', function(event, info) {
+    $(document).one('cipapi-rest-inactive', function(event, info) {
+      CIPAPI.reportstore.sendReports();
+    });
+  });
+  
   // Store a report  
   CIPAPI.reportstore.storeReport = function(reportData, silent) {
     var storageKey = 'CIPAPI.reportstore.' + CIPAPI.credentials.getCredentialHash();

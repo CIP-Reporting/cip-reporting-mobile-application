@@ -94,6 +94,7 @@
     <script src="./lib/purl.js"></script>
     <script src="./lib/jQueryRotate.js"></script>
     <script src="./lib/base64.js"></script>
+    <script src="./lib/jquery.floatThead.js"></script>
     
     <script type="text/javascript">
       // Initialize logger
@@ -143,6 +144,7 @@
     <script src="./CIPAPI/config.js"></script>
     <script src="./CIPAPI/router.js"></script>
     <script src="./CIPAPI/rest.js"></script>
+    <script src="./CIPAPI/batch.js"></script>
     <script src="./CIPAPI/timing.js"></script>
     <script src="./CIPAPI/settings.js"></script>
     <script src="./CIPAPI/me.js"></script>
@@ -160,6 +162,7 @@
     <script src="./app/screens/logger.js"></script>
     <script src="./app/screens/help.js"></script>
     <script src="./app/screens/settings.js"></script>
+    <script src="./app/screens/inventory.js"></script>
 
     <!-- Application Libraries -->
     <script src="./app/lib/storage.memory.js"></script>
@@ -185,6 +188,8 @@
     <script src="./app/lib/usersettings.js"></script>
     <script src="./app/lib/jSignature.min.js"></script>
     <script src="./app/lib/signature.js"></script>
+    <script src="./app/lib/inventories.js"></script>
+    <script src="./app/lib/elasticlunr.js"></script>
     
     <!-- Customer Provided -->
     <script src="./app/customize/js/custom.js"></script>
@@ -193,7 +198,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.4840',                     // Set by the packaging script to know our own version
+              applicationVersion: '1.0.5071',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -207,6 +212,7 @@
                     persistForms: true,                               // Store forms in local storage to avoid start up network access
         persistFieldDependencies: true,                               // Store field dependency in local storage to avoid start up network access
              persistTranslations: true,                               // Store translations in local storage to avoid start up network access
+              persistInventories: true,                               // Store inventories in local storage to avoid start up network access
                 notifyReportSync: true,                               // Show bootbox notification when reports are successfully sync'd to the server
                    usePreciseGPS: false,                              // Use precise GPS tracking or false for location approximation
                     useSingleURL: false,                              // Use a single API URL for config and form interactions
@@ -223,6 +229,7 @@
                    swipeVelocity: 0.3,                                // Swipe velocity required in PX per MS
                    swipeDebounce: 750,                                // Swipe debounce in MS, 0 for no debounce
                      hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
+                     inventories: { },                                // Collection of inventories to load from the server
                         apiForms: { }                                 // Should most likely be loaded from the config override integration
                                                                       // In the form of the key is the form integration and the value is the
                                                                       // friendly name to display on the button.  The order controls the order

@@ -96,7 +96,7 @@
     });
   }
   
-  CIPAPI.barcode.scan = function() {
+  CIPAPI.barcode.scan = function(callback) {
     log.debug('Starting scanner');
 
     try
@@ -118,6 +118,13 @@
         function (result) { 
           if (result.cancelled) {
             log.debug('Cancelled');
+            return;
+          }
+          
+          // Allow for an optional call back function
+          if (callback) {
+            log.debug('Invoking callback');
+            callback(result);
             return;
           }
           

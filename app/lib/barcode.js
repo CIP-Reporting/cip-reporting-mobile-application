@@ -124,7 +124,7 @@
           // Allow for an optional call back function
           if (callback) {
             log.debug('Invoking callback');
-            callback(result);
+            callback(result.text);
             return;
           }
           

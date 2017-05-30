@@ -37,13 +37,6 @@
   function processNewSearch(config) {
     var searchTerm = $.trim($('input#search-bar').val());
     
-    if (config.searchFilterRegex) {
-      var re = new RegExp(config.searchFilterRegex);
-      var filtered = re.exec(searchTerm);
-      searchTerm = filtered ? filtered[0] : '';
-      $('input#search-bar').val(searchTerm);
-    }
-    
     log.debug("Search term update: " + (searchTerm.length == 0 ? '[BLANK]' : searchTerm));
 
     var results = searchTerm.length == 0 ? [] : searchIndex.search(searchTerm, config.searchConfiguration ? config.searchConfiguration : {});
@@ -133,9 +126,14 @@
     $('div#inventory-content-area').html(html);
     
     $('#barcode-btn').click(function() {
-      log.debug('Barcode Start');
       CIPAPI.barcode.scan(function(barcode) {
-        log.debug('Barcode Complete');
+        if (config.barcodeRegex) {
+          var re = new RegExp(config.barcodeRegex);
+          var filtered = re.exec(barcode);
+          barcode = filtered.length > 1 ? filtered[1] : '';
+        }
+        
+        log.debug('Barcode Search: ' + barcode);
         $('input#search-bar').val(barcode).focus().change();
       });
     });
@@ -185,26 +183,20 @@
 
     var tbd = tbl.find('> tbody'); // Get the tbody in the table
     
+    var rows = '';
     for (var j=0; j<items.length; j++) {
       var rowGrp  = 'rg_' + Math.random().toString(16).slice(2);
       var item = items[j];
       item.data.rowid = rowGrp;
-      
-      var row1 = $('<tr class="table-striped-doublerow"></tr>');
-      row1.attr('data-group', rowGrp);
+
+      rows += '<tr class="table-striped-doublerow" data-group="' + rowGrp + '" data-offset="' + j + '">';
 
       for (var k=0; k<numCol; k++) {
         var fn = cleanFieldName(config.columnFields[k]);
-        var td = $('<td></td>');
-        td.text(item.data[fn] || '');
-        row1.append(td);
+        rows += '<td>' +  (item.data[fn] || '') + '</td>';
       }
 
-      var row2 = $('<tr class="table-striped-doublerow"></tr>');
-      row2.attr('data-group', rowGrp);
-      var td = $('<td class="logview-summary"></td>');
-      td.attr('colspan', numCol);
-      row2.append(td);
+      rows += '</tr><tr class="table-striped-doublerow" data-group="' + rowGrp + '" data-offset="' + j + '"><td class="logview-summary" colspan="' + numCol + '">';
 
       // Build and set the summary row
       var summary = ''; var numVisible = 0;
@@ -214,28 +206,27 @@
         var val = item.data[fn];
 
         numVisible += val == '' ? 0 : 1;
+        
         var extraCss = (val == '') ? ' hidden' : (numVisible > 1 ? (
           config.breakSummaryFields ? ' breaking-delimiter' : ' prefix-delimiter'
         ) : '');
+        
         summary += '<span data-field-name="' + key + '" class="summary-field fresh' + extraCss + '"><span class="summary-key">' + 
           CIPAPI.translations.translate(key) + '</span>: <span class="summary-value">' + val + '</span></span> ';
       }
-      
-      row2.find('td').html(summary);
-      
-      tbd.append(row1);
-      tbd.append(row2);
-      
-      // Add a click handler to view the an item if configured
-      if (config.htmlField) {
-        (function(rowGrp, j) {
-          $('tr[data-group="' + rowGrp + '"]').click(function() { CIPAPI.router.goTo('inventory', { inventory: info.params.inventory, item: j }); });
-        })(rowGrp, j);
-      }
-      
+
+      rows += summary + '</td></tr>';
+
       // Add the whole document
       searchIndex.addDoc(item.data);
     }    
+    
+    tbd.html(rows);
+
+    // Add a click handler to view the an item if configured
+    tbd.find('> tr').click(function() {
+      CIPAPI.router.goTo('inventory', { inventory: info.params.inventory, item: $(this).attr('data-offset') });
+    });
     
     $('div#inventory-content-area #records > table').floatThead();
   }

@@ -56,7 +56,7 @@
   <gap:plugin name="cordova-plugin-vibration"       source="npm" />
   <gap:plugin name="cordova-plugin-inappbrowser"    source="npm" />
   <gap:plugin name="cordova-plugin-whitelist"       source="npm" />
-  <gap:plugin name="cordova-plugin-barcodescanner"  source="npm" />
+  <gap:plugin name="phonegap-plugin-barcodescanner" source="npm" />
   <gap:plugin name="cordova-plugin-statusbar"       source="npm" />
   <gap:plugin name="cordova-plugin-sqlite-2"        source="npm" />
 

@@ -33,6 +33,11 @@
     return fieldName.replace(/\W+/g, '_').toLowerCase();
   }
 
+  // Primitive helper to encode HTML entities
+  function encodeHtmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+  
   // Process a new search
   function processNewSearch(config) {
     var searchTerm = $.trim($('input#search-bar').val());
@@ -193,7 +198,7 @@
 
       for (var k=0; k<numCol; k++) {
         var fn = cleanFieldName(config.columnFields[k]);
-        rows += '<td>' +  (item.data[fn] || '') + '</td>';
+        rows += '<td>' +  encodeHtmlEntities(item.data[fn] || '') + '</td>';
       }
 
       rows += '</tr><tr class="table-striped-doublerow" data-group="' + rowGrp + '" data-offset="' + j + '"><td class="logview-summary" colspan="' + numCol + '">';
@@ -212,7 +217,7 @@
         ) : '');
         
         summary += '<span data-field-name="' + key + '" class="summary-field fresh' + extraCss + '"><span class="summary-key">' + 
-          CIPAPI.translations.translate(key) + '</span>: <span class="summary-value">' + val + '</span></span> ';
+          CIPAPI.translations.translate(key) + '</span>: <span class="summary-value">' + encodeHtmlEntities(val) + '</span></span> ';
       }
 
       rows += summary + '</td></tr>';
@@ -301,6 +306,8 @@
 
   // Render the full inventory  
   function renderInventoryScreen(info) {
+    log.debug('Render Start');
+
     if (!info) info = lastInfo;
     lastInfo = info;
     
@@ -315,6 +322,8 @@
       // Render the entire inventory
       renderInventory(info);
     }
+
+    log.debug('Render Finish');
   }
   
   // Monitor for config changes and update button lists when displayed

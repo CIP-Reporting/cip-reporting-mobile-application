@@ -95,8 +95,16 @@
       // Store the inventories to local storage if so configured
       if (CIPAPI.config.persistInventories) {
         var storageKey = 'CIPAPI.inventories.' + CIPAPI.credentials.getCredentialHash();
-        localStorage.setItem(storageKey, JSON.stringify(CIPAPI.inventories));
-        log.debug("Inventories stored in local storage");
+        var json = JSON.stringify(CIPAPI.inventories);
+        var compressed = LZString.compress(json);
+        log.debug('Local Storage Compression: ' + json.length + ' (before) ' + compressed.length + ' (after)');
+
+        try {
+          localStorage.setItem(storageKey, compressed);
+          log.debug("Inventories stored in local storage");
+        } catch(e) {
+          log.error("Failed to store inventories to local storage");
+        }
       }
       
       CIPAPI.router.validateMetadata();
@@ -120,7 +128,15 @@
     if (!isLoaded && CIPAPI.config.persistInventories) {
       try {
         var storageKey = 'CIPAPI.inventories.' + CIPAPI.credentials.getCredentialHash();
-        var storedInventories = JSON.parse(localStorage.getItem(storageKey));
+        var compressed = localStorage.getItem(storageKey);
+        var storedInventories = null;
+        
+        if (compressed !== null) {
+          var decompressed = LZString.decompress(compressed);
+          log.debug('Local Storage Decompression: ' + compressed.length + ' (before) ' + decompressed.length + ' (after)');
+          storedInventories = JSON.parse(decompressed);
+        }
+        
         if (storedInventories !== null && typeof storedInventories === 'object') {
           CIPAPI.inventories = storedInventories;
           log.debug("Inventories merged from local storage");

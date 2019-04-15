@@ -18,7 +18,7 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
-(function(window, undefined) {
+(function($, window, undefined) {
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.forms = {};
@@ -33,6 +33,8 @@
       widest = Math.max(widest, elem.width());
     });
 
+    widest += 10;
+    
     $(selector).each(function() {
       var elem = $(this);
       elem.width(widest);
@@ -172,6 +174,47 @@
     return Math.floor(100 * (completedFields / visibleFields));
   }
   
+  CIPAPI.forms.validate = function(jsonForm) {
+    var results = jsonForm.validate();
+    
+    if (results.errors && results.errors.length > 0) {
+      return false;
+    }
+    
+    return true;
+  }
+  
+  CIPAPI.forms.getValues = function(jsonForm) {
+    var values = jsonForm.root.getFormValues();
+    
+    // If flatpickr is loaded
+    if ($().flatpickr) {
+      // When flatpickr is loaded we need to prepend the fake date component to just time fields
+      for (var i=0; i<jsonForm.formDesc.form.length; i++) {
+        if (!jsonForm.formDesc.form[i].htmlClass.match(/(cipform_justtime_custom_field|cipform_justtimenow_custom_field)/)) continue;
+        
+        var key = jsonForm.formDesc.form[i].key;
+        if (values[key]) {
+          values[key] = '1980-01-01 ' + values[key];
+        }
+      }
+    }
+    
+    // Headers / Help fields do not pass back values but we need to
+    for (var i=0; i<jsonForm.formDesc.form.length; i++) {
+      if (jsonForm.formDesc.form[i].type != 'help') continue;
+      
+      var key = jsonForm.formDesc.form[i].helpkey;
+      values[key] = jsonForm.formDesc.value[key];
+    }
+    
+    return values;
+  }
+  
+  CIPAPI.forms.validateAndGetValues = function(jsonForm) {
+    return CIPAPI.forms.validate(jsonForm) ? CIPAPI.forms.getValues(jsonForm) : false;
+  }
+  
   CIPAPI.forms.Render = function(formDefinition, formSelector, editExisting) {
     // Default form selector
     if (!formSelector) formSelector = 'form.form-cip-reporting';
@@ -197,9 +240,100 @@
       });
     }
 
+    // If slimselect is loaded allow short width multi-selects
+    if (typeof SlimSelect != 'undefined') {
+      for (var i=0; i<formDefinition.form.length; i++) {
+        if (!formDefinition.form[i].htmlClass.match(/cipform_multi_custom_field/)) {
+          continue;
+        }
+        
+        // Checkboxes were hard coded to full width no matter the field size but the original size is provided
+        // in another class name.  Remove the hard coded full width and convert the requested to the correct
+        // class names.
+        formDefinition.form[i].htmlClass = formDefinition.form[i].htmlClass.replace(/col-md-12 /, '');
+        formDefinition.form[i].htmlClass = formDefinition.form[i].htmlClass.replace(/cipform_requested_width_long/,  'col-md-12');
+        formDefinition.form[i].htmlClass = formDefinition.form[i].htmlClass.replace(/cipform_requested_width_short/, 'col-md-6');
+      }
+    }    
+    
     jsonForm = $(formSelector).jsonForm(formDefinition);
     $(formSelector).append($('<div class="clearfix"></div>'));
+
+    // Store for later
+    jsonForm.formSelector = formSelector;
+    jsonForm.editExisting = editExisting;
     
+    // If slim select is loaded after form creation we need to convert multi-selects into real
+    // multi-selects and apply values accordingly.  Then we apply slim select behavior to all selects.    
+    if (typeof SlimSelect != 'undefined') {
+      function getAddNewClosure(container, i) {
+        if (container.hasClass('cipform_cannotadd')) return false;
+        
+        return function(v) {
+          if (formDefinition.schema[formDefinition.form[i].key].enum) {
+            formDefinition.schema[formDefinition.form[i].key].enum.push(v);
+          } else {
+            formDefinition.schema[formDefinition.form[i].key].items.enum.push(v);
+          }
+          return v;
+        }
+      }
+      
+      for (var i=0; i<formDefinition.form.length; i++) {
+        var container = $(formSelector + ' div.jsonform-error-' + formDefinition.form[i].key);
+
+        if (!formDefinition.form[i].htmlClass.match(/cipform_multi_custom_field/)) {
+
+          if (formDefinition.form[i].htmlClass.match(/(cipform_single_custom_field|cipform_singlerandom_custom_field)/)) {
+            container.find('select option[value=""]').remove();
+            
+            if (formDefinition.form[i].htmlClass.match(/cipform_empty_value/)) {
+              container.find('select option:selected').removeAttr('selected');
+              container.find('select').prop('selectedIndex', -1);
+            }
+            
+            new SlimSelect({ select: container.find('select')[0], allowDeselect: true, addable: getAddNewClosure(container, i) });
+          }
+          
+          continue;
+        }
+
+        if (formDefinition.schema[formDefinition.form[i].key].enum) {
+          formDefinition.schema[formDefinition.form[i].key].enum.push('');
+        } else {
+          formDefinition.schema[formDefinition.form[i].key].items.enum.push('');
+        }
+
+        var mainLabel   = container.find('> label');
+        var childLabels = container.find('> div > div > label');
+
+        var sel = $('<select multiple="multiple"></select>');
+        sel.attr('id',    mainLabel.attr('for'));
+        sel.attr('class', 'form-control');
+        sel.attr('name',  mainLabel.attr('for').replace(/.*-/, '') + '[0]');
+
+        $.each(childLabels, function(o) {
+          var el = $(childLabels[o]);
+
+          var name     = el.find('span').text();
+          var value    = el.find('input').attr('name');
+          var selected = el.find('input').attr('checked') == 'checked';
+          
+          var opt = $('<option></option>');
+          opt.text(name);
+          opt.attr('value', value);
+          if (selected) opt.attr('selected', 'selected');
+          opt.appendTo(sel);
+        });
+
+        container.find('> div > div > span').appendTo(container.find('> div'));
+        container.find('> div > div').remove();
+        sel.prependTo(container.find('> div'));
+        
+        new SlimSelect({ select: container.find('select')[0], placeholder: ' ', addable: getAddNewClosure(container, i), closeOnSelect: false });
+      }
+    }
+
     // Disable native browser form validation in HTML5
     $(formSelector).attr('novalidate', 'novalidate');
     
@@ -207,18 +341,57 @@
 
     // Give currency fields an auto-complete handler
     $(formSelector + ' div.cipform_currency_custom_field input').blur(CIPAPI.forms.AutoCompleteUSD);
-    
-    // For rich text editing we have to initialize and also hook onto the submit button
-    // and move the content back into the text area for validation and delivery.
-    $(formSelector + ' div.cipform_richtext_custom_field textarea').summernote({ height: 300 });
-    $(formSelector + ' :submit').click(function() { 
-      // Take content from rich text editor back to the hidden textarea
-      $(formSelector + 'div.cipform_richtext_custom_field textarea').each(function() {
-        var e = $(this);
-        this.innerHTML = e.code();
-      });
-    });
 
+    // If flatpickr is loaded
+    if ($().flatpickr) {
+      $(formSelector + ' .cipform-datetime-datetime input').flatpickr({ allowInput: true, enableTime: true,  dateFormat: 'Y-m-d H:i:S', time_24hr: true });
+      $(formSelector + ' .cipform-datetime-date input'    ).flatpickr({ allowInput: true, enableTime: false, dateFormat: 'Y-m-d' });
+      $(formSelector + ' .cipform-datetime-time input'    ).flatpickr({ allowInput: true, enableTime: true,  dateFormat: 'H:i:S', noCalendar: true, time_24hr: true });
+
+      // When flatpickr is used we do not render the time zone - web application generally, but maybe mobile some day?  We will go and strip the time
+      // zones off of read only and invisible time fields.  Further complicated by hidden fields not being wrapped in DIVs like other fields means 
+      // we cann use selectors with our custom class names.  L.A.M.E.
+      $(formSelector + ' .cipform_timero_custom_field input').each(function() { var el = $(this); el.val(el.val().replace(/ (\+|\-)\d\d:\d\d$/, '')); });
+      for (var i=0; i<formDefinition.form.length; i++) {
+        if (!formDefinition.form[i].htmlClass.match(/(cipform_invtime_custom_field|cipform_invtimenow_custom_field)/)) continue;
+        
+        var key = formDefinition.form[i].key;
+        $(formSelector + ' input[name="' + key + '"]').each(function() { var el = $(this); el.val(el.val().replace(/ (\+|\-)\d\d:\d\d$/, '')); });
+      }
+    }
+    
+    // If summernote is loaded
+    if ($().summernote) {
+      // For rich text editing we have to initialize and also hook onto the submit button
+      // and move the content back into the text area for validation and delivery.
+      $(formSelector + ' div.cipform_richtext_custom_field textarea').summernote({ height: 300 });
+      $(formSelector + ' :submit').click(function() { 
+        // Take content from rich text editor back to the hidden textarea
+        $(formSelector + 'div.cipform_richtext_custom_field textarea').each(function() {
+          var e = $(this);
+          this.innerHTML = e.code();
+        });
+      });
+    }
+
+    // If trumbowyg editor is loaded
+    if ($().trumbowyg) {
+      $(formSelector + ' div.cipform_richtext_custom_field textarea').trumbowyg({ 
+         svgPath: '/lib/contrib/trumbowyg/ui/icons.svg',
+        resetCss: true,
+            btns: [ 
+              [
+                'formatting',    'strong',       'em',            'del',           'superscript', 
+                'subscript',     'justifyLeft',  'justifyCenter', 'justifyRight',  'justifyFull', 
+                'unorderedList', 'orderedList',  'removeformat' ],
+              [ 'fullscreen' ]
+            ]
+      });
+    }
+
+    // Disable tab focus on readonly text areas
+    $(formSelector + ' textarea[readonly], ' + formSelector + ' input[readonly]').attr('tabindex', '-1');
+    
     // Bind date and time pickers to the picker dialog
     if ($().datetimepicker) {
       // Put the buttons on these bad boys...
@@ -299,11 +472,16 @@
       var gg = utc > 0 ? '-' : '+';
       var th = ('0' + Math.floor(utc / 60)).slice(-2);
       var tm = ('0' + (utc % 60)).slice(-2);
-      var zone = utc == 0 ? 'Z' : (gg + th + ':' + tm);
+      var zone = ' ' + (utc == 0 ? 'Z' : (gg + th + ':' + tm));
+      
+      // If flatpickr is loaded do not render with time zones
+      if ($().flatpickr) {
+        zone = '';
+      }
       
       var time = hh + ':' + ii + ':' + ss;
       var date = yy + '-' + mm + '-' + dd;
-      var full = date + ' ' + time + ' ' + zone;
+      var full = date + ' ' + time + zone;
       
       $(formSelector + ' .cipform_timenow_custom_field input').val(full);
       $(formSelector + ' .cipform_timenowro_custom_field input').val(full);
@@ -314,11 +492,16 @@
     
     // Set the width of multi-select and radio group options to be equal so that if the CSS
     // floats the items they will line up like table cells
-    equalizeElementSizes(formSelector + 'div.cipform_multi_custom_field label.checkbox');
-    equalizeElementSizes(formSelector + 'div.cipform_check_m_custom_field label.checkbox');
-    equalizeElementSizes(formSelector + 'div.cipform_check_s_custom_field label.checkbox');
-    equalizeElementSizes(formSelector + 'div.cipform_check_a_custom_field label.checkbox');
-    equalizeElementSizes(formSelector + 'div.cipform_radio_custom_field label.radio');
+    equalizeElementSizes(formSelector + ' label.checkbox, ' + formSelector + ' label.radio');
+    
+    // Allow radios to deselect by clicking them
+    $(formSelector + ' .cipform_radios label.radio input:radio:checked').data("chk", true);
+    $(formSelector + ' .cipform_radios label.radio input:radio').click(function() {
+      $("input[name='"+$(this).attr("name")+"']:radio").not(this).removeData("chk");
+      $(this).data("chk",!$(this).data("chk"));
+      $(this).prop("checked",$(this).data("chk"));
+      $(this).button('refresh'); // in case you change the radio elements dynamically      
+    });
     
     // A little debug help
     var debug = false;
@@ -496,5 +679,7 @@
               jsonForm: jsonForm
       });
     }
+  
+    return jsonForm;
   }
-})(window);
+})(jQuery, window);

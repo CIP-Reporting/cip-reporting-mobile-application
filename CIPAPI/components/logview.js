@@ -18,7 +18,7 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
-(function(window, undefined) {
+(function($, window, undefined) {
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   if (typeof CIPAPI.components == 'undefined') CIPAPI.components = {};
@@ -40,6 +40,9 @@
     if (typeof config.sortOrder     == 'undefined') config.sortOrder     = 'asc';
     if (typeof config.columnFields  == 'undefined') config.columnFields  = [ 'Report Number', 'Report Type', 'Report Group', 'Start Time', 'End Time' ];
     if (typeof config.summaryFields == 'undefined') config.summaryFields = [ 'Note' ];
+
+    // if (typeof config.deNormField   == 'undefined') config.deNormField   = false;
+
     if (typeof config.viewData      == 'undefined') config.viewData      = { data: { item: [] } };
     if (typeof config.droppable     == 'undefined') config.droppable     = false;
     if (typeof config.header        == 'undefined') config.header        = true;
@@ -52,6 +55,7 @@
     if (typeof config.query         == 'undefined') config.query         = false; // No query by default
     if (typeof config.wellnessCheck == 'undefined') config.wellnessCheck = false;
     if (typeof config.scrollPos     == 'undefined') config.scrollPos     = 0;  // Keep track of scroll Pos on refresh/updates
+    if (typeof config.inspectLogs   == 'undefined') config.inspectLogs   = false;
     
     // Helper function to pad digits for proper sorting
     // 'sort_10_a' < 'sort_9_a' would be incorrect; need it to be 'sort_10_a' < 'sort_09_a'
@@ -122,7 +126,19 @@
         pgn.find('i.logview-previous').click(function() { config.offset = Math.max(config.offset - parseInt(CIPAPI.settings.ITEMSPERPAGE, 10), 0); config.refresh(config.update); });
         pgn.find('i.logview-next').click(function()     { config.offset = Math.min(config.offset + parseInt(CIPAPI.settings.ITEMSPERPAGE, 10), maxOffset()); config.refresh(config.update); });
         pgn.find('i.logview-last').click(function()     { config.offset = maxOffset(); config.refresh(config.update); });
-      }
+
+        if (config.inspectLogs) {
+  		    // Add View Logs button to the controls
+          pgn.prepend('<i class="fa fa-gears view-logs"></i>');
+          pgn.find('i.view-logs').click(function() {
+            $("#cipapi-inpage-logger").css("float", "right")
+                                      .toggle("slow");
+
+      		  var reinit = $('table.table-striped-doublerow').floatThead('destroy');	
+      		  // TODO: reinit();
+          });
+        }
+	    }
       
       // Update the totals
       var offset = parseInt(config.viewData.metadata.pagination.offset, 10);
@@ -273,7 +289,7 @@
           var val = items[j].data[fn];
 
           numVisible += val == '' ? 0 : 1;
-          var extraCss = (val == '') ? ' hidden' : (numVisible > 1 ? ' prefix-delimiter' : '');
+          var extraCss = !val ? ' hidden' : (numVisible > 1 ? ' prefix-delimiter' : '');
           summary += '<span data-field-name="' + config.summaryFields[m] + '" class="summary-field fresh' + extraCss + '"><span class="summary-key">' + key + '</span>: <span class="summary-value">' + val + '</span></span> ';
         }
         row2.find('td').html(summary).addClass(config.summaryClass);
@@ -415,4 +431,4 @@
 
     return config;
   }
-})(window);
+})(jQuery, window);

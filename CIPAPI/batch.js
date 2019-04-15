@@ -18,7 +18,7 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
-(function(window, undefined) {
+(function($, window, undefined) {
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.batch = {};
@@ -97,4 +97,4 @@
     // return promise so that outside code cannot reject/resolve the deferred
     return deferred.promise();
   } // End of batch.GET
-})(window);
+})(jQuery, window);

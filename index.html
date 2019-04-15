@@ -36,12 +36,14 @@
     <link rel="icon" href="./res/favicon.ico" type="image/x-icon" />
 
     <!-- Bootstrap CSS, then CIP, then customer provided -->
+    <link rel="stylesheet" href="./modules/json-form-engine/lib/alpaca/alpaca.min.css" />
     <link rel="stylesheet" href="./lib/bootstrap/css/bootstrap.min.css" />
     <link rel="stylesheet" href="./lib/summernote/dist/summernote.css" />
     <link rel="stylesheet" href="./lib/font-awesome/css/font-awesome.min.css" />
     <link rel="stylesheet" href="./lib/bootstrap-datetimepicker/bootstrap-datetimepicker.css" />
     <link rel="stylesheet" href="./app/style.css" />
     <link rel="stylesheet" href="./app/spinner.css" />
+    <link rel="stylesheet" href="./app/lib/jstree/themes/default/style.min.css" />
     <link rel="stylesheet" href="./app/customize/css/custom.css" />
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -82,8 +84,10 @@
     <script src="./lib/bootstrap-datetimepicker/bootstrap-datetimepicker.js"></script>
     <script src="./lib/jquery.actual.js"></script>
     <script src="./lib/jquery.image-scale.js"></script>
+    <script src="./modules/json-form-engine/lib/handlebars/handlebars.min.js"></script>
     <script src="./lib/bootstrap/js/bootstrap.min.js"></script>
     <script src="./lib/bootbox.min.js"></script>
+    <script src="./modules/json-form-engine/lib/alpaca/alpaca.modified.js"></script>
     <script src="./lib/holder.js"></script>
     <script src="./lib/sprintf.js"></script>
     <script src="./lib/log4javascript/log4javascript.js"></script>
@@ -95,6 +99,7 @@
     <script src="./lib/jQueryRotate.js"></script>
     <script src="./lib/base64.js"></script>
     <script src="./lib/jquery.floatThead.js"></script>
+    <script src="./lib/lz-string.min.js"></script>
     
     <script type="text/javascript">
       // Initialize logger
@@ -163,6 +168,8 @@
     <script src="./app/screens/help.js"></script>
     <script src="./app/screens/settings.js"></script>
     <script src="./app/screens/inventory.js"></script>
+    <script src="./app/screens/olbutton.js"></script>
+    <script src="./app/screens/jsonform.js"></script>
 
     <!-- Application Libraries -->
     <script src="./app/lib/storage.memory.js"></script>
@@ -190,6 +197,9 @@
     <script src="./app/lib/signature.js"></script>
     <script src="./app/lib/inventories.js"></script>
     <script src="./app/lib/elasticlunr.js"></script>
+    <script src="./app/lib/jstree/jstree.min.js"></script>
+    <script src="./app/lib/online.js"></script>
+    <script src="./app/lib/context.js"></script>
     
     <!-- Customer Provided -->
     <script src="./app/customize/js/custom.js"></script>
@@ -198,7 +208,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '1.0.5072',                     // Set by the packaging script to know our own version
+              applicationVersion: '8.10.8',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -228,8 +238,14 @@
                   swipeThreshold: 10,                                 // Number of pixels required to recognize a swipe
                    swipeVelocity: 0.3,                                // Swipe velocity required in PX per MS
                    swipeDebounce: 750,                                // Swipe debounce in MS, 0 for no debounce
+                    defaultRoute: 'main',                             // Default route to main screen
+                    helpOverride: false,                              // Set to custom help markdown or HTML
                      hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
+                     hiddenMenus: [],                                 // The name of any menus to be hidden (Top level menu)
+                 additionalMenus: [],                                 // Additional menus to display to logged in users
                      inventories: { },                                // Collection of inventories to load from the server
+                   onlineButtons: { },                                // Collection of online CIPS buttons (requires internet)
+                       jsonForms: { },                                // Collection of JSON forms
                         apiForms: { }                                 // Should most likely be loaded from the config override integration
                                                                       // In the form of the key is the form integration and the value is the
                                                                       // friendly name to display on the button.  The order controls the order
@@ -244,7 +260,7 @@
       // Are we running in native app or in a browser?
       $(document).ready(function() {
         // Disable the context menu
-        $('body').attr('oncontextmenu', 'return false;');
+//        $('body').attr('oncontextmenu', 'return false;');
         
         if (window.cordova) {
           document.addEventListener("deviceready", function() { 

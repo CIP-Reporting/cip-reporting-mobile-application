@@ -18,7 +18,7 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
-(function(window, undefined) {
+(function($, window, undefined) {
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.fielddeps = {};
@@ -181,7 +181,7 @@
       var fieldRule = rules[i];
 
       // Right now we only support core object fields
-      if (fieldRule.object != 'core') continue;
+      // if (fieldRule.object != 'core') continue;
       
       // If a field name was provided, filter rules by the field ... if no name provided process them all? (Initial Load)
       var encodedFieldName = CIPAPI.forms.asciiToHex(fieldRule.name);
@@ -212,12 +212,27 @@
 
           log.debug('Hiding field ' + fieldRule.hide[j] + ' (' + formName + ')');
           var field = $(info.formSelector + ' .form-control[name=' + formName + ']');
+          var checkbox = false;
+
           if (field.length == 0) {
             // If no match, assume a radio button control
             field = $(info.formSelector + ' input[name=' + formName + ']');
+            if (field.length == 0) {
+              // Fallback to checkboxes then
+              field = $(info.formSelector + ' input[name="' + formName + '[0]"]');
+              checkbox = true;
+            }
           }
 
-          field.val([]); // No value when being hidden
+          if (checkbox) {
+            var div = field.closest('div');
+            for (var x=0; x<div.children().length; x++) {
+              field = $(info.formSelector + ' input[name="' + formName + '['+ x +']"]');
+              field.val([]);  // No value when being hidden
+            }
+          } else {
+            field.val([]); // No value when being hidden
+          }
 
           var container = field.closest('div.form-group');
           
@@ -225,11 +240,22 @@
           container.addClass('hide');
           if (container.hasClass('jsonform-required')) {
             container.removeClass('jsonform-required').addClass('jsonform-was-required');
-            field.removeAttr('required');
+            if (checkbox) {
+              var div = field.closest('div');
+              for (var x=0; x<div.children().length; x++) {
+                field = $(info.formSelector + ' input[name="' + formName + '['+ x +']"]');
+                field.removeAttr('required');
+              }
+            } else {
+              field.removeAttr('required');
+            }
           }
           
           if (info.jsonForm.formDesc.schema.properties[formName])
             info.jsonForm.formDesc.schema.properties[formName].required = false;
+            if (checkbox) {
+              info.jsonForm.formDesc.schema.properties[formName].minItems = 0;
+            }
         }
       }
       
@@ -247,9 +273,16 @@
 
           log.debug('Showing field ' + fieldRule.show[k] + ' (' + formName + ')');
           var field = $(info.formSelector + ' .form-control[name=' + formName + ']');
+          var checkbox = false;
+          
           if (field.length == 0) {
             // If no match, assume a radio button control
             field = $(info.formSelector + ' input[name=' + formName + ']');
+            if (field.length == 0) {
+              // Fallback to checkboxes then
+              field = $(info.formSelector + ' input[name="' + formName + '[0]"]');
+              checkbox = true;
+            }
           }
 
           var container = field.closest('div.form-group');
@@ -258,20 +291,40 @@
           container.removeClass('hide');
           if (container.hasClass('jsonform-was-required')) {
             container.removeClass('jsonform-was-required').addClass('jsonform-required');
-            field.attr('required', 'required');
+            if (checkbox) {
+              var div = field.closest('div');
+              for (var x=0; x<div.children().length; x++) {
+                field = $(info.formSelector + ' input[name="' + formName + '['+ x +']"]');
+                field.attr('required', 'required');
+              }
+            } else {
+              field.attr('required', 'required');
+            }
             
             if (info.jsonForm.formDesc.schema.properties[formName])
               info.jsonForm.formDesc.schema.properties[formName].required = true;
+              if (checkbox) {
+                info.jsonForm.formDesc.schema.properties[formName].minItems = 1;
+              }
           }
           
           // If fieldName is false, this is a first pass full initialization - attempt to set field value
           if (!fieldName && info.jsonForm.formDesc.value[formName]) {
             if (field.length > 1) {
               // Radio group...
-              field.find("[value='" + info.jsonForm.formDesc.value[formName] + "']").attr('checked', 'checked');
+              field.find("[value='" + info.jsonForm.formDesc.value[formName] + "']").prop('checked', true);
             } else {
               // Single form control (input, select, etc)
               field.val(info.jsonForm.formDesc.value[formName]);
+            }
+            if (checkbox) {
+              var div = field.closest('div');
+              for (var x=0; x<div.children().length; x++) {
+                field = $(info.formSelector + ' input[name="' + formName + '['+ x +']"]');
+                if (info.jsonForm.formDesc.value[formName].indexOf(field.siblings().text()) > -1) {
+                  field.prop('checked', true);
+                }
+              }
             }
           }
         }
@@ -309,7 +362,7 @@
           if (!fieldName && info.jsonForm.formDesc.value[formName]) {
             if (field.length > 1) {
               // Radio group...
-              field.find("[value='" + info.jsonForm.formDesc.value[formName] + "']").attr('checked', 'checked');
+              field.find("[value='" + info.jsonForm.formDesc.value[formName] + "']").prop('checked', true);
             } else {
               // Single form control (input, select, etc)
               field.val(info.jsonForm.formDesc.value[formName]);
@@ -319,4 +372,4 @@
       }
     }    
   });
-})(window);
+})(jQuery, window);

@@ -18,7 +18,7 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
-(function(window, undefined) {
+(function($, window, undefined) {
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.router = {};
@@ -48,7 +48,7 @@
     
     // Default to #main
     if (currHash == '') {
-      return CIPAPI.router.goTo('main');
+      return CIPAPI.router.goTo(CIPAPI.config && CIPAPI.config.defaultRoute ? CIPAPI.config.defaultRoute : 'main');
     }
     
     // If this is a new hash, always clear the contents and invoke the handler
@@ -62,8 +62,19 @@
       $(document).trigger('cipapi-unbind');
       $('div#container > *').remove();
 
+      // Put a CSS class on the body tag for styling assistance based on the route...
+      // BUT DO NOT ASSUME WE OWN THE TAG!  Lazy load a data attribute with the original
+      // classes and always append to it.  Greedy use of classes on the body tag makes for
+      // poor integrations it does.
+      var priorCSS = '' + $('body').attr('data-original-classes');
+      if (!priorCSS || priorCSS == 'undefined') {
+        priorCSS = $('body').attr('class') ? $('body').attr('class') : '';
+        $('body').attr('data-original-classes', priorCSS);
+      }
+      if (priorCSS.length) priorCSS += ' ';
+      $('body').attr('class', priorCSS + currHash);
+
       // Let someone else render the screen now
-      $('body').attr('class', currHash);
       $(document).trigger('cipapi-pre-handle', { hash: currHash, params: paramObj });
       $(document).trigger('cipapi-handle-' + currHash, { hash: currHash, params: paramObj });
       $(document).trigger('cipapi-routed');
@@ -151,4 +162,4 @@
   // When the hash changes fire off the router
   $(window).on('hashchange', CIPAPI.router.route);
   
-})(window);
+})(jQuery, window);

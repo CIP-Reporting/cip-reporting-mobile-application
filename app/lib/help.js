@@ -36,7 +36,7 @@
     }
 
     // Default to main
-    return converter.makeHtml(mainHelp);
+    return converter.makeHtml(CIPAPI.config.helpOverride !== false ? CIPAPI.config.helpOverride : mainHelp);
   }
 
   // Login screen help  

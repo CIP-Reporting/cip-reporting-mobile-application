@@ -25,6 +25,28 @@
   
   var log = log4javascript.getLogger("CIPAPI.main");
   
+  // Helper function to decode query parameters
+  function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)")
+    var results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+  }
+
+  // If a token is provided via the URL query parameters pre-load the token as authentication
+  var token = getParameterByName('token');
+  if (token) {
+    CIPAPI.credentials.preload({
+      'host': '',
+      'user': 'N/A',
+      'pass': 'N/A',
+      'token': token
+    });
+  }
+
   var currentCaseUUID = false;
 
   // Main screen
@@ -47,12 +69,21 @@
       $('div#main-content-area form > *').remove();
 
       if (CIPAPI.config.caseModeForm !== false)
-        renderCases(CIPAPI.config.apiForms);
+        renderCases();
       else
-        renderButtons(CIPAPI.config.apiForms, CIPAPI.inventories);
+        renderButtons();
     }
   });
 
+  // Watch for going online
+  $(document).on('cipapi-online', function() {
+    if ($('#main-content-area').length > 0) {
+      if (CIPAPI.config.defaultRoute != 'main') {
+        CIPAPI.router.goTo(CIPAPI.config.defaultRoute);
+      }
+    }
+  });
+  
   // Helper to render the main screen from initial navigation and hash tag updates
   function renderMainScreen(info) {
     log.debug("Rendering main screen");
@@ -63,9 +94,9 @@
     // Show button list
     if (info.params.action == 'list') {
       if (CIPAPI.config.caseModeForm !== false)
-        renderCases(CIPAPI.config.apiForms);
+        renderCases();
       else
-        renderButtons(CIPAPI.config.apiForms, CIPAPI.inventories);
+        renderButtons();
     }
     // Show a form
     else if (info.params.action == 'form') {
@@ -73,7 +104,7 @@
     }
     // Show a case
     else if (info.params.action == 'case') {
-      renderCase(info.params.case, CIPAPI.config.apiForms);
+      renderCase(info.params.case);
     }
     // Barcode?
     else if (info.params.action == 'barcode') {
@@ -139,7 +170,7 @@
   }
   
   // Render a single case (tab buttons)
-  function renderCase(caseOffset, buttonCollection) {
+  function renderCase(caseOffset) {
     log.debug("Rendering case at offset " + caseOffset);
     
     var cases = CIPAPI.casestore.getCases();
@@ -169,7 +200,7 @@
     
     // Output everything EXCEPT the new case button
     var caseHasWorkRemaining = false;
-    $.each(buttonCollection, function(key, val) {
+    $.each(CIPAPI.config.apiForms, function(key, val) {
       if (key == CIPAPI.config.caseModeForm) return;
 
       var childDB = CIPAPI.casestore.getCaseChildrenMetadataDB(caseUUID, key, CIPAPI.config.caseModeAlwaysShowForm);
@@ -296,7 +327,7 @@
   }
   
   // Render case list
-  function renderCases(buttonCollection) {
+  function renderCases() {
     log.debug("Rendering cases");
     
     // Configurable title
@@ -312,7 +343,7 @@
     $('div#main-content-area form').append('<div class="form-button-list"></div>');
     
     // Output new case button
-    $.each(buttonCollection, function(key, val) {
+    $.each(CIPAPI.config.apiForms, function(key, val) {
       if (key != CIPAPI.config.caseModeForm) return;
       var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
       $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6" ><a data-form="' + key + '" class="formbtn btn btn-primary btn-lg btn-custom btn-custom-start-case">' + span + key + '</a></div>');
@@ -368,7 +399,7 @@
   }
   
   // Render form list
-  function renderButtons(buttonCollection, inventoryCollection) {
+  function renderButtons() {
     log.debug("Rendering form button collection");
     
     // Configurable title
@@ -384,28 +415,47 @@
     
     if (CIPAPI.config.enableBarcodeScanner !== false) {
       var title = CIPAPI.translations.translate('Barcode Scanner');
+
+      if (-1 !== $.inArray(title, CIPAPI.config.hiddenForms)) return;
+
       var span = '<span class="glyphicon glyphicon-barcode"></span> ';
       $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="barcode-scanner" class="btn btn-primary btn-lg btn-custom">' + span + title + '</a></div>');
     }
     
     $.each(CIPAPI.config.inventories, function(key, val) {
+      if (-1 !== $.inArray(val.name, CIPAPI.config.hiddenForms)) return;
+
       var span = '<span class="glyphicon ' + val.glyphIcon + '"></span> ';
       $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-inventory="' + val.name + '" class="btn btn-primary btn-lg btn-custom">' + span + val.name + '</a></div>');
     });
     
-    $.each(buttonCollection, function(key, val) {
+    $.each(CIPAPI.config.apiForms, function(key, val) {
       if (-1 !== $.inArray(key, CIPAPI.config.hiddenForms)) return;
 
       var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
       $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-form="' + key + '" class="btn btn-primary btn-lg btn-custom">' + span + key + '</a></div>');
     });
     
+    $.each(CIPAPI.config.onlineButtons, function(key, val) {
+      if (-1 !== $.inArray(val.name, CIPAPI.config.hiddenForms)) return;
+
+      var span = val.icon.match(/^glyphicon/) ? '<span class="glyphicon ' + val.icon + '"></span> ' : '';
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-olbutton="' + val.url + '" class="btn btn-primary btn-lg btn-custom">' + span + val.name + '</a></div>');
+    });
+    
+    $.each(CIPAPI.config.jsonForms, function(key, val) {
+      if (-1 !== $.inArray(val.name, CIPAPI.config.hiddenForms)) return;
+
+      var span = val.Icon.match(/^glyphicon/) ? '<span class="glyphicon ' + val.Icon + '"></span> ' : '';
+      $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-12 col-md-6 col-lg-4" ><a data-json-form="' + val.Name + '" class="btn btn-primary btn-lg btn-custom">' + span + val.Name + '</a></div>');
+    });
+    
     $('div#main-content-area form div div a').each(function() {
       var btn = $(this);
       btn.click(function() {
         var btn = $(this);
-        var form = btn.attr('data-form');
 
+        var form = btn.attr('data-form');
         if (form) {
           return CIPAPI.router.goTo('main', { action: form == 'barcode-scanner' ? 'barcode' : 'form', form: form });
         }
@@ -413,6 +463,16 @@
         var inventory = btn.attr('data-inventory');
         if (inventory) {
           return CIPAPI.router.goTo('inventory', { inventory: inventory });
+        }
+        
+        var olButton = btn.attr('data-olbutton');
+        if (olButton) {
+          return CIPAPI.router.goTo('olbutton', { action: olButton });
+        }
+        
+        var jsonForm = btn.attr('data-json-form');
+        if (jsonForm) {
+          return CIPAPI.router.goTo('jsonform', { action: jsonForm });
         }
       });
     });

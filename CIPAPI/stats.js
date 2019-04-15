@@ -18,7 +18,7 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
-(function(window, undefined) {
+(function($, window, undefined) {
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.stats = {};
@@ -89,4 +89,4 @@
   CIPAPI.stats.state('Application', 'Version', 'Unknown');
   CIPAPI.stats.state('Application', 'Started', started.toLocaleString());
   
-})(window);
+})(jQuery, window);

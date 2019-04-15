@@ -18,7 +18,7 @@
  * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
  */
-(function(window, undefined) {
+(function($, window, undefined) {
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.credentials = {};
@@ -158,7 +158,8 @@
   // Return a base64 encoded SHA-1 hash for the current credential set
   CIPAPI.credentials.getCredentialHash = function() {
     var credentials = CIPAPI.credentials.get();
-    return CryptoJS.SHA1(credentials.host + credentials.user).toString(CryptoJS.enc.Base64);
+    
+    return CryptoJS.SHA1(credentials.token ? credentials.token : (credentials.host + credentials.user)).toString(CryptoJS.enc.Base64);
   }
 
   // When the initialization event fires validate the credentials or go to login
@@ -169,4 +170,4 @@
     localStorage.setItem("lookupEmail", info);
   });
   
-})(window);
+})(jQuery, window);

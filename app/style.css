@@ -19,6 +19,10 @@
  *
  */
 
+html { 
+  height: 100%;
+}
+ 
 body {
   padding-bottom: 10px;
   padding-top: 57px;
@@ -1021,3 +1025,113 @@ div#inventory-item-content-area .cipmobile-item-form-btn {
 div#inventory-item-content-area .cipmobile-item-form-btn span {
   margin-right: 0px;
 }
+
+/* Online Buttons */
+body.olbutton {
+  height: 100%;
+}
+
+body.olbutton div#container {
+  height: 100%;
+}
+
+body.olbutton div#olbutton-content-area {
+  height: 100%;
+}
+
+body.olbutton iframe#cipapi-olbutton-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0px;
+}
+
+/* JSON Forms */
+.cip-json-forms-tree {
+   border: 1px solid black;
+   max-height: 50vh;
+   overflow: auto;
+}
+
+body.jsonform form.form-cip-reporting {
+  padding: 0px;
+}
+
+body.jsonform div.alpaca-wizard-nav .navbar {
+  position: absolute;
+}
+
+
+
+
+.cip-json-forms-left-nav nav.navbar,
+.cip-json-forms-left-nav div.alpaca-wizard-back,
+.cip-json-forms-left-nav ul.navbar-nav {
+  float: left;
+}
+
+.cip-json-forms-left-nav nav.navbar {
+  background-color: #ffffff;
+  border: 0px solid #ffffff;
+}
+
+.cip-json-forms-left-nav div.alpaca-wizard-back {
+  padding: 0px;
+}
+.cip-json-forms-left-nav ul.navbar-nav {
+  margin: 0px;
+}
+
+.cip-json-forms-left-nav ul.navbar-nav li {
+  border-bottom: 1px solid #e7e7e7;
+  border-left: 1px solid #e7e7e7;
+  border-top: 1px solid #e7e7e7;
+  clear: both;
+  height: 55px;
+}
+
+.cip-json-forms-left-nav ul.navbar-nav li div.chevron {
+  background-color: #ffffff;
+}
+
+.cip-json-forms-left-nav ul.navbar-nav li {
+  border-left: 10px solid #e7e7e7;
+  width: 200px;
+}
+
+div.alpaca-wizard-steps, div.alpaca-wizard-progress-bar {
+  margin-left: 230px;
+}
+
+.cip-json-forms-left-nav ul.navbar-nav li.active {
+  border-left: 10px solid #206199;
+}
+
+.cip-json-forms-left-nav ul.navbar-nav li div.title {
+  margin-left: -9px;
+}
+
+.alpaca-wizard .cip-json-forms-left-nav li div.holder {
+  white-space: nowrap;
+  padding-left: 30px;
+  padding-top: 13px;
+}
+
+.alpaca-wizard .cip-json-forms-left-nav li:first-child div.holder {
+  padding-left: 40px;
+}
+
+@media screen and (max-width: 720px) {
+  div.cip-json-forms-left-nav {
+    display: none;
+  }
+  
+  div.alpaca-wizard-steps {
+    margin-left: 10px;
+  }
+  
+  div.alpaca-wizard-progress-bar {
+    margin-left: 0px;
+  }
+}
+
+

@@ -47,6 +47,13 @@
     }
   });
   
+  // Kick send if reports pending when we go back online
+  $(document).on('cipapi-online', function() {
+    if (CIPAPI.reportstore.getNumberOfStoredReports() > 0) {
+      CIPAPI.reportstore.sendReports();
+    }
+  });
+  
   // Try and send when credentials are set / sync
   $(document).on('cipapi-credentials-set', function(event, info) {
     $(document).one('cipapi-rest-inactive', function(event, info) {
@@ -102,6 +109,11 @@
   // Try and send any stored reports
   CIPAPI.reportstore.sendReports = function() {
     CIPAPI.stats.timestamp(statsGroup, 'Last Check');
+    
+    // Do not send if we are offline
+    if (CIPAPI.online.isOffline()) {
+      return;
+    }
     
     // Do not send if we have no reports to send
     if (CIPAPI.reportstore.getNumberOfStoredReports() == 0) {

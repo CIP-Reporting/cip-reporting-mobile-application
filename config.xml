@@ -73,6 +73,11 @@
   <gap:platform name="android" />
   <gap:platform name="ios" />
 
+
+<edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
+  <string>To scan barcodes</string>
+</edit-config>
+
   <!-- Define app icons -->
   <icon src="icon.png" />
 

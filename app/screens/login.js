@@ -127,6 +127,7 @@
       '    <span for="firstname" class="help-block">You must provide a valid email address</span>' +
       '  </div>' +
       '  <button id="form-lookup" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-search"></span> Look Up Account</button>' +
+      '  <button id="form-barcode" class="btn btn-lg btn-primary btn-block btn-custom" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
       '  <a id="form-signin-manual" class="form-signin-control" href="javascript: void(0)">Manual Sign In</a>' +
       '</form>' +
       '<form class="form-signin" id="form-account-password" style="display: none;">' +
@@ -406,6 +407,10 @@
       $('form#form-manual-sign-in input').prop('readonly', true);
       $('button#form-signin').prop('disabled', true);
       $('a#form-account-lookup').hide();
+    });
+    
+    $('button#form-barcode').on('click', function(evt) {
+      CIPAPI.barcode.scan();
     });
   }
   

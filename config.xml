@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "8.10.8">
+  version = "8.10.11">
 
   <name>CIP Reporting</name>
 
@@ -37,7 +37,7 @@
   <preference name="android-build-tool"         value="gradle" />         <!-- android: apparently required to build the barcode scanner plugin -->
   
   <!-- Specify a custom user agent most notably to not output www-authenticate header to iOS under phonegap -->
-  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/8.10.8" />
+  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/8.10.11" />
   
   <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->
   <preference name="permissions" value="none"/>  
@@ -48,17 +48,18 @@
   <feature name="http://api.phonegap.com/1.0/device"/>
   
   <!-- Plugins -->
-  <gap:plugin name="cordova-plugin-camera"          source="npm" />
-  <gap:plugin name="cordova-plugin-device"          source="npm" />
-  <gap:plugin name="cordova-plugin-file"            source="npm" />
-  <gap:plugin name="cordova-plugin-geolocation"     source="npm" />
-  <gap:plugin name="cordova-plugin-splashscreen"    source="npm" />
-  <gap:plugin name="cordova-plugin-vibration"       source="npm" />
-  <gap:plugin name="cordova-plugin-inappbrowser"    source="npm" />
-  <gap:plugin name="cordova-plugin-whitelist"       source="npm" />
-  <gap:plugin name="phonegap-plugin-barcodescanner" source="npm" />
-  <gap:plugin name="cordova-plugin-statusbar"       source="npm" />
-  <gap:plugin name="cordova-plugin-sqlite-2"        source="npm" />
+  <gap:plugin name="cordova-plugin-camera"              source="npm" />
+  <gap:plugin name="cordova-plugin-device"              source="npm" />
+  <gap:plugin name="cordova-plugin-file"                source="npm" />
+  <gap:plugin name="cordova-plugin-geolocation"         source="npm" />
+  <gap:plugin name="cordova-plugin-splashscreen"        source="npm" />
+  <gap:plugin name="cordova-plugin-vibration"           source="npm" />
+  <gap:plugin name="cordova-plugin-inappbrowser"        source="npm" />
+  <gap:plugin name="cordova-plugin-whitelist"           source="npm" />
+  <gap:plugin name="phonegap-plugin-barcodescanner"     source="npm" />
+  <gap:plugin name="cordova-plugin-statusbar"           source="npm" />
+  <gap:plugin name="cordova-plugin-sqlite-2"            source="npm" />
+  <gap:plugin name="cordova-plugin-network-information" source="npm" />
 
   <gap:plugin name="cordova-plugin-media-capture"   source="npm" spec="*">
     <variable name="CAMERA_USAGE_DESCRIPTION"       value="CIP Reporting would like to access the camera." />
@@ -73,10 +74,10 @@
   <gap:platform name="android" />
   <gap:platform name="ios" />
 
-
-<edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
-  <string>To scan barcodes</string>
-</edit-config>
+  <!-- Required for Barcode Scannign Plugin on iOS -->
+  <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
+    <string>To scan barcodes and take photographs</string>
+  </edit-config>
 
   <!-- Define app icons -->
   <icon src="icon.png" />

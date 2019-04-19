@@ -1135,3 +1135,10 @@ div.alpaca-wizard-steps, div.alpaca-wizard-progress-bar {
 }
 
 
+form.cipapi-force-barcode-login div#account-lookup {
+  display: none;
+}
+
+form.cipapi-account-lookup div#barcode-lookup {
+  display: none;
+}

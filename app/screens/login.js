@@ -118,17 +118,24 @@
   // Show the forms
   function renderLogin() {
     var html = '' +
-      '<form class="form-signin" id="form-account-lookup" style="display: none;">' +
-      '  <h2 class="form-signin-heading">Account Look Up</h2>' +
-      '  <p>You must be a customer of CIP Reporting in order to use this application.  You can learn more at <a id="form-visit-cip" href="javascript: void(0)">www.cipreporting.com</a>.</p>' +
-      '  <p>Please help us find your account by entering your email address.  You can select manual sign in if you have been provided credentials.</p>' +
-      '  <div class="form-group">'+
-      '    <input id="form-signin-email" type="email" class="form-control" placeholder="Email Address" autofocus>' +
-      '    <span for="firstname" class="help-block">You must provide a valid email address</span>' +
+      '<form class="form-signin ' + (CIPAPI.config.forceBarcodeLogin ? 'cipapi-force-barcode-login' : 'cipapi-account-lookup') + '" id="form-account-lookup" style="display: none;">' +
+      '  <div id="account-lookup">' +
+      '    <h2 class="form-signin-heading">Account Look Up</h2>' +
+      '    <p>You must be a customer of CIP Reporting in order to use this application.  You can learn more at <a id="form-visit-cip" href="javascript: void(0)">www.cipreporting.com</a>.</p>' +
+      '    <p>Please scan a login barcode or help us find your account by entering your email address.</p>' +
+      '    <div class="form-group">'+
+      '      <input id="form-signin-email" type="email" class="form-control" placeholder="Email Address" autofocus>' +
+      '      <span for="firstname" class="help-block">You must provide a valid email address</span>' +
+      '    </div>' +
+      '    <button id="form-lookup" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-search"></span> Look Up Account</button>' +
+      '    <button id="form-barcode" class="btn btn-lg btn-primary btn-block btn-custom" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
+      '    <a id="form-signin-manual" class="form-signin-control" href="javascript: void(0)">Manual Sign In</a>' +
       '  </div>' +
-      '  <button id="form-lookup" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-search"></span> Look Up Account</button>' +
-      '  <button id="form-barcode" class="btn btn-lg btn-primary btn-block btn-custom" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
-      '  <a id="form-signin-manual" class="form-signin-control" href="javascript: void(0)">Manual Sign In</a>' +
+      '  <div id="barcode-lookup">' +
+      '    <h2 class="form-signin-heading">Please Login</h2>' +
+      '    <p>Please login by scanning your login barcode.</p>' +
+      '    <button id="form-barcode" class="btn btn-lg btn-primary btn-block btn-custom" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
+      '  </div>' +
       '</form>' +
       '<form class="form-signin" id="form-account-password" style="display: none;">' +
       '  <h2 class="form-signin-heading">Password Required</h2>' +

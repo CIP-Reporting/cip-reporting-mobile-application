@@ -28,6 +28,8 @@
   var online = true;
 
   function fireEvents() {
+    log.debug('Online Status Change: ' + (online ? 'ONLINE' : 'OFFLINE'));
+    
     $(document).trigger('cipapi-online-change', online);
     $(document).trigger(online ? 'cipapi-online' : 'cipapi-offline', online);
   }
@@ -38,4 +40,7 @@
   CIPAPI.online.goOnline  = function() { online = true;  fireEvents(); }
   CIPAPI.online.goOffline = function() { online = false; fireEvents(); }
   
+  // Hook onto network events (Cordova only)
+  $(document).on('online',  CIPAPI.online.goOnline);
+  $(document).on('offline', CIPAPI.online.goOffline);
 })(window);

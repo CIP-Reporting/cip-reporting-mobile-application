@@ -127,14 +127,14 @@
       '      <input id="form-signin-email" type="email" class="form-control" placeholder="Email Address" autofocus>' +
       '      <span for="firstname" class="help-block">You must provide a valid email address</span>' +
       '    </div>' +
-      '    <button id="form-lookup" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-search"></span> Look Up Account</button>' +
-      '    <button id="form-barcode" class="btn btn-lg btn-primary btn-block btn-custom" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
+      '    <button id="form-lookup" class="btn btn-lg btn-primary btn-block btn-custom barcode-lookup" type="submit"><span class="glyphicon glyphicon-search"></span> Look Up Account</button>' +
+      '    <button id="form-barcode-lookup" class="btn btn-lg btn-primary btn-block btn-custom" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
       '    <a id="form-signin-manual" class="form-signin-control" href="javascript: void(0)">Manual Sign In</a>' +
       '  </div>' +
       '  <div id="barcode-lookup">' +
       '    <h2 class="form-signin-heading">Please Login</h2>' +
       '    <p>Please login by scanning your login barcode.</p>' +
-      '    <button id="form-barcode" class="btn btn-lg btn-primary btn-block btn-custom" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
+      '    <button id="form-barcode-foced" class="btn btn-lg btn-primary btn-block btn-custom barcode-lookup" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
       '  </div>' +
       '</form>' +
       '<form class="form-signin" id="form-account-password" style="display: none;">' +
@@ -416,7 +416,8 @@
       $('a#form-account-lookup').hide();
     });
     
-    $('button#form-barcode').on('click', function(evt) {
+    $('button.barcode-lookup').on('click', function(evt) {
+      log.debug('Invoking bar code scanner');
       CIPAPI.barcode.scan();
     });
   }

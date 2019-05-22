@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "9.0.0">
+  version = "9.0.22">
 
   <name>CIP Reporting</name>
 
@@ -31,13 +31,13 @@
   <preference name="webviewbounce"              value="true" />           <!-- ios: control whether the screen 'bounces' when scrolled beyond the top -->
   <preference name="prerendered-icon"           value="true" />           <!-- ios: if icon is prerendered, iOS will not apply it's gloss to the app's icon on the user's home screen -->
   <preference name="ios-statusbarstyle"         value="black-opaque" />   <!-- ios: black-translucent will appear black because the PhoneGap webview doesn't go beneath the status bar -->
-  <preference name="android-minSdkVersion"      value="19" />             <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
+  <preference name="android-minSdkVersion"      value="11" />             <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
   <preference name="android-targetSdkVersion"   value="23" />             <!-- android: Target SDK version supported on the target device. -->
   <preference name="android-installLocation"    value="auto" />           <!-- android: app install location. 'auto' will choose. 'internalOnly' is device memory. 'preferExternal' is SDCard. -->
   <preference name="android-build-tool"         value="gradle" />         <!-- android: apparently required to build the barcode scanner plugin -->
   
   <!-- Specify a custom user agent most notably to not output www-authenticate header to iOS under phonegap -->
-  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/9.0.0" />
+  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/9.0.22" />
   
   <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->
   <preference name="permissions" value="none"/>  

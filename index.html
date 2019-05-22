@@ -209,7 +209,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '9.0.0',                     // Set by the packaging script to know our own version
+              applicationVersion: '9.0.22',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server
@@ -241,7 +241,7 @@
                    swipeDebounce: 750,                                // Swipe debounce in MS, 0 for no debounce
                     defaultRoute: 'main',                             // Default route to main screen
                     helpOverride: false,                              // Set to custom help markdown or HTML
-               forceBarcodeLogin: true,                               // Set to true to only allow barcode login on the login screen
+               forceBarcodeLogin: false,                              // Set to true to only allow barcode login on the login screen
                   logoutOnResume: false,                              // Forces a logout on resume (Cordova) event if NOT false, true = always, integer = seconds of debounce
                      hiddenForms: [],                                 // The name of any forms to be hidden (Do not show buttons on the form list page)
                      hiddenMenus: [],                                 // The name of any menus to be hidden (Top level menu)

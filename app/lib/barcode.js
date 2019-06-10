@@ -103,7 +103,7 @@
 
   function handleError(err) {
     log.error(err);
-    CIPAPI.navbar.goBack();
+//    CIPAPI.navbar.goBack();
     
     bootbox.dialog({
       message: err,
@@ -119,6 +119,11 @@
   
   CIPAPI.barcode.scan = function(callback) {
     log.debug('Starting scanner');
+
+    // Register a do-nothing custom back handler
+    CIPAPI.navbar.registerBackHandler(function() { 
+      log.debug('Phony back handler invoked');
+    });
 
     try
     {

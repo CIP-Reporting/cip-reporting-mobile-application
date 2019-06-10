@@ -245,27 +245,34 @@
     });
     
     // Account Lookup Click Handler
-    $('button#form-lookup').on('click', function(evt) {
+    $('button#form-lookup').on('click', function(evt, customLookupURL) {
       evt.preventDefault(); // Stop the form from submitting and causing a page reload
 
-      var emailAddress = $('input#form-signin-email').val();
-      log.debug("Look up email address: " + emailAddress);
+      var url = false;
 
-      if (!emailAddress.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)) {
-        return displayErrorForInput('form-signin-email');
-      }
+      if (!customLookupURL) {
+        var emailAddress = $('input#form-signin-email').val();
+        log.debug("Look up email address: " + emailAddress);
 
-      // Let the world know ... IF it is not the demo email so we preserve the original lookup address
-      if (emailAddress != demoEmail) {
-        $(document).trigger('cipapi-lookup-email', emailAddress);
+        if (!emailAddress.match(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/)) {
+          return displayErrorForInput('form-signin-email');
+        }
+
+        // Let the world know ... IF it is not the demo email so we preserve the original lookup address
+        if (emailAddress != demoEmail) {
+          $(document).trigger('cipapi-lookup-email', emailAddress);
+        }
+        
+        url = 'https://rslookup.cipreporting.com?i=' + escape(emailAddress);
       }
+      else url = customLookupURL;
       
       slideInForm('form-looking-up', function() {
         $(document).trigger('cipapi-rest-active'); // Must simulate due to direct access
         log.debug("Creating look up request");
         
         // Try and lookup the account details
-        $.ajax({ url: 'https://rslookup.cipreporting.com?i=' + escape(emailAddress), timeout: 30000, dataType: 'json' }).done(function (cfg) {
+        $.ajax({ url: url, timeout: 30000, dataType: 'json' }).done(function (cfg) {
           try {
             log.debug("Look up response received: " + cfg);
             
@@ -427,22 +434,35 @@
         if (parser.protocol != 'https:')                    throw 'Invalid QR Code Protocol: '  + parser.protocol;
         if (parser.hostname != 'www.cipreporting.com')      throw 'Invalid QR Code Host Name: ' + parser.hostname;
 
-        // CIP Form QR Code Scan?
-        if (parser.pathname.lastIndexOf('/login', 0) !== 0) throw 'Invalid pathname: ' + parser.pathname;
+        // CIP Login QR Code Scan?
+        if (parser.pathname.lastIndexOf('/login', 0) === 0) {
+          var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
+          
+          console.log(credentials);
 
-        var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
-        
-        console.log(credentials);
+          // Set the credentials and verify
+          slideInForm('form-account-in-progress', function(id) {
+            CIPAPI.credentials.set(credentials);
+          });
+          
+          // Avoid UI confusion by disabling things while we wait...
+          $('form#form-manual-sign-in input').prop('readonly', true);
+          $('button#form-signin').prop('disabled', true);
+          $('a#form-account-lookup').hide();
+        }
+          
+        // CIP Lookup QR Code Scan?
+        else if (parser.pathname.lastIndexOf('/lookup', 0) === 0) {
+          var info = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
 
-        // Set the credentials and verify
-        slideInForm('form-account-in-progress', function(id) {
-          CIPAPI.credentials.set(credentials);
-        });
+          var url = info['host'] + '/plugins/cipcore/lookup_mobile_token.php?_d=' + 
+            escape(info['d']) + '&token=' + escape(info['token']);
+
+          $('button#form-lookup').trigger('click', url);
+        }
         
-        // Avoid UI confusion by disabling things while we wait...
-        $('form#form-manual-sign-in input').prop('readonly', true);
-        $('button#form-signin').prop('disabled', true);
-        $('a#form-account-lookup').hide();
+        else throw 'Invalid pathname: ' + parser.pathname;
+
       });
     });
   }

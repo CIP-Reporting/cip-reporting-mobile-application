@@ -3,7 +3,7 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "9.0.27">
+  version = "9.0.28">
 
   <name>CIP Reporting</name>
 
@@ -37,7 +37,7 @@
   <preference name="android-build-tool"         value="gradle" />         <!-- android: apparently required to build the barcode scanner plugin -->
   
   <!-- Specify a custom user agent most notably to not output www-authenticate header to iOS under phonegap -->
-  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/9.0.27" />
+  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/9.0.28" />
   
   <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->
   <preference name="permissions" value="none"/>  

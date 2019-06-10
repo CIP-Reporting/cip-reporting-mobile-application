@@ -70,7 +70,7 @@
   // This beast was taken (and modified) from Stack Overflow
   //
   // http://stackoverflow.com/questions/8486099/how-do-i-parse-a-url-query-parameters-in-javascript
-  CIPAPI.barcode.getJsonFromUrl(query) {
+  CIPAPI.barcode.getJsonFromUrl = function(query) {
     var result = {};
   
     query.split("&").forEach(function(part) {

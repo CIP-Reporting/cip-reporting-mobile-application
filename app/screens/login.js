@@ -418,7 +418,32 @@
     
     $('button.barcode-lookup').on('click', function(evt) {
       log.debug('Invoking bar code scanner');
-      CIPAPI.barcode.scan();
+      CIPAPI.barcode.scan(function(url) {
+        log.debug('Decoding URL: ' + url);
+
+        var parser = document.createElement('a');
+        parser.href = url;
+
+        if (parser.protocol != 'https:')                    throw 'Invalid QR Code Protocol: '  + parser.protocol;
+        if (parser.hostname != 'www.cipreporting.com')      throw 'Invalid QR Code Host Name: ' + parser.hostname;
+
+        // CIP Form QR Code Scan?
+        if (parser.pathname.lastIndexOf('/login', 0) !== 0) throw 'Invalid pathname: ' + parser.pathname;
+
+        var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
+        
+        console.log(credentials);
+
+        // Set the credentials and verify
+        slideInForm('form-account-in-progress', function(id) {
+          CIPAPI.credentials.set(credentials);
+        });
+        
+        // Avoid UI confusion by disabling things while we wait...
+        $('form#form-manual-sign-in input').prop('readonly', true);
+        $('button#form-signin').prop('disabled', true);
+        $('a#form-account-lookup').hide();
+      });
     });
   }
   

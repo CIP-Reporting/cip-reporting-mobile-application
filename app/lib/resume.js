@@ -176,7 +176,7 @@
 
   // Show the lock screen
   CIPAPI.resume.showLockScreen = function() {
-    if ($('div#cipapi-lock-screen.locked') > 0) {
+    if ($('div#cipapi-lock-screen.locked').length > 0) {
       log.debug('Lock screen already visible');
       return;
     }

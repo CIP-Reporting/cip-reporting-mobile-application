@@ -51,14 +51,20 @@
   });
   
   // Rotate a form into view
-  function slideInForm(id, callback) {
+  function slideInForm(id, callback, focusNothing) {
     log.debug('Sliding in ' + id);
     
     $('.failed-validation').removeClass('failed-validation');
     
     $('form.form-signin:visible').fadeOut(100, function() {
       $('form#' + id).fadeIn(100, function() {
-        $('form#' + id + ' input:first').focus();
+        if (focusNothing) {
+          var tmp = document.createElement('input');
+          document.body.appendChild(tmp);
+          tmp.focus();
+          document.body.removeChild();          
+        }
+        else $('form#' + id + ' input:first').focus();
         
         if (typeof callback == 'function') {
           callback(id);
@@ -126,7 +132,7 @@
       '    <p>You must be a customer of CIP Reporting in order to use this application.  You can learn more at <a id="form-visit-cip" href="javascript: void(0)">www.cipreporting.com</a>.</p>' +
       '    <p>Please scan a login barcode or help us find your account by entering your email address.</p>' +
       '    <div class="form-group">'+
-      '      <input id="form-signin-email" type="email" class="form-control" placeholder="Email Address" autofocus>' +
+      '      <input id="form-signin-email" type="email" class="form-control" placeholder="Email Address">' +
       '      <span class="help-block">You must provide a valid email address</span>' +
       '    </div>' +
       '    <button id="form-lookup" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-search"></span> Look Up Account</button>' +
@@ -160,7 +166,7 @@
       '  <p>You must be a customer of CIP Reporting in order to use this application.  You can learn more at <a href="http://www.cipreporting.com">www.cipreporting.com</a>.</p>' +
       '  <p>Please enter the full credential set provided to you in order to continue.  You can select account look up to if you do not have credentials.</p>' +
       '  <div class="form-group">'+
-      '    <input id="form-signin-host" type="text" autocorrect="off" autocapitalize="none" class="form-control" placeholder="Server URL" autofocus>' +
+      '    <input id="form-signin-host" type="text" autocorrect="off" autocapitalize="none" class="form-control" placeholder="Server URL">' +
       '    <span class="help-block">You must provide a valid server URL</span>' +
       '  </div>' +
       '  <div class="form-group">'+
@@ -223,23 +229,23 @@
     $('#form-account-lookup').fadeIn(100);
     
     // Controls to flip flop sign in mode
-    $('a#form-signin-manual' ).click(function () { slideInForm('form-manual-sign-in');   });
-    $('a#form-account-lookup').click(function () { slideInForm('form-account-lookup');   });
+    $('a#form-signin-manual' ).on('click', function () { slideInForm('form-manual-sign-in'); });
+    $('a#form-account-lookup').on('click', function () { slideInForm('form-account-lookup', false, true); });
 
     // Try to look up account again
-    $('button#form-try-again').click(function (evt) { 
+    $('button#form-try-again').on('click', function (evt) { 
       evt.preventDefault(); // Stop the form from submitting and causing a page reload
-      slideInForm('form-account-lookup');
+      slideInForm('form-account-lookup', false, true);
     });
 
     // Already have a password    
-    $('button#form-no-new-pw').click(function (evt) { 
+    $('button#form-no-new-pw').on('click', function (evt) { 
       evt.preventDefault(); // Stop the form from submitting and causing a page reload
       slideInForm('form-account-password');
     });
     
     // Open CIP Reporting link
-    $('a#form-visit-cip').click(function () { window.open('http://www.cipreporting.com', '_system')});
+    $('a#form-visit-cip').on('click', function () { window.open('http://www.cipreporting.com', '_system')});
 
     $('button#form-quick-demo').on('click', function(evt) {
       evt.preventDefault(); // Stop the form from submitting and causing a page reload
@@ -249,7 +255,7 @@
       slideInForm('form-account-lookup', function(id) {
         $('#form-signin-email').val(demoEmail);
         $('button#form-lookup').click();
-      });      
+      }, true);
     });
     
     // Account Lookup Click Handler

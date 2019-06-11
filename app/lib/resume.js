@@ -176,6 +176,11 @@
 
   // Show the lock screen
   CIPAPI.resume.showLockScreen = function() {
+    if ($('div#cipapi-lock-screen.locked') > 0) {
+      log.debug('Lock screen already visible');
+      return;
+    }
+    
     if (CIPAPI.config.forceLogoutOnLock === true) {
       log.debug('Forcing logout from lock screen');
       return CIPAPI.credentials.reset();

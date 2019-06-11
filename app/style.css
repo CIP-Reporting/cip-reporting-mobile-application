@@ -89,6 +89,53 @@ i#navbar-pending-reports {
 /****************************
  ** Logger...
  ***************************/
+div#cipapi-lock-screen button {
+  padding-left: 10px;
+  margin-top: 10px;
+}
+
+div#cipapi-lock-screen.unlocked {
+  display: none;
+}
+
+div#cipapi-lock-screen.locked {
+  position: absolute;
+  background: #fff;
+  opacity: 1.0;
+  height: 100%;
+  width: 100%;
+  left: 0px;
+  top: 0px;
+  
+  z-index: 10000;
+}
+
+div#cipapi-lock-screen-content {
+  margin-left: -165px;
+  position: absolute;
+  margin-top: 50px;
+  padding: 15px;
+  width: 330px;
+  left: 50%;
+}
+
+div#cipapi-lock-screen-content div span.help-block {
+  display: none;
+}
+
+div#cipapi-lock-screen-content div.failed-validation input {
+  border: 1px solid red;
+}
+
+div#cipapi-lock-screen-content div.failed-validation span.help-block {
+  font-weight: bold;
+  display: block;
+  color: #f44;
+}
+
+/****************************
+ ** Logger...
+ ***************************/
 div#cipapi-inpage-logger {
   position: absolute; 
   padding-top: 57px;
@@ -179,7 +226,7 @@ div.initializing p.lead {
   z-index: 2;
 }
 
-.form-signin div span {
+.form-signin div span.help-block {
   display: none;
 }
 
@@ -187,7 +234,7 @@ div.initializing p.lead {
   border: 1px solid red;
 }
 
-.form-signin div.failed-validation span {
+.form-signin div.failed-validation span.help-block {
   font-weight: bold;
   display: block;
   color: #f44;
@@ -1142,3 +1189,4 @@ form.cipapi-force-barcode-login div#account-lookup {
 form.cipapi-account-lookup div#barcode-lookup {
   display: none;
 }
+

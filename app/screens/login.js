@@ -67,9 +67,11 @@
     });
   }
   
-  // A little helper class
+  // A little helper
   function displayErrorForInput(id) {
     log.debug('Display error for input ' + id);
+
+    $('.form-signin .failed-validation').removeClass('failed-validation');
 
     $('#' + id).parent().addClass('failed-validation');
     $('.failed-validation input:first').focus();
@@ -125,16 +127,22 @@
       '    <p>Please scan a login barcode or help us find your account by entering your email address.</p>' +
       '    <div class="form-group">'+
       '      <input id="form-signin-email" type="email" class="form-control" placeholder="Email Address" autofocus>' +
-      '      <span for="firstname" class="help-block">You must provide a valid email address</span>' +
+      '      <span class="help-block">You must provide a valid email address</span>' +
       '    </div>' +
       '    <button id="form-lookup" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-search"></span> Look Up Account</button>' +
-      '    <button id="form-barcode-lookup" class="btn btn-lg btn-primary btn-block btn-custom barcode-lookup" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
+      '    <div class="form-group">'+
+      '      <button id="form-barcode-lookup" class="btn btn-lg btn-primary btn-block btn-custom barcode-lookup" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
+      '      <span class="help-block">You must provide a valid login code</span>' +
+      '    </div>' +
       '    <a id="form-signin-manual" class="form-signin-control" href="javascript: void(0)">Manual Sign In</a>' +
       '  </div>' +
       '  <div id="barcode-lookup">' +
       '    <h2 class="form-signin-heading">Please Login</h2>' +
       '    <p>Please login by scanning your login barcode.</p>' +
-      '    <button id="form-barcode-forced" class="btn btn-lg btn-primary btn-block btn-custom barcode-lookup" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
+      '    <div class="form-group">'+
+      '      <button id="form-barcode-forced" class="btn btn-lg btn-primary btn-block btn-custom barcode-lookup" type="button"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
+      '      <span class="help-block">You must provide a valid login code</span>' +
+      '    </div>' +
       '  </div>' +
       '</form>' +
       '<form class="form-signin" id="form-account-password" style="display: none;">' +
@@ -142,7 +150,7 @@
       '  <p>Success! Your account was located.  Please enter your password to continue.</p>' +
       '  <div class="form-group">'+
       '    <input id="form-signin-pass-proxy" type="password" class="form-control" placeholder="Password" required>' +
-      '    <span for="firstname" class="help-block">You must provide a password</span>' +
+      '    <span class="help-block">You must provide a password</span>' +
       '  </div>' +
       '  <button id="form-signin-proxy" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-log-in"></span> Sign in</button>' +
       '  <a id="form-account-lookup" class="form-signin-control" href="javascript: void(0)">Account Look Up</a>' +
@@ -153,15 +161,15 @@
       '  <p>Please enter the full credential set provided to you in order to continue.  You can select account look up to if you do not have credentials.</p>' +
       '  <div class="form-group">'+
       '    <input id="form-signin-host" type="text" autocorrect="off" autocapitalize="none" class="form-control" placeholder="Server URL" autofocus>' +
-      '    <span for="firstname" class="help-block">You must provide a valid server URL</span>' +
+      '    <span class="help-block">You must provide a valid server URL</span>' +
       '  </div>' +
       '  <div class="form-group">'+
       '    <input id="form-signin-user" type="email" class="form-control" placeholder="User ID">' +
-      '    <span for="firstname" class="help-block">You must provide a valid user ID</span>' +
+      '    <span class="help-block">You must provide a valid user ID</span>' +
       '  </div>' +
       '  <div class="form-group">'+
       '    <input id="form-signin-pass" type="password" class="form-control" placeholder="Password">' +
-      '    <span for="firstname" class="help-block">You must provide a password</span>' +
+      '    <span class="help-block">You must provide a password</span>' +
       '  </div>' +
       '  <button id="form-signin" class="btn btn-lg btn-primary btn-block btn-custom" type="submit"><span class="glyphicon glyphicon-log-in"></span> Sign in</button>' +
       '  <a id="form-account-lookup" class="form-signin-control" href="javascript: void(0)">Account Look Up</a>' +
@@ -425,20 +433,25 @@
     
     $('button.barcode-lookup').on('click', function(evt) {
       log.debug('Invoking bar code scanner');
+      
+      var btnId = $(this).attr('id');
+
       CIPAPI.barcode.scan(function(url) {
         log.debug('Decoding URL: ' + url);
 
         var parser = document.createElement('a');
         parser.href = url;
 
-        if (parser.protocol != 'https:')                    throw 'Invalid QR Code Protocol: '  + parser.protocol;
-        if (parser.hostname != 'www.cipreporting.com')      throw 'Invalid QR Code Host Name: ' + parser.hostname;
+        if (parser.protocol != 'https:')               return displayErrorForInput(btnId);
+        if (parser.hostname != 'www.cipreporting.com') return displayErrorForInput(btnId);
 
         // CIP Login QR Code Scan?
         if (parser.pathname.lastIndexOf('/login', 0) === 0) {
           var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
           
           console.log(credentials);
+
+          $(document).trigger('cipapi-login-qrcode-lookup-by-token', credentials['token']);
 
           // Set the credentials and verify
           slideInForm('form-account-in-progress', function(id) {
@@ -458,11 +471,12 @@
           var url = info['host'] + '/plugins/cipcore/lookup_mobile_token.php?_d=' + 
             escape(info['d']) + '&token=' + escape(info['token']);
 
+          $(document).trigger('cipapi-login-qrcode-lookup-by-token', info['token']);
+
           $('button#form-lookup').trigger('click', url);
         }
         
-        else throw 'Invalid pathname: ' + parser.pathname;
-
+        else return displayErrorForInput(btnId);
       });
     });
   }

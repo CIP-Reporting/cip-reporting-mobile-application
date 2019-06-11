@@ -130,23 +130,29 @@
       CIPAPI.barcode.scan(function(url) {
         log.debug('Decoding URL: ' + url);
 
-        var parser = document.createElement('a');
-        parser.href = url;
+        try {
+          var parser = document.createElement('a');
+          parser.href = url;
 
-        if (parser.protocol != 'https:')               return displayErrorForInput('lock-screen-barcode');
-        if (parser.hostname != 'www.cipreporting.com') return displayErrorForInput('lock-screen-barcode');
+          if (parser.protocol != 'https:')               throw "Bad namespace protocol";
+          if (parser.hostname != 'www.cipreporting.com') throw "Bad namespace";
 
-        // CIP Login QR Code Scan?
-        if (parser.pathname.lastIndexOf('/login',  0) === 0 || 
-            parser.pathname.lastIndexOf('/lookup', 0) === 0) {
-          var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
-          
-          if (credentials['token'] === lastQRToken) {
-            return CIPAPI.resume.hideLockScreen();
+          // CIP Login QR Code Scan?
+          if (parser.pathname.lastIndexOf('/login',  0) === 0 || 
+              parser.pathname.lastIndexOf('/lookup', 0) === 0) {
+            var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
+            
+            if (credentials['token'] === lastQRToken) {
+              return CIPAPI.resume.hideLockScreen();
+            }
+            
+            throw "Invalid token";
           }
         }
-        
-        displayErrorForInput('lock-screen-barcode');
+        catch (err) {
+          log.error(err);
+          displayErrorForInput('lock-screen-barcode');
+        }
       });
     });
     

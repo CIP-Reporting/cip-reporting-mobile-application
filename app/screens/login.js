@@ -439,44 +439,50 @@
       CIPAPI.barcode.scan(function(url) {
         log.debug('Decoding URL: ' + url);
 
-        var parser = document.createElement('a');
-        parser.href = url;
+        try {
+          var parser = document.createElement('a');
+          parser.href = url;
 
-        if (parser.protocol != 'https:')               return displayErrorForInput(btnId);
-        if (parser.hostname != 'www.cipreporting.com') return displayErrorForInput(btnId);
+          if (parser.protocol != 'https:')               throw "Bad namespace protocol";
+          if (parser.hostname != 'www.cipreporting.com') throw "Bad namespace";
 
-        // CIP Login QR Code Scan?
-        if (parser.pathname.lastIndexOf('/login', 0) === 0) {
-          var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
+          // CIP Login QR Code Scan?
+          if (parser.pathname.lastIndexOf('/login', 0) === 0) {
+            var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
+            
+            console.log(credentials);
+
+            $(document).trigger('cipapi-login-qrcode-lookup-by-token', credentials['token']);
+
+            // Set the credentials and verify
+            slideInForm('form-account-in-progress', function(id) {
+              CIPAPI.credentials.set(credentials);
+            });
+            
+            // Avoid UI confusion by disabling things while we wait...
+            $('form#form-manual-sign-in input').prop('readonly', true);
+            $('button#form-signin').prop('disabled', true);
+            $('a#form-account-lookup').hide();
+          }
+            
+          // CIP Lookup QR Code Scan?
+          else if (parser.pathname.lastIndexOf('/lookup', 0) === 0) {
+            var info = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
+
+            var url = info['host'] + '/plugins/cipcore/lookup_mobile_token.php?_d=' + 
+              escape(info['d']) + '&token=' + escape(info['token']);
+
+            $(document).trigger('cipapi-login-qrcode-lookup-by-token', info['token']);
+
+            $('button#form-lookup').trigger('click', url);
+          }
           
-          console.log(credentials);
-
-          $(document).trigger('cipapi-login-qrcode-lookup-by-token', credentials['token']);
-
-          // Set the credentials and verify
-          slideInForm('form-account-in-progress', function(id) {
-            CIPAPI.credentials.set(credentials);
-          });
-          
-          // Avoid UI confusion by disabling things while we wait...
-          $('form#form-manual-sign-in input').prop('readonly', true);
-          $('button#form-signin').prop('disabled', true);
-          $('a#form-account-lookup').hide();
+          else throw "Not a valid QR code";
         }
-          
-        // CIP Lookup QR Code Scan?
-        else if (parser.pathname.lastIndexOf('/lookup', 0) === 0) {
-          var info = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
-
-          var url = info['host'] + '/plugins/cipcore/lookup_mobile_token.php?_d=' + 
-            escape(info['d']) + '&token=' + escape(info['token']);
-
-          $(document).trigger('cipapi-login-qrcode-lookup-by-token', info['token']);
-
-          $('button#form-lookup').trigger('click', url);
+        catch (err) {
+          log.error(err);
+          displayErrorForInput(btnId);
         }
-        
-        else return displayErrorForInput(btnId);
       });
     });
   }

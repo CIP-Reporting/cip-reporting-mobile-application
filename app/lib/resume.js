@@ -141,12 +141,12 @@
             parser.pathname.lastIndexOf('/lookup', 0) === 0) {
           var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
           
-          if (credentials['token'] !== lastQRToken) throw 'Login code does not match for the current user';
-          
-          CIPAPI.resume.hideLockScreen();
+          if (credentials['token'] === lastQRToken) {
+            return CIPAPI.resume.hideLockScreen();
+          }
         }
         
-        else return displayErrorForInput('lock-screen-barcode');
+        displayErrorForInput('lock-screen-barcode');
       });
     });
     

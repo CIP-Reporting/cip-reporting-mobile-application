@@ -230,7 +230,7 @@
 
     // Add a click handler to view the an item if configured
     tbd.find('> tr').click(function() {
-      CIPAPI.router.goTo('inventory', { inventory: info.params.inventory, item: $(this).attr('data-offset') });
+      CIPAPI.router.goTo('inventory', { inventory: info.params.inventory, item: $(this).attr('data-offset'), actions: config.directToActions });
     });
     
     $('div#inventory-content-area #records > table').floatThead();
@@ -302,6 +302,10 @@
         return CIPAPI.router.goTo('main', { action: 'form', form: btn.attr('data-form'), links: config.objectType + '-' + btn.attr('data-objid') });
       });
     });
+    
+    if (config.autoClickSingleAction && $('div#inventory-content-area form div div a').length == 1) {
+      $('div#inventory-content-area form div div a').trigger('click');
+    }
   }
 
   // Render the full inventory  

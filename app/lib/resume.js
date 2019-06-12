@@ -25,10 +25,10 @@
 
   var log = log4javascript.getLogger("CIPAPI.resume");
 
-  var lastLoginOrUnlock = 0;
+  var lastPause    = 0;
   var lastPassword = false;
-  var initialized = false;
-  var lastQRToken = false;
+  var initialized  = false;
+  var lastQRToken  = false;
 
   // A little helper
   function displayErrorForInput(id) {
@@ -50,8 +50,6 @@
 
   // Store last good login time for optional debounce and capture password if applicable
   $(document).on('cipapi-credentials-set', function() {
-    lastLoginOrUnlock = Math.floor(Date.now() / 1000); // Seconds since epoch
-    
     var credentials = CIPAPI.credentials.get();
     if (credentials.pass && credentials.pass != '') {
       log.debug('Last password updated');
@@ -65,8 +63,8 @@
     lastQRToken = token;
   });
 
-  // On resume apply logic for lock screen
-  $(document).on('resume', function() {
+  // On resume apply logic for lock screen (active is iOS specific for unlock while active app)
+  $(document).on('resume active', function() {
     if (CIPAPI.config.lockOnResume === false) {
       return;
     }
@@ -77,17 +75,25 @@
     }
     
     else if (!isNaN(CIPAPI.config.lockOnResume)) {
-      var secondsSinceLastUnlock = Math.floor(Date.now() / 1000) - lastLoginOrUnlock;
+      var secondsSinceLastPause = Math.floor(Date.now() / 1000) - lastPause;
       
-      if (secondsSinceLastUnlock >= CIPAPI.config.lockOnResume) {
-        log.debug('Forcing lock screen on resume with debounce: ' + secondsSinceLastUnlock + ' since last unlock');
+      if (secondsSinceLastPause >= CIPAPI.config.lockOnResume) {
+        log.debug('Forcing lock screen on resume with debounce: ' + secondsSinceLastPause + ' since last pause');
         return CIPAPI.resume.showLockScreen();
       }
       
-      log.debug('Not forcing logout on resume: ' + secondsSinceLastUnlock + ' since last unlock');
+      log.debug('Not forcing logout on resume: ' + secondsSinceLastPause + ' since last pause');
     }
     
     else log.error('Invalid value for lockOnResume');
+  });
+
+  $(document).on('pause resign', function() {
+    if (!CIPAPI.credentials.areValid()) {
+      log.debug('Not logged in - forcing logout');
+      return CIPAPI.credentials.reset();
+    }
+    else lastPause = Math.floor(Date.now() / 1000); // Seconds since epoch
   });
 
   // Always hide the lock screen on the login screen
@@ -216,7 +222,7 @@
   CIPAPI.resume.hideLockScreen = function() {
     $('div#cipapi-lock-screen').removeClass('locked').addClass('unlocked');
     
-    lastLoginOrUnlock = Math.floor(Date.now() / 1000); // Seconds since epoch
+    lastPause = Math.floor(Date.now() / 1000); // Seconds since epoch
   }
   
   // Simulate resume event
@@ -224,4 +230,8 @@
     $(document).trigger('resume');
   }
   
+  // Simulate pause event
+  CIPAPI.resume.forcePause = function() {
+    $(document).trigger('pause');
+  }
 })(window);

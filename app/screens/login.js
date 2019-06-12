@@ -59,12 +59,11 @@
     $('form.form-signin:visible').fadeOut(100, function() {
       $('form#' + id).fadeIn(100, function() {
         if (focusNothing) {
-          var tmp = document.createElement('input');
-          document.body.appendChild(tmp);
-          tmp.focus();
-          document.body.removeChild();          
+          $('.failed-validation *').blur();
         }
-        else $('form#' + id + ' input:first').focus();
+        else {
+          $('form#' + id + ' input:first').focus();
+        }
         
         if (typeof callback == 'function') {
           callback(id);

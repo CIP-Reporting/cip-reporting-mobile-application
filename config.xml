@@ -48,111 +48,104 @@
   <feature name="http://api.phonegap.com/1.0/device"/>
   
   <!-- Plugins -->
-  <gap:plugin name="cordova-plugin-camera"              source="npm" />
-  <gap:plugin name="cordova-plugin-device"              source="npm" />
-  <gap:plugin name="cordova-plugin-file"                source="npm" />
-  <gap:plugin name="cordova-plugin-geolocation"         source="npm" />
-  <gap:plugin name="cordova-plugin-splashscreen"        source="npm" />
-  <gap:plugin name="cordova-plugin-vibration"           source="npm" />
-  <gap:plugin name="cordova-plugin-inappbrowser"        source="npm" />
-  <gap:plugin name="cordova-plugin-whitelist"           source="npm" />
-  <gap:plugin name="phonegap-plugin-barcodescanner"     source="npm" />
-  <gap:plugin name="cordova-plugin-statusbar"           source="npm" />
-  <gap:plugin name="cordova-plugin-sqlite-2"            source="npm" />
-  <gap:plugin name="cordova-plugin-network-information" source="npm" />
+  <plugin name="cordova-plugin-camera"              source="npm" />
+  <plugin name="cordova-plugin-device"              source="npm" />
+  <plugin name="cordova-plugin-file"                source="npm" />
+  <plugin name="cordova-plugin-geolocation"         source="npm" />
+  <plugin name="cordova-plugin-splashscreen"        source="npm" />
+  <plugin name="cordova-plugin-vibration"           source="npm" />
+  <plugin name="cordova-plugin-inappbrowser"        source="npm" />
+  <plugin name="cordova-plugin-whitelist"           source="npm" />
+  <plugin name="phonegap-plugin-barcodescanner"     source="npm" />
+  <plugin name="cordova-plugin-statusbar"           source="npm" />
+  <plugin name="cordova-plugin-sqlite-2"            source="npm" />
+  <plugin name="cordova-plugin-network-information" source="npm" />
 
-  <gap:plugin name="cordova-plugin-media-capture"   source="npm" spec="*">
-    <variable name="CAMERA_USAGE_DESCRIPTION"       value="CIP Reporting would like to access the camera." />
-    <variable name="PHOTOLIBRARY_USAGE_DESCRIPTION" value="CIP Reporting would like to access the library." />  
-  </gap:plugin>
+  <plugin name="cordova-plugin-media-capture"   source="npm" spec="*">
+    <variable name="CAMERA_USAGE_DESCRIPTION"       value="CIP Reporting would like to access the camera for taking photos and barcode scanning." />
+    <variable name="PHOTOLIBRARY_USAGE_DESCRIPTION" value="CIP Reporting would like to access the library for attaching photos." />  
+  </plugin>
 
-  <gap:plugin name="cordova-plugin-customurlscheme" source="npm">
+  <plugin name="cordova-plugin-customurlscheme" source="npm">
     <param name="URL_SCHEME" value="cipreporting" />
-  </gap:plugin>
-
-  <!-- Define platforms -->
-  <gap:platform name="android" />
-  <gap:platform name="ios" />
+  </plugin>
 
   <!-- Required for Barcode Scannign Plugin on iOS -->
   <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
     <string>To scan barcodes and take photographs</string>
   </edit-config>
 
-  <!-- Define app icons -->
-  <icon src="icon.png" />
+  <!-- Define platforms -->
+  <platform name="android">
+    <icon src="res/icon/android/icon-0036.png" density="ldpi" />
+    <icon src="res/icon/android/icon-0048.png" density="mdpi" />
+    <icon src="res/icon/android/icon-0072.png" density="hdpi" />
+    <icon src="res/icon/android/icon-0096.png" density="xhdpi" />
+    <icon src="res/icon/android/icon-0144.png" density="xxhdpi" />
+    <icon src="res/icon/android/icon-0192.png" density="xxxhdpi" />
+    <splash src="res/screen/android/splash-0200-0320.png" density="ldpi" />
+    <splash src="res/screen/android/splash-0320-0480.png" density="mdpi" />
+    <splash src="res/screen/android/splash-0480-0800.png" density="hdpi" />
+    <splash src="res/screen/android/splash-0720-1280.png" density="xhdpi" />
+    <splash src="res/screen/android/splash-0960-1600.png" density="xxhdpi" />
+    <splash src="res/screen/android/splash-1280-1920.png" density="xxxhdpi" />
+    <splash src="res/screen/android/splash-0200-0320.png" density="land-ldpi" />
+    <splash src="res/screen/android/splash-0320-0480.png" density="land-mdpi" />
+    <splash src="res/screen/android/splash-0480-0800.png" density="land-hdpi" />
+    <splash src="res/screen/android/splash-0720-1280.png" density="land-xhdpi" />
+    <splash src="res/screen/android/splash-0960-1600.png" density="land-xxhdpi" />
+    <splash src="res/screen/android/splash-1280-1920.png" density="land-xxxhdpi" />
+    <splash src="res/screen/android/splash-0320-0200.png" density="port-ldpi" />
+    <splash src="res/screen/android/splash-0480-0320.png" density="port-mdpi" />
+    <splash src="res/screen/android/splash-0800-0480.png" density="port-hdpi" />
+    <splash src="res/screen/android/splash-1280-0720.png" density="port-xhdpi" />
+    <splash src="res/screen/android/splash-1600-0960.png" density="port-xxhdpi" />
+    <splash src="res/screen/android/splash-1920-1280.png" density="port-xxxhdpi" />
+  </platform>
 
-  <icon src="res/icon/android/icon-0036.png" density="ldpi"    gap:platform="android" />
-  <icon src="res/icon/android/icon-0048.png" density="mdpi"    gap:platform="android" />
-  <icon src="res/icon/android/icon-0072.png" density="hdpi"    gap:platform="android" />
-  <icon src="res/icon/android/icon-0096.png" density="xhdpi"   gap:platform="android" />
-  <icon src="res/icon/android/icon-0144.png" density="xxhdpi"  gap:platform="android" />
-  <icon src="res/icon/android/icon-0192.png" density="xxxhdpi" gap:platform="android" />
-  
-  <icon src="res/icon/ios/icon-0029.png" width="29"   height="29"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0040.png" width="40"   height="40"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0050.png" width="50"   height="50"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0057.png" width="57"   height="57"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0058.png" width="58"   height="58"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0060.png" width="60"   height="60"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0072.png" width="72"   height="72"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0076.png" width="76"   height="76"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0080.png" width="80"   height="80"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0087.png" width="87"   height="87"   gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0100.png" width="100"  height="100"  gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0114.png" width="114"  height="114"  gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0120.png" width="120"  height="120"  gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0144.png" width="144"  height="144"  gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0152.png" width="152"  height="152"  gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0167.png" width="167"  height="167"  gap:platform="ios" />
-  <icon src="res/icon/ios/icon-0180.png" width="180"  height="180"  gap:platform="ios" />
-  <icon src="res/icon/ios/icon-1024.png" width="1024" height="1024" gap:platform="ios" />
+  <platform name="ios">
+    <icon src="res/icon/ios/icon-0029.png" width="29"   height="29" />
+    <icon src="res/icon/ios/icon-0040.png" width="40"   height="40" />
+    <icon src="res/icon/ios/icon-0050.png" width="50"   height="50" />
+    <icon src="res/icon/ios/icon-0057.png" width="57"   height="57" />
+    <icon src="res/icon/ios/icon-0058.png" width="58"   height="58" />
+    <icon src="res/icon/ios/icon-0060.png" width="60"   height="60" />
+    <icon src="res/icon/ios/icon-0072.png" width="72"   height="72" />
+    <icon src="res/icon/ios/icon-0076.png" width="76"   height="76" />
+    <icon src="res/icon/ios/icon-0080.png" width="80"   height="80" />
+    <icon src="res/icon/ios/icon-0087.png" width="87"   height="87" />
+    <icon src="res/icon/ios/icon-0100.png" width="100"  height="100" />
+    <icon src="res/icon/ios/icon-0114.png" width="114"  height="114" />
+    <icon src="res/icon/ios/icon-0120.png" width="120"  height="120" />
+    <icon src="res/icon/ios/icon-0144.png" width="144"  height="144" />
+    <icon src="res/icon/ios/icon-0152.png" width="152"  height="152" />
+    <icon src="res/icon/ios/icon-0167.png" width="167"  height="167" />
+    <icon src="res/icon/ios/icon-0180.png" width="180"  height="180" />
+    <icon src="res/icon/ios/icon-1024.png" width="1024" height="1024" />
 
-  <!-- Define splash screens -->
-  <gap:splash src="res/screen/android/splash-0200-0320.png" density="ldpi"         gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0320-0480.png" density="mdpi"         gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0480-0800.png" density="hdpi"         gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0720-1280.png" density="xhdpi"        gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0960-1600.png" density="xxhdpi"       gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-1280-1920.png" density="xxxhdpi"      gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0200-0320.png" density="land-ldpi"    gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0320-0480.png" density="land-mdpi"    gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0480-0800.png" density="land-hdpi"    gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0720-1280.png" density="land-xhdpi"   gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0960-1600.png" density="land-xxhdpi"  gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-1280-1920.png" density="land-xxxhdpi" gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0320-0200.png" density="port-ldpi"    gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0480-0320.png" density="port-mdpi"    gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-0800-0480.png" density="port-hdpi"    gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-1280-0720.png" density="port-xhdpi"   gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-1600-0960.png" density="port-xxhdpi"  gap:platform="android" />
-  <gap:splash src="res/screen/android/splash-1920-1280.png" density="port-xxxhdpi" gap:platform="android" />
+    <!-- iPad -->
+    <splash src="res/screen/ios/splash-0768-1024.png" width="768"  height="1024" />
+    <splash src="res/screen/ios/splash-1024-0768.png" width="1024" height="768" />
+    <splash src="res/screen/ios/splash-1536-2048.png" width="1536" height="2048" />
+    <splash src="res/screen/ios/splash-2048-1536.png" width="2048" height="1536" />
 
-  <!-- iPad -->
-  <gap:splash src="res/screen/ios/splash-0768-1024.png" width="768"  height="1024" gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-1024-0768.png" width="1024" height="768"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-1536-2048.png" width="1536" height="2048" gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-2048-1536.png" width="2048" height="1536" gap:platform="ios" />
-
-  <!-- iPhone -->
-  <gap:splash src="res/screen/ios/splash-0320-0480.png" width="320"  height="480"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-0480-0320.png" width="480"  height="320"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-0640-0960.png" width="640"  height="960"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-0960-0640.png" width="960"  height="640"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-0640-1136.png" width="640"  height="1136" gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-1136-0640.png" width="1136" height="640"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-0750-1334.png" width="750"  height="1334" gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-1334-0750.png" width="1334" height="750"  gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-1242-2208.png" width="1242" height="2208" gap:platform="ios" />
-  <gap:splash src="res/screen/ios/splash-2208-1242.png" width="2208" height="1242" gap:platform="ios" />
-
-  <!-- Generic -->
-  <gap:splash src="splash.png" />
+    <!-- iPhone -->
+    <splash src="res/screen/ios/splash-0320-0480.png" width="320"  height="480" />
+    <splash src="res/screen/ios/splash-0480-0320.png" width="480"  height="320" />
+    <splash src="res/screen/ios/splash-0640-0960.png" width="640"  height="960" />
+    <splash src="res/screen/ios/splash-0960-0640.png" width="960"  height="640" />
+    <splash src="res/screen/ios/splash-0640-1136.png" width="640"  height="1136" />
+    <splash src="res/screen/ios/splash-1136-0640.png" width="1136" height="640" />
+    <splash src="res/screen/ios/splash-0750-1334.png" width="750"  height="1334" />
+    <splash src="res/screen/ios/splash-1334-0750.png" width="1334" height="750" />
+    <splash src="res/screen/ios/splash-1242-2208.png" width="1242" height="2208" />
+    <splash src="res/screen/ios/splash-2208-1242.png" width="2208" height="1242" />
+  </platform>
 
   <!-- Enable debuggable target for Android - must be removed for a release build -->
   <!--
-  <gap:config-file platform="android" parent="/manifest">
+  <config-file platform="android" parent="/manifest">
     <application android:debuggable="true" />
-  </gap:config-file>
+  </config-file>
   -->
 </widget>

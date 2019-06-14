@@ -63,6 +63,21 @@
     lastQRToken = token;
   });
 
+  // Handle cold start (boot) with memorized credentials
+  $(document).on('cipapi-metadata-validated', function() {
+    if (CIPAPI.config.lockOnResume === false) {
+      return;
+    }
+    
+    if (!CIPAPI.credentials.areValid()) {
+      log.debug('Not logged in - leaving screen unlocked on boot');
+      return;
+    }
+
+    log.debug('Forcing lock screen on boot');
+    return CIPAPI.resume.showLockScreen();
+  });
+
   // On resume apply logic for lock screen (active is iOS specific for unlock while active app)
   $(document).on('resume active', function() {
     if (CIPAPI.config.lockOnResume === false) {
@@ -75,12 +90,6 @@
     }
     
     else if (!isNaN(CIPAPI.config.lockOnResume)) {
-      if (lastPause == 0) {
-        // lastPause never set means its a new start with credentials ... force a lock
-        log.debug('Forcing lock on fresh start with no lastPause');
-        return CIPAPI.resume.showLockScreen();
-      }
-      
       var secondsSinceLastPause = Math.floor(Date.now() / 1000) - lastPause;
       
       if (secondsSinceLastPause >= CIPAPI.config.lockOnResume) {

@@ -80,7 +80,7 @@
 
   <!-- Define platforms -->
   <platform name="android">
-    <resource-file src="res/icon/android/colors.xml" target="/app/src/main/res/values/colors.xml" />
+    <resource-file src="res/icon/android/colors.xml" target="res/values/colors.xml" />
     
     <icon background="@color/background" foreground="res/icon/android/icon-0036.png" density="ldpi" />
     <icon background="@color/background" foreground="res/icon/android/icon-0048.png" density="mdpi" />

@@ -108,10 +108,10 @@
     try
     {
       // For testing barcode logins
-      // return callback('https://www.cipreporting.com/lookup?host=http%3A%2F%2F10.22.1.35%3A4399&d=test&token=a8f6cae3-37fd-5316-b0a1-74b3086ec213');
+      //return callback('https://www.cipreporting.com/lookup?host=https%3A%2F%2Fcnentdev.trial.cipreporting.com&d=cnentdev&token=b10586cd-495e-5a24-b5d0-504e4d13a08f');
 
       // Test a form QR code
-      // return processCIPFormQRURL('https://www.cipreporting.com/qr/Quality+Incident?Customer+Location=The+Hamptons&Project+Number=12345&Problem+Description=Test&Product+Line=Straight&Part+Numbers=1231231#submit');
+      //return processCIPFormQRURL('https://www.cipreporting.com/qr/Quality+Incident?Customer+Location=The+Hamptons&Project+Number=12345&Problem+Description=Test&Product+Line=Straight&Part+Numbers=1231231#submit');
 
       var hasScanner = true;
       if (hasScanner && typeof cordova == 'undefined') hasScanner = false;

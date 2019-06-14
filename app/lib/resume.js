@@ -28,6 +28,7 @@
   var lastPause   = 0;     // Track last pause
   var initialized = false; // Draw the lock screen on demand
   var justBooted  = true;  // Debounce lock on boot
+  var lastToken   = false; // Cannot set token until credentials are set
 
   // A little helper
   function displayErrorForInput(id) {
@@ -40,6 +41,11 @@
     return 1;
   }
 
+  // If the login screen renders we disregard justBooted which may force a lock screen
+  $(document).on('cipapi-handle-login cipapi-update-login', function() {
+    justBooted = false;
+  });
+
   // Store last good login time for optional debounce and capture password if applicable
   $(document).on('cipapi-credentials-set', function() {
     var credentials = CIPAPI.credentials.get();
@@ -51,12 +57,17 @@
       CIPAPI.storage.removeItem('unlock-password');
       log.debug('Last password removed');
     }
+
+    if (lastToken !== false) {
+      CIPAPI.storage.setItem('unlock-token', lastToken);
+      lastToken = false;
+      log.debug('Last QR token updated');
+    }
   });
 
   // Store last used QR code lookup token for unlock
   $(document).on('cipapi-login-qrcode-lookup-by-token', function(evt, token) {
-    CIPAPI.storage.setItem('unlock-token', token);
-    log.debug('Last QR token updated');
+    lastToken = token;
   });
 
   // Handle cold start (boot) with memorized credentials

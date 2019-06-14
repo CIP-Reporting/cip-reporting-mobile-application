@@ -24,17 +24,20 @@
   <preference name="stay-in-webview"            value="false" />          <!-- all: external links should open in the default browser, 'true' would use the webview the app lives in -->
   <preference name="detect-data-types"          value="true" />           <!-- all: controls whether data types (such as phone no. and dates) are automatically turned into links by the system -->
   <preference name="exit-on-suspend"            value="false" />          <!-- all: if set to true, app will terminate when home button is pressed -->
-  <preference name="auto-hide-splash-screen"    value="false" />          <!-- all: if set to false, the splash screen must be hidden using a JavaScript API -->
-  <preference name="SplashScreen"               value="screen" />         <!-- all: Enable splash screen -->
-  <preference name="SplashScreenDelay"          value="30000" />          <!-- all: control how long the splash screen is displayed -->
-  <preference name="show-splash-screen-spinner" value="false" />          <!-- ios: if set to false, the spinner won't appear on the splash screen during app loading -->
+
   <preference name="webviewbounce"              value="true" />           <!-- ios: control whether the screen 'bounces' when scrolled beyond the top -->
   <preference name="prerendered-icon"           value="true" />           <!-- ios: if icon is prerendered, iOS will not apply it's gloss to the app's icon on the user's home screen -->
   <preference name="ios-statusbarstyle"         value="black-opaque" />   <!-- ios: black-translucent will appear black because the PhoneGap webview doesn't go beneath the status bar -->
+
   <preference name="android-minSdkVersion"      value="19" />             <!-- android: MIN SDK version supported on the target device. MAX version is blank by default. -->
   <preference name="android-targetSdkVersion"   value="23" />             <!-- android: Target SDK version supported on the target device. -->
   <preference name="android-installLocation"    value="auto" />           <!-- android: app install location. 'auto' will choose. 'internalOnly' is device memory. 'preferExternal' is SDCard. -->
   <preference name="android-build-tool"         value="gradle" />         <!-- android: apparently required to build the barcode scanner plugin -->
+
+  <preference name="AutoHideSplashScreen"       value="false" />          <!-- all: if set to false, the splash screen must be hidden using a JavaScript API -->
+  <preference name="SplashScreenDelay"          value="30000" />          <!-- all: control how long the splash screen is displayed -->
+  <preference name="ShowSplashScreenSpinner"    value="false" />          <!-- all: if set to false, the spinner won't appear on the splash screen during app loading -->
+  <preference name="SplashMaintainAspectRatio"  value="true" />           <!-- android: Do not stretch splash screen images -->
   
   <!-- Specify a custom user agent most notably to not output www-authenticate header to iOS under phonegap -->
   <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/9.0.28" />

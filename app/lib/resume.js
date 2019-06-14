@@ -25,11 +25,9 @@
 
   var log = log4javascript.getLogger("CIPAPI.resume");
 
-  var lastPause    = 0;
-  var lastPassword = false;
-  var initialized  = false;
-  var lastQRToken  = false;
-  var justBooted   = true;
+  var lastPause   = 0;     // Track last pause
+  var initialized = false; // Draw the lock screen on demand
+  var justBooted  = true;  // Debounce lock on boot
 
   // A little helper
   function displayErrorForInput(id) {
@@ -42,26 +40,23 @@
     return 1;
   }
 
-  // Clear last QR token and last password on credential reset
-  $(document).on('cipapi-credentials-reset', function() {
-    log.debug('Last password and QR token cleared');
-    lastQRToken = false;
-    lastPassword = false;
-  });
-
   // Store last good login time for optional debounce and capture password if applicable
   $(document).on('cipapi-credentials-set', function() {
     var credentials = CIPAPI.credentials.get();
     if (credentials.pass && credentials.pass != '') {
+      CIPAPI.storage.setItem('unlock-password', credentials.pass);
       log.debug('Last password updated');
-      lastPassword = credentials.pass;
+    }
+    else {
+      CIPAPI.storage.removeItem('unlock-password');
+      log.debug('Last password removed');
     }
   });
 
   // Store last used QR code lookup token for unlock
   $(document).on('cipapi-login-qrcode-lookup-by-token', function(evt, token) {
+    CIPAPI.storage.setItem('unlock-token', token);
     log.debug('Last QR token updated');
-    lastQRToken = token;
   });
 
   // Handle cold start (boot) with memorized credentials
@@ -170,7 +165,7 @@
               parser.pathname.lastIndexOf('/lookup', 0) === 0) {
             var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
             
-            if (credentials['token'] === lastQRToken) {
+            if (credentials['token'] === CIPAPI.storage.getItem('unlock-token')) {
               return CIPAPI.resume.hideLockScreen();
             }
             
@@ -186,7 +181,7 @@
     
     $('button#lock-screen-password-button').on('click', function() {
       var pwField = $('input#lock-screen-password').val();
-      if (pwField !== lastPassword) {
+      if (pwField !== CIPAPI.storage.getItem('unlock-password')) {
         return displayErrorForInput('lock-screen-password');
       }
       
@@ -222,7 +217,7 @@
     $('div#cipapi-lock-screen .failed-validation').removeClass('failed-validation');
     
     // Show or hide password unlock depending on if password is known
-    if (lastPassword !== false) {
+    if (CIPAPI.storage.getItem('unlock-password') !== false) {
       $('input#lock-screen-password').val('');
       
       $('div#lock-screen-password-control').show();

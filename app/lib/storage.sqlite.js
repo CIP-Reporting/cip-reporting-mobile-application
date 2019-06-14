@@ -26,7 +26,7 @@
   
   var log = log4javascript.getLogger("CIPAPI.storage.sqlite");
 
-  if (typeof codova == 'undefined') {
+  if (typeof cordova == 'undefined') {
     log.warn('Storage not available - no cordova engine');
     return;
   }

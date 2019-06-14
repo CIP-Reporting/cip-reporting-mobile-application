@@ -75,6 +75,12 @@
     }
     
     else if (!isNaN(CIPAPI.config.lockOnResume)) {
+      if (lastPause == 0) {
+        // lastPause never set means its a new start with credentials ... force a lock
+        log.debug('Forcing lock on fresh start with no lastPause');
+        return CIPAPI.resume.showLockScreen();
+      }
+      
       var secondsSinceLastPause = Math.floor(Date.now() / 1000) - lastPause;
       
       if (secondsSinceLastPause >= CIPAPI.config.lockOnResume) {

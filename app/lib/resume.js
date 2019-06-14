@@ -29,6 +29,7 @@
   var lastPassword = false;
   var initialized  = false;
   var lastQRToken  = false;
+  var justBooted   = true;
 
   // A little helper
   function displayErrorForInput(id) {
@@ -65,6 +66,12 @@
 
   // Handle cold start (boot) with memorized credentials
   $(document).on('cipapi-metadata-validated', function() {
+    if (!justBooted) {
+      return;
+    }
+    
+    justBooted = false;
+    
     if (CIPAPI.config.lockOnResume === false) {
       return;
     }

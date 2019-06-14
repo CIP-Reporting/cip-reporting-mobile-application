@@ -80,12 +80,15 @@
 
   <!-- Define platforms -->
   <platform name="android">
-    <icon src="res/icon/android/icon-0036.png" density="ldpi" />
-    <icon src="res/icon/android/icon-0048.png" density="mdpi" />
-    <icon src="res/icon/android/icon-0072.png" density="hdpi" />
-    <icon src="res/icon/android/icon-0096.png" density="xhdpi" />
-    <icon src="res/icon/android/icon-0144.png" density="xxhdpi" />
-    <icon src="res/icon/android/icon-0192.png" density="xxxhdpi" />
+    <resource-file src="res/icon/android/colors.xml" target="/app/src/main/res/icon/android/colors.xml" />
+    
+    <icon background="@color/background" foreground="res/icon/android/icon-0036.png" density="ldpi" />
+    <icon background="@color/background" foreground="res/icon/android/icon-0048.png" density="mdpi" />
+    <icon background="@color/background" foreground="res/icon/android/icon-0072.png" density="hdpi" />
+    <icon background="@color/background" foreground="res/icon/android/icon-0096.png" density="xhdpi" />
+    <icon background="@color/background" foreground="res/icon/android/icon-0144.png" density="xxhdpi" />
+    <icon background="@color/background" foreground="res/icon/android/icon-0192.png" density="xxxhdpi" />
+    
     <splash src="res/screen/android/splash-0200-0320.png" density="port-ldpi" />
     <splash src="res/screen/android/splash-0320-0480.png" density="port-mdpi" />
     <splash src="res/screen/android/splash-0480-0800.png" density="port-hdpi" />

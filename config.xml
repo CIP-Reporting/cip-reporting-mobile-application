@@ -63,20 +63,30 @@
   <plugin name="cordova-plugin-statusbar"           source="npm" />
   <plugin name="cordova-plugin-sqlite-2"            source="npm" />
   <plugin name="cordova-plugin-network-information" source="npm" />
+  <plugin name="cordova-plugin-media-capture"       source="npm" />
 
-  <plugin name="cordova-plugin-media-capture"   source="npm" spec="*">
-    <variable name="CAMERA_USAGE_DESCRIPTION"       value="CIP Reporting would like to access the camera for taking photos and barcode scanning." />
-    <variable name="PHOTOLIBRARY_USAGE_DESCRIPTION" value="CIP Reporting would like to access the library for attaching photos." />  
-  </plugin>
+  <!-- Required Permission Descriptions on iOS -->
+  <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
+    <string>To scan barcodes and take photographs for submissions</string>
+  </edit-config>
+  <edit-config target="NSPhotoLibraryUsageDescription" file="*-Info.plist" mode="merge">
+    <string>To attach photos form your image library for submissions</string>
+  </edit-config>
+  <edit-config target="NSLocationAlwaysUsageDescription" file="*-Info.plist" mode="merge">
+    <string>To record location information with submissions</string>
+  </edit-config>
+  <edit-config target="NSLocationWhenInUseUsageDescrion" file="*-Info.plist" mode="merge">
+    <string>To record location information with submissions</string>
+  </edit-config>
 
   <plugin name="cordova-plugin-customurlscheme" source="npm">
     <param name="URL_SCHEME" value="cipreporting" />
   </plugin>
 
-  <!-- Required for Barcode Scannign Plugin on iOS -->
-  <edit-config target="NSCameraUsageDescription" file="*-Info.plist" mode="merge">
-    <string>To scan barcodes and take photographs</string>
-  </edit-config>
+
+  <gap:config-file platform="ios" parent="NSPhotoLibraryUsageDescription">
+    <string>For uploading receipt images</string>
+  </gap:config-file>
 
   <!-- Define platforms -->
   <platform name="android">

@@ -22,7 +22,7 @@
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
 
-  var log = log4javascript.getLogger("CIPAPI.logout");
+  var log = CIPAPI.logger.getLogger("CIPAPI.logout");
 
   $(document).on('cipapi-handle-logout', function(event, info) {
     log.debug("Firing pre-credential reset event on logout");

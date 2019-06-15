@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.images = {};
 
-  var log = log4javascript.getLogger("CIPAPI.images");
+  var log = CIPAPI.logger.getLogger("CIPAPI.images");
   
   var imageStorage = [];
   var reportUUID = false;

@@ -22,7 +22,7 @@
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
 
-  var log = log4javascript.getLogger("CIPAPI.login");
+  var log = CIPAPI.logger.getLogger("CIPAPI.login");
 
   var attemptInProgress = false;
   

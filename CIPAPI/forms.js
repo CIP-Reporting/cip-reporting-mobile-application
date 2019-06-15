@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.forms = {};
 
-  var log = log4javascript.getLogger("CIPAPI.forms");
+  var log = CIPAPI.logger.getLogger("CIPAPI.forms");
 
   function equalizeElementSizes(selector) {
     var widest = 0;

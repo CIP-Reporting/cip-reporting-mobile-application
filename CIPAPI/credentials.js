@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.credentials = {};
 
-  var log = log4javascript.getLogger("CIPAPI.credentials");
+  var log = CIPAPI.logger.getLogger("CIPAPI.credentials");
 
   // Working credentials
   var host  = localStorage.getItem("host");

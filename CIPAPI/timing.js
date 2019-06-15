@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.timing = {};
 
-  var log = log4javascript.getLogger("CIPAPI.timing");
+  var log = CIPAPI.logger.getLogger("CIPAPI.timing");
 
   var startTime = Math.round(new Date().getTime() / 1000);
   

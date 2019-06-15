@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.yabblebox = {};
 
-  var log = log4javascript.getLogger("CIPAPI.yabblebox");
+  var log = CIPAPI.logger.getLogger("CIPAPI.yabblebox");
 
   // Helper to generate GUIDs
   function generateUUID() {

@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.mobileforms = {};
 
-  var log = log4javascript.getLogger("CIPAPI.mobileforms");
+  var log = CIPAPI.logger.getLogger("CIPAPI.mobileforms");
 
   var isLoaded = false;
 

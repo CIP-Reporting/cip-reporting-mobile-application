@@ -67,18 +67,14 @@
     <div id="cipapi-inpage-logger"></div>
     <div id="cipapi-screen-overlay"></div>
     
-    <!-- Weinre Debug Support - Should not be in a release build -->
-    <!--
-    <script id="weinre-debugger" src="http://integrations.cipreporting.com:8081/target/target-script-min.js#cip-reporting-mobile-application"></script>
-    -->
-    
-    <script src="//console.re/connector.js" data-channel="cip-reporting-mobile-application" id="consolerescript"></script>
-
     <!-- Phonegap / Cordova and Plugins -->
     <script src="cordova.js"></script>
     <script src="js/plugins/LaunchMyApp.js"></script>
     
-    <!-- External librarys - jQuery, Bootstrap, log4javascript, etc. -->
+    <!-- Use console.re for console monitoring - do not enable in production! -->
+    <script src="https://console.re/connector.js" data-channel="cip-reporting-mobile-application" id="consolerescript"></script>
+    
+    <!-- External librarys - jQuery, Bootstrap, etc. -->
     <script src="./lib/jquery-1.11.1.min.js"></script>
     <script src="./lib/jsonform-bootstrap3/deps/underscore.js"></script>
     <script src="./lib/jsonform-bootstrap3/deps/opt/jsv.js"></script>
@@ -92,7 +88,6 @@
     <script src="./modules/json-form-engine/lib/alpaca/alpaca.modified.js"></script>
     <script src="./lib/holder.js"></script>
     <script src="./lib/sprintf.js"></script>
-    <script src="./lib/log4javascript/log4javascript.js"></script>
     <script src="./lib/jsonform-bootstrap3/lib/jsonform.js"></script>
     <script src="./lib/summernote/dist/summernote.js"></script>
     <script src="./lib/cryptoJS/rollups/sha1.js"></script>
@@ -103,49 +98,8 @@
     <script src="./lib/jquery.floatThead.js"></script>
     <script src="./lib/lz-string.min.js"></script>
     
-    <script type="text/javascript">
-      // Initialize logger
-      (function() {
-        var consoleAppender = new log4javascript.BrowserConsoleAppender();
-        var patternLayout = new log4javascript.PatternLayout("%d{HH:mm:ss,SSS} %c %-5p - %m{1}%n");
-        consoleAppender.setLayout(patternLayout);
- 
-        var rootLogger = log4javascript.getRootLogger();
-        rootLogger.removeAllAppenders();
-        rootLogger.addAppender(consoleAppender);
-        rootLogger.setLevel(log4javascript.Level.ALL);
-        
-        var inPageAppender = new log4javascript.InPageAppender('cipapi-inpage-logger');
-        patternLayout = new log4javascript.PatternLayout("%c - %m{1}");
-        inPageAppender.setLayout(patternLayout);
-        inPageAppender.setHeight('100%');
-        inPageAppender.setMaxMessages(2500);
-			  rootLogger.addAppender(inPageAppender);
-        
-        // Find in page appender's iframe element and remove tools
-        inPageAppender.addEventListener("load", function() {
-          var iframes = document.getElementsByTagName("iframe");
-          for (var i = 0, len = iframes.length; i < len; ++i) {
-            if (iframes[i].id.indexOf("_InPageAppender_") > -1) {
-              var head = $(iframes[i]).contents().find("head");                
-              head.append($("<link/>", { rel: "stylesheet", href: "./app/logger.css", type: "text/css" }));            
-            
-              var iframeDoc = iframes[i].contentDocument || iframes[i].contentWindow.document;
-              iframeDoc.getElementById("switchesContainer").style.display = "none";
-              iframeDoc.getElementById("commandLine").style.display = "none";
-              
-              // Give a body click call back for hiding the navbar
-              iframeDoc.body.onclick = function() {
-                $(document).trigger('cipapi-logger-body-click');
-              };              
-            }
-          }
-        });
-
-      })();
-    </script>
-
     <!-- CIP CORS API Interface -->
+    <script src="./CIPAPI/logger.js"></script>
     <script src="./CIPAPI/stats.js"></script>
     <script src="./CIPAPI/credentials.js"></script>
     <script src="./CIPAPI/config.js"></script>
@@ -266,7 +220,7 @@
       // Are we running in native app or in a browser?
       $(document).ready(function() {
         // Disable the context menu
-//        $('body').attr('oncontextmenu', 'return false;');
+        $('body').attr('oncontextmenu', 'return false;');
         
         if (window.cordova) {
           document.addEventListener("deviceready", function() { 

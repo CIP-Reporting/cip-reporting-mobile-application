@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.online = {};
 
-  var log = log4javascript.getLogger("CIPAPI.online");
+  var log = CIPAPI.logger.getLogger("CIPAPI.online");
 
   var online = true;
 

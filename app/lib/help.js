@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.help = {};
 
-  var log = log4javascript.getLogger("CIPAPI.help");
+  var log = CIPAPI.logger.getLogger("CIPAPI.help");
 
   var converter = new Markdown.Converter();
   

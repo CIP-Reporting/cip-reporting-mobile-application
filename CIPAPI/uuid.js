@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.uuid = {};
 
-  var log = log4javascript.getLogger("CIPAPI.uuid");
+  var log = CIPAPI.logger.getLogger("CIPAPI.uuid");
 
   CIPAPI.uuid.get = function() {
     // Sign everything with a GUID on each update for doing deltas

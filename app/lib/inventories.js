@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.inventories = [];
 
-  var log = log4javascript.getLogger("CIPAPI.inventories");
+  var log = CIPAPI.logger.getLogger("CIPAPI.inventories");
 
   var isLoaded = false;
 

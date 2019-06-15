@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.usersettings = {};
 
-  var log = log4javascript.getLogger("CIPAPI.usersettings");
+  var log = CIPAPI.logger.getLogger("CIPAPI.usersettings");
 
   var credentialHash = false;
   
@@ -69,7 +69,7 @@
         description: CIPAPI.translations.translate('What storage system to use for storing reports pending transmission'),
                 set: function(vv) { return __set('storageDB', vv); },
               reset: function()   { return __set('storageDB', 'sqlite'); },
-            current: typeof codova == 'undefined' ? 'memory' : 'sqlite', 
+            current: typeof cordova == 'undefined' ? 'memory' : 'sqlite', 
             options: {
               'sqlite': CIPAPI.translations.translate('Use an SQLite database stored in a single file on the device file system (default)'),
                 'file': CIPAPI.translations.translate('Use a JSON database stored in a single file on the device file system'),

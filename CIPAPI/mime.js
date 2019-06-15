@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.mime = {};
 
-  var log = log4javascript.getLogger("CIPAPI.mime");
+  var log = CIPAPI.logger.getLogger("CIPAPI.mime");
 
   var catalog = {};
   

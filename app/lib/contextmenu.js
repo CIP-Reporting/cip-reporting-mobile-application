@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.contextmenu = { };
 
-  var log = log4javascript.getLogger("CIPAPI.contextmenu");
+  var log = CIPAPI.logger.getLogger("CIPAPI.contextmenu");
 
   // Helper function to create the context menu
   function createContextMenu() {

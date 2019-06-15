@@ -29,7 +29,7 @@
   // The rules currently in use, which defaults to serverRules above
   CIPAPI.fielddeps.currentRules = false;
   
-  var log = log4javascript.getLogger("CIPAPI.fielddeps");
+  var log = CIPAPI.logger.getLogger("CIPAPI.fielddeps");
 
   var isLoaded = false;
 

@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.rest = {};
 
-  var log = log4javascript.getLogger("CIPAPI.rest");
+  var log = CIPAPI.logger.getLogger("CIPAPI.rest");
 
   var numTransactions = 0;
   

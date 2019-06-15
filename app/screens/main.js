@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.main = {};
   
-  var log = log4javascript.getLogger("CIPAPI.main");
+  var log = CIPAPI.logger.getLogger("CIPAPI.main");
   
   // Helper function to decode query parameters
   function getParameterByName(name, url) {

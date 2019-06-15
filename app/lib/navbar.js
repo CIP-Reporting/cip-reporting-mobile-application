@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.navbar = {};
 
-  var log = log4javascript.getLogger("CIPAPI.navbar");
+  var log = CIPAPI.logger.getLogger("CIPAPI.navbar");
 
   var oneTimeBackHandler = false;
   var activelySpinning = false;

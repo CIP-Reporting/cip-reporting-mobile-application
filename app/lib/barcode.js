@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.barcode = {};
   
-  var log = log4javascript.getLogger("CIPAPI.barcode");
+  var log = CIPAPI.logger.getLogger("CIPAPI.barcode");
 
   function processCIPFormQRURL(url) {
     log.debug('Decoding URL: ' + url);

@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.dynamiccss = {};
   
-  var log = log4javascript.getLogger("CIPAPI.dynamiccss");
+  var log = CIPAPI.logger.getLogger("CIPAPI.dynamiccss");
 
   // When the configuration is loaded apply any dynamic CSS
   $(document).on('cipapi-config-set', function() {

@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.context = {};
 
-  var log = log4javascript.getLogger("CIPAPI.context");
+  var log = CIPAPI.logger.getLogger("CIPAPI.context");
 
   var context = {};
 

@@ -24,7 +24,7 @@
   if (typeof CIPAPI.storage == 'undefined') CIPAPI.storage = {};
   if (typeof CIPAPI.storage.engines == 'undefined') CIPAPI.storage.engines = {};
 
-  var log = log4javascript.getLogger("CIPAPI.storage.file");
+  var log = CIPAPI.logger.getLogger("CIPAPI.storage.file");
  
   if (typeof cordova == 'undefined') {
     log.warn('Storage not available');

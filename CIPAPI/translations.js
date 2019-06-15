@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.translations = {};
 
-  var log = log4javascript.getLogger("CIPAPI.translations");
+  var log = CIPAPI.logger.getLogger("CIPAPI.translations");
 
   var isLoaded = false;
   

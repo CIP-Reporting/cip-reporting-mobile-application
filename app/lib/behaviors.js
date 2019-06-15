@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.behaviors = { forms: {} };
 
-  var log = log4javascript.getLogger("CIPAPI.behaviors");
+  var log = CIPAPI.logger.getLogger("CIPAPI.behaviors");
 
   // Helper function to debounce events by name and duration
   var debounceEventList = {};

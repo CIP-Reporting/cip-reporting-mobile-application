@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.geolocation = {};
 
-  var log = log4javascript.getLogger("CIPAPI.geolocation");
+  var log = CIPAPI.logger.getLogger("CIPAPI.geolocation");
 
   // Track the current watch for config updates
   var watchHandle = false;

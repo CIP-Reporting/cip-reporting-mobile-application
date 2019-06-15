@@ -24,7 +24,7 @@
   if (typeof CIPAPI.storage == 'undefined') CIPAPI.storage = {};
   if (typeof CIPAPI.storage.engines == 'undefined') CIPAPI.storage.engines = {};
 
-  var log = log4javascript.getLogger("CIPAPI.storage.memory");
+  var log = CIPAPI.logger.getLogger("CIPAPI.storage.memory");
  
   // Simple in memory storage engine
   CIPAPI.storage.engines.memory = {

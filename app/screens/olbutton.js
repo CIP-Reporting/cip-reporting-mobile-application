@@ -22,7 +22,7 @@
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
 
-  var log = log4javascript.getLogger("CIPAPI.olbutton");
+  var log = CIPAPI.logger.getLogger("CIPAPI.olbutton");
 
   function renderOlButton(event, info) {
     if (CIPAPI.online.isOffline()) {

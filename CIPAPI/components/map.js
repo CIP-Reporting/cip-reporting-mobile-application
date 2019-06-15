@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   if (typeof CIPAPI.components == 'undefined') CIPAPI.components = {};
 
-  var log = log4javascript.getLogger("CIPAPI.components.map");
+  var log = CIPAPI.logger.getLogger("CIPAPI.components.map");
 
   // Create a new map object
   CIPAPI.components.map = function(mapId, maxDistance) {

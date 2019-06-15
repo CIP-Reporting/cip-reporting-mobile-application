@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.batch = {};
 
-  var log = log4javascript.getLogger("CIPAPI.batch");
+  var log = CIPAPI.logger.getLogger("CIPAPI.batch");
 
   // GET  
   CIPAPI.batch.GET = function(opts) {

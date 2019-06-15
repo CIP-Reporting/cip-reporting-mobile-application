@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.resume = {};
 
-  var log = log4javascript.getLogger("CIPAPI.resume");
+  var log = CIPAPI.logger.getLogger("CIPAPI.resume");
 
   var lastPause   = 0;     // Track last pause
   var initialized = false; // Draw the lock screen on demand

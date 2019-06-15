@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.router = {};
   
-  var log = log4javascript.getLogger("CIPAPI.router");
+  var log = CIPAPI.logger.getLogger("CIPAPI.router");
 
   var hasRouted = false;
   

@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.stats = {};
 
-  var log = log4javascript.getLogger("CIPAPI.stats");
+  var log = CIPAPI.logger.getLogger("CIPAPI.stats");
 
   // The actual data store
   var statistics = {};

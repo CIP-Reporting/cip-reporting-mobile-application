@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.casestore = {};
 
-  var log = log4javascript.getLogger("CIPAPI.casestore");
+  var log = CIPAPI.logger.getLogger("CIPAPI.casestore");
 
   // If we are not configured into case mode just return early
   if (CIPAPI.config.caseModeForm === false) {

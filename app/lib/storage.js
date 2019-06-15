@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   if (typeof CIPAPI.storage == 'undefined')CIPAPI.storage = {};
 
-  var log = log4javascript.getLogger("CIPAPI.storage");
+  var log = CIPAPI.logger.getLogger("CIPAPI.storage");
  
   var db          = {}; // Start with an empty DB
   var isLoaded    = false;

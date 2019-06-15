@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.settings = {};
 
-  var log = log4javascript.getLogger("CIPAPI.settings");
+  var log = CIPAPI.logger.getLogger("CIPAPI.settings");
 
   var isLoaded = false;
   

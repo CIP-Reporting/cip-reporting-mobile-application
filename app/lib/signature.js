@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.signature = {};
 
-  var log = log4javascript.getLogger("CIPAPI.signature");
+  var log = CIPAPI.logger.getLogger("CIPAPI.signature");
   
   var converter = new Markdown.Converter();
 

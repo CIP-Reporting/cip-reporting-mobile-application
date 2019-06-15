@@ -22,7 +22,7 @@
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
 
-  var log = log4javascript.getLogger("CIPAPI.diagnostics");
+  var log = CIPAPI.logger.getLogger("CIPAPI.diagnostics");
 
   var debuggerLoaded = $('#weinre-debugger').length > 0;
   
@@ -47,12 +47,12 @@
     var html = '';
   
     html += '' +
-      '<a id="cipapi-view-logs" href="#logger" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-list-alt"></span> ' + CIPAPI.translations.translate('View Logs') + '</a>' +
+//      '<a id="cipapi-view-logs" href="#logger" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-list-alt"></span> ' + CIPAPI.translations.translate('View Logs') + '</a>' +
       '<a id="cipapi-factory-reset" href="javascript: void(0)" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-trash"></span> ' + CIPAPI.translations.translate('Factory Reset') + '</a>';
 
     if (false == debuggerLoaded) {
       html += '' +
-        '<a id="cipapi-debug-connect" href="javascript: void(0)" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-wrench"></span> ' + CIPAPI.translations.translate(' Debugger') + '</a>';
+        '<a id="cipapi-debug-connect" href="javascript: void(0)" class="btn btn-primary btn-md btn-custom cipform-diagnostics-btn"><span class="glyphicon glyphicon-wrench"></span> ' + CIPAPI.translations.translate(' Send Logs') + '</a>';
     }
       
     $.each(CIPAPI.stats.fetch(), function(key, val) {
@@ -64,18 +64,19 @@
     // Debuggery...
     $('a#cipapi-debug-connect').click(function() {
       bootbox.dialog({
-        message: CIPAPI.translations.translate('NOTICE: This will attempt to allow a remote connection for diagnostics by CIP Reporting.'),
-        title: CIPAPI.translations.translate('Enable Debugger'),
+        message: CIPAPI.translations.translate('NOTICE: This will attempt to send application logs for diagnostics to CIP Reporting.'),
+        title: CIPAPI.translations.translate('Send Logs'),
         buttons: {
           danger: {
-            label: CIPAPI.translations.translate('Enable Debugger'),
+            label: CIPAPI.translations.translate('Send Logs'),
             className: "btn-danger",
             callback: function() {
               debuggerLoaded = true;
               $('a#cipapi-debug-connect').remove();
               (function(e) {
-                e.setAttribute('src',  'http://integrations.cipreporting.com:8081/target/target-script-min.js#cip-reporting-mobile-application');
-                e.setAttribute('id',   'weinre-debugger');
+                e.setAttribute('src',          'https://console.re/connector.js');
+                e.setAttribute('data-channel', 'cip-reporting-mobile-application');
+                e.setAttribute('id',           'consolerescript');
                 document.getElementsByTagName("body")[0].appendChild(e);
               })(document.createElement("script"));
             }

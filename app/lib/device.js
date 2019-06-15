@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   CIPAPI.device = {};
 
-  var log = log4javascript.getLogger("CIPAPI.device");
+  var log = CIPAPI.logger.getLogger("CIPAPI.device");
 
   CIPAPI.device.cordova  = 'Unknown';
   CIPAPI.device.model    = 'Unknown';

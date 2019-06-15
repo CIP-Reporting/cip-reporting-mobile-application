@@ -22,7 +22,7 @@
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
 
-  var log = log4javascript.getLogger("CIPAPI.jsonform");
+  var log = CIPAPI.logger.getLogger("CIPAPI.jsonform");
 
   // Navigating away have my children clean up after themselves
   $(document).on('cipapi-unbind', function() {

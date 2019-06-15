@@ -22,7 +22,7 @@
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
 
-  var log = log4javascript.getLogger("CIPAPI.inventory");
+  var log = CIPAPI.logger.getLogger("CIPAPI.inventory");
 
   var searchIndex = false;
   

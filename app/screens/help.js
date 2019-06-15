@@ -22,7 +22,7 @@
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
 
-  var log = log4javascript.getLogger("CIPAPI.help");
+  var log = CIPAPI.logger.getLogger("CIPAPI.help");
 
   $(document).on('cipapi-handle-help', function(event, info) {
     $('div#help-content-area').html(CIPAPI.help.getHTML());

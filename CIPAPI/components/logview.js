@@ -23,7 +23,7 @@
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
   if (typeof CIPAPI.components == 'undefined') CIPAPI.components = {};
 
-  var log = log4javascript.getLogger("CIPAPI.components.logview");
+  var log = CIPAPI.logger.getLogger("CIPAPI.components.logview");
 
   // Create a log view control
   CIPAPI.components.logview = function(config) {

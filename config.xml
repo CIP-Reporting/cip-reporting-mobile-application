@@ -3,7 +3,8 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "9.0.28">
+  version = "9.0.28"
+  ios-CFBundleVersion="9.0.28.1">
 
   <name>CIP Reporting</name>
 

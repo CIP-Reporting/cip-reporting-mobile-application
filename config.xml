@@ -4,7 +4,7 @@
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
   version = "9.0.28"
-  ios-CFBundleVersion="9.0.28.1">
+  ios-CFBundleVersion="9.0.28.2">
 
   <name>CIP Reporting</name>
 
@@ -76,7 +76,7 @@
   <edit-config target="NSLocationAlwaysUsageDescription" file="*-Info.plist" mode="merge">
     <string>To record location information with submissions</string>
   </edit-config>
-  <edit-config target="NSLocationWhenInUseUsageDescrion" file="*-Info.plist" mode="merge">
+  <edit-config target="NSLocationWhenInUseUsageDescription" file="*-Info.plist" mode="merge">
     <string>To record location information with submissions</string>
   </edit-config>
 

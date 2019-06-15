@@ -25,10 +25,12 @@
 
   var log = CIPAPI.logger.getLogger("CIPAPI.resume");
 
-  var lastPause   = 0;     // Track last pause
-  var initialized = false; // Draw the lock screen on demand
-  var justBooted  = true;  // Debounce lock on boot
-  var lastToken   = false; // Cannot set token until credentials are set
+  var lastPause    = 0;     // Track last pause
+  var initialized  = false; // Draw the lock screen on demand
+  var justBooted   = true;  // Debounce lock on boot
+
+  var lastToken    = false; // Cannot set token until all metadata validated
+  var lastPassword = false; // Cannot set token until all metadata validated
 
   // A little helper
   function displayErrorForInput(id) {
@@ -42,37 +44,30 @@
   }
 
   // If the login screen renders we disregard justBooted which may force a lock screen
-  $(document).on('cipapi-handle-login cipapi-update-login', function() {
-    justBooted = false;
-  });
+  $(document).on('cipapi-handle-login cipapi-update-login', function() { justBooted = false; });
 
   // Store last good login time for optional debounce and capture password if applicable
-  $(document).on('cipapi-credentials-set', function() {
-    var credentials = CIPAPI.credentials.get();
-    if (credentials.pass && credentials.pass != '') {
-      CIPAPI.storage.setItem('unlock-password', credentials.pass);
-      log.debug('Last password updated');
-    }
-    else {
-      CIPAPI.storage.removeItem('unlock-password');
-      log.debug('Last password removed');
-    }
-
-    if (lastToken !== false) {
-      CIPAPI.storage.setItem('unlock-token', lastToken);
-      lastToken = false;
-      log.debug('Last QR token updated');
-    }
-  });
+  $(document).on('cipapi-credentials-set', function() { var credentials = CIPAPI.credentials.get(); lastPassword = credentials.pass; });
 
   // Store last used QR code lookup token for unlock
-  $(document).on('cipapi-login-qrcode-lookup-by-token', function(evt, token) {
-    lastToken = token;
-  });
+  $(document).on('cipapi-login-qrcode-lookup-by-token', function(evt, token) { lastToken = token; });
 
   // Handle cold start (boot) with memorized credentials
   $(document).on('cipapi-metadata-validated', function() {
+    // No forced lock, but may need to store password and token for unlock
     if (!justBooted) {
+      if (lastPassword !== false) {
+        CIPAPI.storage.setItem('unlock-password', lastPassword);
+        lastPassword = false;
+        log.debug('Last password updated');
+      }
+      
+      if (lastToken !== false) {
+        CIPAPI.storage.setItem('unlock-token', lastToken);
+        lastToken = false;
+        log.debug('Last QR token updated');
+      }
+      
       return;
     }
     

@@ -3,8 +3,14 @@
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:gap = "http://phonegap.com/ns/1.0"
   id = "com.appendio.cipreporting"
-  version = "9.0.28"
-  ios-CFBundleVersion="9.0.28.2">
+  version = "9.0.29"
+  ios-CFBundleVersion="9.0.29.0">
+
+  <!-- NOTE ON APP VERSION ABOVE: The iOS app store may accept the file and then reject for other reasons in which case you
+       must submit the SAME version with a different build ID.  So we added ios-CFBundleVersion which we control manually
+       to create unique build IDs in the eyes of Apple.  I would recommend keeping it at 0 until needed to increment and then
+       likely returning it to 0 after each successful release if it were actually changed.  It is probably harmless to leave
+       at any value. -->
 
   <name>CIP Reporting</name>
 
@@ -41,7 +47,7 @@
   <preference name="SplashMaintainAspectRatio"  value="true" />           <!-- android: Do not stretch splash screen images -->
   
   <!-- Specify a custom user agent most notably to not output www-authenticate header to iOS under phonegap -->
-  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/9.0.28" />
+  <preference name="AppendUserAgent"            value="CIPGAP/CIP Reporting/9.0.29" />
   
   <!-- Build system defaults to asking for all permissions - turn that off and opt in as needed. -->
   <preference name="permissions" value="none"/>  

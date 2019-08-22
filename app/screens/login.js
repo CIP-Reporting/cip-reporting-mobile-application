@@ -367,7 +367,18 @@
           $('input#form-signin-host').val('');
           $('input#form-signin-user').val('');
           $('input#form-signin-pass').val('');
-          slideInForm('form-account-not-found');
+          slideInForm('form-account-lookup');
+
+          bootbox.dialog({
+            message: CIPAPI.translations.translate('Failed to contact server.  Please verify your network configuration.'),
+              title: CIPAPI.translations.translate('Connection Error'),
+            buttons: {
+              success: {
+                    label: '<span class="glyphicon glyphicon-thumbs-down"></span> ' + CIPAPI.translations.translate('Close'),
+                className: "btn btn-lg btn-primary btn-custom",
+              }
+            }
+          });
         }).always(function() {
           $(document).trigger('cipapi-rest-inactive'); // Must simulate due to direct access
           log.debug("Ending look up request");
@@ -455,7 +466,7 @@
           if (parser.pathname.lastIndexOf('/login', 0) === 0) {
             var credentials = CIPAPI.barcode.getJsonFromUrl(parser.search.substr(1));
             
-            console.log(credentials);
+//            console.log(credentials);
 
             $(document).trigger('cipapi-login-qrcode-lookup-by-token', credentials['token']);
 

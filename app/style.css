@@ -99,7 +99,7 @@ div#cipapi-lock-screen.unlocked {
 }
 
 div#cipapi-lock-screen.locked {
-  position: absolute;
+  position: fixed;
   background: #fff;
   opacity: 1.0;
   height: 100%;
@@ -117,6 +117,31 @@ div#cipapi-lock-screen-content {
   padding: 15px;
   width: 330px;
   left: 50%;
+}
+
+div#cipapi-lock-screen-content h2.form-signin-heading {
+  color: red;
+}
+
+div#cipapi-lock-screen-content h3 {
+  text-transform: uppercase;
+  margin: 5px 0px 20px 0px;
+  text-align: center;
+  color: red;
+}
+
+div#cipapi-lock-screen-content p {
+  text-align: justify;
+}
+
+div#cipapi-lock-screen-content p.lock-screen-user-id {
+  text-transform: uppercase;
+  text-align: left;
+}
+
+div#cipapi-lock-screen-content p.lock-screen-user-id span {
+  font-weight: bold;
+  color: red;
 }
 
 div#cipapi-lock-screen-content div span.help-block {

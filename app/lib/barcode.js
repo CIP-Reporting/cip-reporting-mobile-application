@@ -108,7 +108,7 @@
     try
     {
       // For testing barcode logins
-      //return callback('https://www.cipreporting.com/lookup?host=https%3A%2F%2Fcnentdev.trial.cipreporting.com&d=cnentdev&token=b10586cd-495e-5a24-b5d0-504e4d13a08f');
+      //return callback('https://www.cipreporting.com/lookup?host=https%3A%2F%2Fcnentdev2.trial.cipreporting.com&d=cnentdev2&token=30d8c368-461a-5d51-8b38-a8114dedf038');
 
       // Test a form QR code
       //return processCIPFormQRURL('https://www.cipreporting.com/qr/Quality+Incident?Customer+Location=The+Hamptons&Project+Number=12345&Problem+Description=Test&Product+Line=Straight&Part+Numbers=1231231#submit');

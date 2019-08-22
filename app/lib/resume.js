@@ -89,11 +89,13 @@
 
   // On resume apply logic for lock screen (active is iOS specific for unlock while active app)
   $(document).on('resume active', function() {
+    var secondsSinceLastPause = Math.floor(Date.now() / 1000) - lastPause;
+
     if (CIPAPI.config.lockOnResume === false) {
       return;
     }
     
-    else if (mediaCaptured) {
+    else if (mediaCaptured && secondsSinceLastPause < CIPAPI.config.mediaAttachTimeout) {
       log.debug('Not locking due to media capture');
       return;
     }
@@ -104,8 +106,6 @@
     }
     
     else if (!isNaN(CIPAPI.config.lockOnResume)) {
-      var secondsSinceLastPause = Math.floor(Date.now() / 1000) - lastPause;
-      
       if (secondsSinceLastPause >= CIPAPI.config.lockOnResume) {
         log.debug('Forcing lock screen on resume with debounce: ' + secondsSinceLastPause + ' since last pause');
         return CIPAPI.resume.showLockScreen();
@@ -142,8 +142,10 @@
       '    <div class="navbar-header"></div>' +
       '  </div>' +
       '  <div id="cipapi-lock-screen-content">' +
-      '    <h2 class="form-signin-heading">Application Locked</h2>' +
-      '    <p>You may unlock the application with your mobile credentials using the options below.</p>' +
+      '    <h2 class="form-signin-heading">Application Locked by</h2>' +
+      '    <h3 class="form-signin-heading"><span class="lock-screen-user-id">SOMEONE</span></h3>' +
+      '    <p>Only <span class="lock-screen-user-id">SOMEONE</span> can unlock the application with their personal login barcode or password.' +
+      '    If you are not <span class="lock-screen-user-id">SOMEONE</span> you can click <i>Switch User</i> to sign in with your credentials.</p>' +
       '    <div id="lock-screen-password-control">' +
       '      <div class="form-group">'+
       '        <input id="lock-screen-password" type="password" class="form-control" placeholder="Password">' +
@@ -155,7 +157,7 @@
       '      <button id="lock-screen-barcode" class="btn btn-lg btn-primary btn-block btn-custom"><span class="glyphicon glyphicon-barcode"></span> Scan Login Barcode</button>' +
       '      <span class="help-block">Invalid Login Code</span>' +
       '    </div>' +
-      '    <button id="lock-screen-log-out" class="btn btn-lg btn-primary btn-block btn-custom"><span class="glyphicon glyphicon-search"></span> Log Out</button>' +
+      '    <button id="lock-screen-log-out" class="btn btn-lg btn-primary btn-block btn-custom"><span class="glyphicon glyphicon-search"></span> Switch User</button>' +
       '  </div>' +
       '</div>';
 
@@ -249,7 +251,10 @@
       return CIPAPI.credentials.reset();
     }
     
-    else $('div#cipapi-lock-screen').removeClass('unlocked').addClass('locked');
+    else {
+      $('span.lock-screen-user-id').text(CIPAPI.credentials.get().user.replace(/@[^@]*$/, ''));
+      $('div#cipapi-lock-screen').removeClass('unlocked').addClass('locked');
+    }
   }
   
   // Hide the lock screen

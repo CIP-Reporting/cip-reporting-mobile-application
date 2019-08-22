@@ -25,9 +25,10 @@
 
   var log = CIPAPI.logger.getLogger("CIPAPI.resume");
 
-  var lastPause    = 0;     // Track last pause
-  var initialized  = false; // Draw the lock screen on demand
-  var justBooted   = true;  // Debounce lock on boot
+  var lastPause     = 0;     // Track last pause
+  var initialized   = false; // Draw the lock screen on demand
+  var justBooted    = true;  // Debounce lock on boot
+  var mediaCaptured = false; // Do not lock screen on media capture
 
   var lastToken    = false; // Cannot set token until all metadata validated
   var lastPassword = false; // Cannot set token until all metadata validated
@@ -92,6 +93,11 @@
       return;
     }
     
+    else if (mediaCaptured) {
+      log.debug('Not locking due to media capture');
+      return;
+    }
+    
     else if (CIPAPI.config.lockOnResume === true) {
       log.debug('Forcing lock screen on resume');
       return CIPAPI.resume.showLockScreen();
@@ -116,8 +122,13 @@
       log.debug('Not logged in - forcing logout');
       return CIPAPI.credentials.reset();
     }
-    else lastPause = Math.floor(Date.now() / 1000); // Seconds since epoch
+    
+    lastPause = Math.floor(Date.now() / 1000); // Seconds since epoch
+    mediaCaptured = false;
   });
+
+  // If media captured 
+  $(document).on('cipapi-forms-media-complete', function() { mediaCaptured = true; });
 
   // Always hide the lock screen on the login screen
   $(document).on('cipapi-handle-login', function() { CIPAPI.resume.hideLockScreen(); });

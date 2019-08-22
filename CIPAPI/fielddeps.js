@@ -28,6 +28,9 @@
   
   // The rules currently in use, which defaults to serverRules above
   CIPAPI.fielddeps.currentRules = false;
+
+  // Rule contexts (keywords which can be set and unset by rules.  Rules can require that a certain context be set)
+  CIPAPI.fielddeps.contexts = [];
   
   var log = CIPAPI.logger.getLogger("CIPAPI.fielddeps");
 
@@ -174,6 +177,9 @@
   // Handle form field value changes
   $(document).on('cipapi-fieldvalues-change', function(event, info) {
     var fieldName = info.changeTarget ? $(info.changeTarget).attr('name') : false;
+
+    // If no field name was provided, this is a complete re-scan in which case we need to clear the contexts
+    if (fieldName === false) CIPAPI.fielddeps.contexts = [ ];
     
     // Process each of the rules
     var rules = CIPAPI.fielddeps.getCurrentRules();
@@ -187,17 +193,25 @@
       var encodedFieldName = CIPAPI.forms.asciiToHex(fieldRule.name);
       if (fieldName && fieldName != encodedFieldName) continue;
 
+      // If rule specifies a required context, and that context does not exist, then we just move on
+      if (fieldRule.hasOwnProperty('context') && fieldRule.context) {
+        if (CIPAPI.fielddeps.contexts.indexOf(fieldRule.context) == -1) {
+          continue;
+        }
+      }
+
       // If we get here we want the value of the field...
       var fieldValue = $(info.formSelector + ' select[name=' + encodedFieldName + ']').val() || 
                        $(info.formSelector +  ' input[name=' + encodedFieldName + ']:checked').val() || 
+                       $(info.formSelector +  ' input[name=' + encodedFieldName + ']').val() || 
                        '';
-      
+
       // Equality?
       if (fieldRule.condition == 'eq' && fieldRule.value != fieldValue) continue; // Not a match
       
       // Inequality?
       if (fieldRule.condition == 'ne' && fieldRule.value == fieldValue) continue; // Not a match
-      
+
       // Hide fields ...
       if (fieldRule.hide) {
         for (var j=0; j<fieldRule.hide.length; j++) {
@@ -370,6 +384,29 @@
           }
         }
       }
+
+      // Set Context
+      if (fieldRule.setctx) {
+        for (var l=0; l<fieldRule.setctx.length; l++) {
+          if (CIPAPI.fielddeps.contexts.indexOf(fieldRule.setctx[l]) == -1) {
+            CIPAPI.fielddeps.contexts.push(fieldRule.setctx[l]);
+            log.debug('Setting context "' + fieldRule.setctx[l] + '" [Rule ' + i + ']');
+          }
+        }
+      }
+
+      // Unset Context
+      if (fieldRule.unsetctx) {
+        for (var l=0; l<fieldRule.unsetctx.length; l++) {
+          var ctxidx = CIPAPI.fielddeps.contexts.indexOf(fieldRule.unsetctx[l]);
+          if (ctxidx != -1) {
+            CIPAPI.fielddeps.contexts.splice(ctxidx, 1);
+            log.debug('Removing context "' + fieldRule.unsetctx[l] + '" [Rule ' + i + ']');
+          }
+        }
+      }
+
+
     }    
   });
 })(jQuery, window);

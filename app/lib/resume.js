@@ -89,6 +89,8 @@
 
   // On resume apply logic for lock screen (active is iOS specific for unlock while active app)
   $(document).on('resume active', function() {
+    log.debug('Resume event');
+
     lastMediaCaptureState = mediaCapture;
     
     mediaCapture = false;
@@ -122,6 +124,8 @@
   });
 
   $(document).on('pause resign', function() {
+    log.debug('Pause event');
+
     if (!CIPAPI.credentials.areValid()) {
       log.debug('Not logged in - forcing logout');
       return CIPAPI.credentials.reset();
@@ -132,6 +136,7 @@
 
   // If media or barcode capturing we give a different timeout on resume...
   $(document).on('cipapi-forms-media-capture-camera cipapi-forms-media-capture-library cipapi-forms-media-capture-barcode', function() { 
+    log.debug('Expecting pause for media capture');
     mediaCapture = true; 
   });
 

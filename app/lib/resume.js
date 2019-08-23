@@ -25,10 +25,10 @@
 
   var log = CIPAPI.logger.getLogger("CIPAPI.resume");
 
-  var lastPause     = 0;     // Track last pause
-  var initialized   = false; // Draw the lock screen on demand
-  var justBooted    = true;  // Debounce lock on boot
-  var mediaCaptured = false; // Do not lock screen on media capture
+  var lastPause    = 0;     // Track last pause
+  var initialized  = false; // Draw the lock screen on demand
+  var justBooted   = true;  // Debounce lock on boot
+  var mediaCapture = false; // Do not lock screen on media capture
 
   var lastToken    = false; // Cannot set token until all metadata validated
   var lastPassword = false; // Cannot set token until all metadata validated
@@ -89,13 +89,17 @@
 
   // On resume apply logic for lock screen (active is iOS specific for unlock while active app)
   $(document).on('resume active', function() {
+    lastMediaCaptureState = mediaCapture;
+    
+    mediaCapture = false;
+
     var secondsSinceLastPause = Math.floor(Date.now() / 1000) - lastPause;
 
     if (CIPAPI.config.lockOnResume === false) {
       return;
     }
     
-    else if (mediaCaptured && secondsSinceLastPause < CIPAPI.config.mediaAttachTimeout) {
+    else if (lastMediaCaptureState && secondsSinceLastPause < CIPAPI.config.mediaAttachTimeout) {
       log.debug('Not locking due to media capture');
       return;
     }
@@ -124,11 +128,12 @@
     }
     
     lastPause = Math.floor(Date.now() / 1000); // Seconds since epoch
-    mediaCaptured = false;
   });
 
-  // If media captured 
-  $(document).on('cipapi-forms-media-complete', function() { mediaCaptured = true; });
+  // If media or barcode capturing we give a different timeout on resume...
+  $(document).on('cipapi-forms-media-capture-camera cipapi-forms-media-capture-library cipapi-forms-media-capture-barcode', function() { 
+    mediaCapture = true; 
+  });
 
   // Always hide the lock screen on the login screen
   $(document).on('cipapi-handle-login', function() { CIPAPI.resume.hideLockScreen(); });

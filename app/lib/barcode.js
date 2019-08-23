@@ -119,6 +119,8 @@
       if (hasScanner && typeof cordova.plugins.barcodeScanner == 'undefined') hasScanner = false;
       if (!hasScanner) throw 'No Scanner';
       
+      $(document).trigger('cipapi-forms-media-capture-barcode');
+      
       cordova.plugins.barcodeScanner.scan(
         // Success...
         function (result) { 

@@ -565,6 +565,9 @@
             return;
           }
           
+          $(document).trigger(src == Camera.PictureSourceType.CAMERA ? 
+            'cipapi-forms-media-capture-camera' : 'cipapi-forms-media-capture-library');
+          
           navigator.camera.getPicture(
             // On Success
             function(imageURI) {

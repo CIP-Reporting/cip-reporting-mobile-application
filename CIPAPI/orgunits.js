@@ -21,35 +21,35 @@
 (function($, window, undefined) {
 
   if (typeof CIPAPI == 'undefined') CIPAPI = {};
-  CIPAPI.schedules = {};
+  CIPAPI.orgunits = {};
 
-  var log = CIPAPI.logger.getLogger("CIPAPI.schedules");
+  var log = CIPAPI.logger.getLogger("CIPAPI.orgunits");
 
   var isLoaded = false;
   
-  CIPAPI.schedules.collection = { lastUpdated: 0, schedules: {} };
+  CIPAPI.orgunits.collection = { lastUpdated: 0, orgunits: [] };
   
-  function loadSchedules() {
+  function loadOrgUnits() {
     if (!CIPAPI.credentials.areValid()) {
       log.debug("No credentials, defering attempts to load");
       return;
     }
 
-    log.debug("Loading schedules");
+    log.debug("Loading Org Units");
     CIPAPI.rest.GET({ 
-      url: CIPAPI.config.scheduleURL || '/api/versions/current/facts/schedules', 
+      url: '/api/versions/current/facts/orgunits', 
       success: function(response) { 
-        CIPAPI.schedules.collection.lastUpdated = $.now();
-        CIPAPI.schedules.collection.schedules = response.data.item[0].data;
-        $(document).trigger('cipapi-schedules-set');
-        log.debug("Schedules loaded");
+        CIPAPI.orgunits.collection.lastUpdated = $.now();
+        CIPAPI.orgunits.collection.orgunits = response.data.item[0].data;
+        $(document).trigger('cipapi-orgunits-set');
+        log.debug("Org Units loaded");
         isLoaded = true;
         
-        // Store the schedules to local storage if so configured
-        if (CIPAPI.config.persistSchedules) {
-          var storageKey = 'CIPAPI.schedules.' + CIPAPI.credentials.getCredentialHash();
-          localStorage.setItem(storageKey, JSON.stringify(CIPAPI.schedules.collection));
-          log.debug("Schedules stored in local storage");
+        // Store the org units to local storage if so configured
+        if (CIPAPI.config.persistOrgUnits) {
+          var storageKey = 'CIPAPI.orgunits.' + CIPAPI.credentials.getCredentialHash();
+          localStorage.setItem(storageKey, JSON.stringify(CIPAPI.orgunits.collection));
+          log.debug("Org units stored in local storage");
         }
       },
       complete: function() {
@@ -69,27 +69,27 @@
   // Every 5 minutes check to see if the interval for reload has elapsed and reload if so.
   // Minimum resolution is obviously 5 minutes to avoid repeated reload attempts.
   $(document).on('cipapi-timing-5min', function(event, info) {
-    var timingEvent = undefined === CIPAPI.config.reloadSchedulesInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadSchedulesInterval;
-    if (CIPAPI.timing.shouldFire(CIPAPI.schedules.collection.lastUpdated, timingEvent)) {
-      loadSchedules();
+    var timingEvent = undefined === CIPAPI.config.reloadOrgUnitsInterval ? 'cipapi-timing-5min' : CIPAPI.config.reloadOrgUnitssInterval;
+    if (CIPAPI.timing.shouldFire(CIPAPI.orgunits.collection.lastUpdated, timingEvent)) {
+      loadOrgUnits();
     }
   });
 
-  // When credentials change reload current schedules if not disabled
+  // When credentials change reload current org units if not disabled
   $(document).on('cipapi-credentials-set', function() {
-    // If currently NOT loaded AND local storage is enabled try and load translation values 
+    // If currently NOT loaded AND local storage is enabled try and load org units values 
     // from local storage and do not load over the network if found.
-    if (!isLoaded && CIPAPI.config.persistSchedules) {
+    if (!isLoaded && CIPAPI.config.persistOrgUnits) {
       try {
-        var storageKey = 'CIPAPI.schedules.' + CIPAPI.credentials.getCredentialHash();
-        var storedSchedules = JSON.parse(localStorage.getItem(storageKey));
-        if (storedSchedules !== null && typeof storedSchedules === 'object') {
-          CIPAPI.schedules.collection = storedSchedules;
-          log.debug("Schedules merged from local storage");
+        var storageKey = 'CIPAPI.orgunits.' + CIPAPI.credentials.getCredentialHash();
+        var storedOrgUnits = JSON.parse(localStorage.getItem(storageKey));
+        if (storedOrgUnits !== null && typeof storedOrgUnits === 'object') {
+          CIPAPI.orgunits.collection = storedOrgUnits;
+          log.debug("Org units merged from local storage");
 
           // Simulate full load
           isLoaded = true;
-          $(document).trigger('cipapi-schedules-set');
+          $(document).trigger('cipapi-orgunits-set');
           CIPAPI.router.validateMetadata();
 
           return; // Do no more!
@@ -100,17 +100,17 @@
     }
 
     isLoaded = false;
-    loadSchedules();
+    loadOrgUnits();
   });
   
   // When credentials are lost, reset our configuration
   $(document).on('cipapi-credentials-reset', function() {
-    CIPAPI.schedules.collection = { lastUpdated: 0, schedules: {} };
+    CIPAPI.orgunits.collection = { lastUpdated: 0, orgunits: [] };
     isLoaded = false;
 
     // If backed by local storage delete the contents
-    if (CIPAPI.config.persistSchedules) {
-      localStorage.removeItem('CIPAPI.schedules.' + CIPAPI.credentials.getCredentialHash());
+    if (CIPAPI.config.persistOrgUnits) {
+      localStorage.removeItem('CIPAPI.orgunits.' + CIPAPI.credentials.getCredentialHash());
       log.debug("Local storage cleared");
     }
   });

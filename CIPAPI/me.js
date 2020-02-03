@@ -75,8 +75,6 @@
 
   // When credentials change reload current user information if not disabled
   $(document).on('cipapi-credentials-set', function() {
-    CIPAPI.me = {};
-
     // If currently NOT loaded AND local storage is enabled try and load me
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistMe) {

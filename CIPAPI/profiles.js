@@ -118,8 +118,6 @@
 
   // When credentials change reload current profiles if not disabled
   $(document).on('cipapi-credentials-set', function() {
-    CIPAPI.profiles.collection = { lastUpdated: 0, profiles: [] };
-
     // If currently NOT loaded AND local storage is enabled try and load profiles values 
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistProfiles) {

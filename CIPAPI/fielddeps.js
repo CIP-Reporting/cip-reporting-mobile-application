@@ -132,9 +132,6 @@
 
   // When credentials change reload current field dependencies if not disabled
   $(document).on('cipapi-credentials-set', function() {
-    CIPAPI.fielddeps.serverRules = [];
-    delete CIPAPI.fielddeps.lastUpdated;
-
     // If currently NOT loaded AND local storage is enabled try and load field dependency rules
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistFieldDependencies) {
@@ -201,10 +198,15 @@
       }
 
       // If we get here we want the value of the field...
-      var fieldValue = $(info.formSelector + ' select[name=' + encodedFieldName + ']').val() || 
+      var fieldValue;
+      if (fieldRule.name == 'Report Type') {
+        fieldValue = info.formDefinition.reportType;
+      } else {
+        fieldValue = $(info.formSelector + ' select[name=' + encodedFieldName + ']').val() || 
                        $(info.formSelector +  ' input[name=' + encodedFieldName + ']:checked').val() || 
                        $(info.formSelector +  ' input[name=' + encodedFieldName + ']').val() || 
                        '';
+      }
 
       // Equality?
       if (fieldRule.condition == 'eq' && fieldRule.value != fieldValue) continue; // Not a match

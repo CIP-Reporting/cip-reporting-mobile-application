@@ -25,6 +25,37 @@
   
   var log = CIPAPI.logger.getLogger("CIPAPI.main");
   
+  log.debug("Attempting to contact parent frame");
+  if (typeof parent != 'undefined' && typeof parent.registerChildAPI == 'function') {
+    parent.registerChildAPI(CIPAPI);
+    log.debug("Parent contacted successfully");
+  } else {
+    log.debug("Failed to contact parent");
+  }
+
+  $(document).on('cips-ui-mobile-sync', function(event, data) {
+    // $('.navbar').hide();
+    $(document).trigger('cipapi-credentials-set');
+  });
+
+  $(document).one('cipapi-forms-set cipapi-mobile-cases-set cipapi-mobile-inventories-set', function(event, info) {
+    $(document).trigger('cips-ui-callback', JSON.stringify({ 'type': 'cases-set', 'payload': [] }));
+  });
+
+  $(document).on('cips-ui-set-case', function(event, caseUUID) {
+    log.debug("Rendering main screen - Set Case");    
+    // Clean up
+    $('div#main-content-area form > *').remove();
+
+    var caseStore = CIPAPI.casestore.getCases();
+    var caseOffset = null;
+    for (var i = 0; i < caseStore.length; i++) {
+      if (caseStore[i].reportData.serializedData.reportUUID == caseUUID) {
+        caseOffset = i;
+      }
+    }
+    caseOffset >= 0 ? renderCase(caseOffset) : log.debug("Case not found");
+  });
   // Helper function to decode query parameters
   function getParameterByName(name, url) {
     if (!url) url = window.location.href;
@@ -55,6 +86,8 @@
     
     // Force an update of the reportstore monitor
     $(document).trigger('cipapi-reportstore-change');
+    
+    $(document).trigger('application-ready');
   });
   
   // Do some reports and stuff!
@@ -116,6 +149,19 @@
       // app.  A simple work around is to make this call in a delayed closure to allow this
       // execution context to complete first.
       setTimeout(function() { CIPAPI.barcode.scan(); }, 100);
+    // Show a  Subcase
+    } else if (info.params.action == 'subcase') {
+      var cases = CIPAPI.casestore.getCases();
+      $.each(cases, function(key, value) {
+        if (value.reportData.serializedData.reportUUID === info.params.case) {
+          $.each(value.relatedReports, function(key, value) {
+            if (value.reportData.serializedData.reportUUID === info.params.uuid) {              
+                renderSubCase(value);
+                return false;
+            }
+          });
+        }
+      });
     }
     // Navigate to the button list if all else fails
     else {
@@ -126,6 +172,108 @@
     window.scrollTo(0, 0);
   }
 
+  function renderSubCase(subcase) {
+  
+    // Generate a title
+    var caseHeader = $('<div class="col-xs-12 casehdr"></div>');    
+    // Determine progress
+    subcase.reportData.formMetadata.percentComplete = CIPAPI.casestore.getCaseCompletePercent(subcase);
+   
+    var caseHeading = $('<h1></h1>');
+    caseHeading.text(subcase.reportData.formName);
+    caseHeader.append(caseHeading);
+
+    $('div#main-content-area form').append(caseHeader);
+    $('div#main-content-area form').append('<div class="form-button-list"></div>');
+
+    var caseUUID = subcase.reportData.serializedData.reportRelUUID;
+    log.debug("Rendering case children for UUID " + caseUUID);
+    currentCaseUUID = caseUUID; // Bookmark this case
+
+    $.each(CIPAPI.config.apiForms, function(key, val) {
+      if (key == CIPAPI.config.caseModeForm) return;
+      if (key !== subcase.reportData.formName) return;
+
+      var UUIDs = []; var metadata = [];
+      for (var i=0; i<subcase.relatedReports.length; i++) {
+        UUIDs.push(subcase.relatedReports[i].reportData.serializedData.reportUUID);
+        metadata.push(subcase.relatedReports[i].reportData.formMetadata);
+      }
+      
+      var childDB = { uuids: UUIDs, metadata: metadata };
+      var childMetadata = childDB.metadata;
+      var childrenUUIDs = childDB.uuids;
+      
+      for (var i=0; i<childrenUUIDs.length; i++) {
+        var isRemoved = childMetadata[i] ? childMetadata[i].isRemoved : false;
+        if (isRemoved) {
+          log.debug('Not displaying removed child report');
+          continue;
+        }
+        
+        var percentComplete = childMetadata[i] ? childMetadata[i].percentComplete : false;
+        var extraCss   = percentComplete === false ? '-notexist' : '';
+        var meterColor = percentComplete === 100 ? 'green' : 'orange';
+        
+        var isDisabled = childMetadata[i] ? childMetadata[i].isDisabled : false;
+        if (isDisabled) {
+          extraCss = '-disabled';
+          percentComplete = 100;
+          meterColor = 'green';
+        }
+        
+        var progress = '<div class="meter ' + meterColor + '"><span style="width: ' + (percentComplete === false ? 0 : percentComplete) + '%"></span></div>';
+        var tabName  = childDB.metadata[i] && childDB.metadata[i].nameSuffix.length > 0 ? (subcase.relatedReports[i].reportData.formName + ' - ' + childDB.metadata[i].nameSuffix) : subcase.relatedReports[i].reportData.formName;
+        
+        var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
+        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + subcase.relatedReports[i].reportData.formName + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + tabName + progress + '</a></div>');
+      }
+    });
+
+    function handleTap(elem) {
+      if ($(elem).hasClass('btn-custom-disabled')) {
+        $(document).trigger('cipapi-behaviors-haptic-feedback', 'Form click when disabled');
+        log.debug('Not allowing click on disabled form');
+        return false;
+      }
+      
+      $(document).trigger('cipapi-behaviors-button-click', { button: $(elem), callback: function(info) {
+        CIPAPI.router.goTo('main', { action: 'form', form: info.button.attr('data-form'), case: caseUUID, uuid: info.button.attr('data-uuid') });
+      }});
+      return false;
+    }
+    
+    // Context menu of some sorts - for non-mobile
+    function handlePress(elem) {
+      $(document).trigger('cipapi-behaviors-haptic-feedback', 'Form mouse down');
+
+      if ($(elem).hasClass('btn-custom-notexist')) {
+        log.debug('Not allowing right click on non-existent form');
+        return false;
+      }
+
+      $(document).trigger('cipapi-case-form-context-menu', { form: $(elem).attr('data-form'), case: caseUUID, uuid: $(elem).attr('data-uuid') });
+      return false;
+    }
+    
+    // Right click / press
+    if (CIPAPI.device.hasRightClick()) {
+      $('div#main-content-area form div div a').on('mousedown', function(e) { 
+        if (e.button == 2) return handlePress(this); 
+      }).on('click', function(e) { 
+        handleTap(this);
+      });      
+    } else {
+      // Device does not support right click or press so use hammer.js press events
+      $('div#main-content-area form div div a').hammer({}).bind('tap press', function(e) {
+        if (e.type == 'press') return handlePress(e.target);
+        if (e.type == 'tap') return handleTap(e.target);
+      });
+    }
+    
+    // Output a potential clear div
+    $('div#main-content-area form div.form-button-list').append('<div class="beforecasebtn"></div>');
+  }
   // Return the formatted time
   function getTime() {
     // Add zero in front of numbers < 10
@@ -133,7 +281,6 @@
       if (i < 10) i = "0" + i; 
       return i;
     }
-
     var today = new Date();
     var y = today.getFullYear();
     var n = addZero(today.getMonth() + 1);
@@ -206,6 +353,7 @@
       var childDB = CIPAPI.casestore.getCaseChildrenMetadataDB(caseUUID, key, CIPAPI.config.caseModeAlwaysShowForm);
       var childMetadata = childDB.metadata;
       var childrenUUIDs = childDB.uuids;
+      var childRelatedReports = CIPAPI.casestore.getCaseChildrenRelatedReports(caseUUID, key).relatedReports;
       
       for (var i=0; i<childrenUUIDs.length; i++)
       {
@@ -232,7 +380,11 @@
         var tabName  = childDB.metadata[i] && childDB.metadata[i].nameSuffix.length > 0 ? (key + ' - ' + childDB.metadata[i].nameSuffix) : key;
         
         var span = val.match(/^glyphicon/) ? '<span class="glyphicon ' + val + '"></span> ' : '';
-        $('div#main-content-area form div.form-button-list').append('<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + tabName + progress + '</a></div>');
+        
+        var standardForm = '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-form="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + tabName + progress + '</a></div>';
+        var subCase = '<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4" ><a data-subcase="' + key + '" data-uuid="' + childrenUUIDs[i] + '" class="formbtn btn btn-primary btn-lg btn-custom' + extraCss + '">' + span + tabName + progress + '</a></div>'
+        var button = childRelatedReports[i] ? subCase : standardForm;
+        $('div#main-content-area form div.form-button-list').append(button);
       }
     });
 
@@ -244,7 +396,11 @@
       }
       
       $(document).trigger('cipapi-behaviors-button-click', { button: $(elem), callback: function(info) {
-        CIPAPI.router.goTo('main', { action: 'form', form: info.button.attr('data-form'), case: caseUUID, uuid: info.button.attr('data-uuid') });
+        var action = null;
+        if (info.button.attr('data-form')) action = { action: 'form', form: info.button.attr('data-form'), case: caseUUID, uuid: info.button.attr('data-uuid') };
+        if (info.button.attr('data-subcase')) action = { action: 'subcase', case: caseUUID, uuid: info.button.attr('data-uuid') };
+        
+        CIPAPI.router.goTo('main', action);
       }});
       return false;
     }
@@ -309,6 +465,10 @@
 
               // Kick off a report send attempt
               CIPAPI.reportstore.sendReports();
+
+              $(document).on('cipapi-reportstore-empty', function(event, info) {
+                $(document).trigger('cips-ui-callback', JSON.stringify({ 'type': 'submit', 'payload': removedCase }));
+              }); 
 
               // Go somewhere...
               CIPAPI.navbar.goBack();

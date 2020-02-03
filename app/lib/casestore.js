@@ -103,9 +103,38 @@
       if (caseOffset !== false) {
         var reportOffset = getChildReportOffset(caseStore[caseOffset], info.reportData.serializedData.reportUUID);
         if (reportOffset === false) {
-          log.debug("New child report submitted");
-          caseStore[caseOffset].relatedReports.push({ reportData: info.reportData });
-          CIPAPI.stats.count(statsGroup, 'New Report');
+          var createNew = true;
+          for (var i = 0; i < caseStore[caseOffset].relatedReports.length; i++) {
+            if (typeof caseStore[caseOffset].relatedReports[i].relatedReports !== 'undefined') {
+                var subcases = caseStore[caseOffset].relatedReports[i].relatedReports;
+
+                var subcasesUUIDs = subcases.map(function (subcase) { return subcase.reportData.serializedData.reportUUID; });
+                var subcasesNames = subcases.map(function (subcase) { return subcase.reportData.formName; });
+
+                if (subcasesUUIDs.includes(info.reportData.serializedData.reportUUID)) {
+                  var subcasePos = subcasesUUIDs.indexOf(info.reportData.serializedData.reportUUID);
+                  if (subcasePos >= 0) {
+                    createNew = false;
+                    log.debug("Updating existing child report");
+                    caseStore[caseOffset].relatedReports[i].relatedReports[subcasePos].reportData = info.reportData;
+                    CIPAPI.stats.count(statsGroup, 'Report Updates');
+                    break;
+                  }
+                  log.error('Could not locate child report');
+                } else if (subcasesNames.includes(info.reportData.formName)) {
+                  createNew = false;
+                  log.debug("New child report submitted");
+                  caseStore[caseOffset].relatedReports[i].relatedReports.push({ reportData: info.reportData });
+                  CIPAPI.stats.count(statsGroup, 'New Report');
+                  break;
+                }
+              }
+            }
+          if (createNew) {
+            log.debug("New child report submitted");
+            caseStore[caseOffset].relatedReports.push({ reportData: info.reportData });
+            CIPAPI.stats.count(statsGroup, 'New Report');
+          } 
         } else {
           log.debug("Updating existing child report");
           caseStore[caseOffset].relatedReports[reportOffset].reportData = info.reportData;
@@ -224,10 +253,36 @@
     for (var i=0; i<cases[caseOffset].relatedReports.length; i++) {
       if (cases[caseOffset].relatedReports[i].reportData.serializedData.reportUUID == childUUID) {
         return cases[caseOffset].relatedReports[i].reportData;
+      } else {
+        if (typeof cases[caseOffset].relatedReports[i].relatedReports !== 'undefined') {
+            for (var j=0; j<cases[caseOffset].relatedReports[i].relatedReports.length; j++) {
+            if (cases[caseOffset].relatedReports[i].relatedReports[j].reportData.serializedData.reportUUID == childUUID) {
+              return cases[caseOffset].relatedReports[i].relatedReports[j].reportData
+            }
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  // Get child form related reports for a case by a given form name
+  CIPAPI.casestore.getCaseChildrenRelatedReports = function(caseUUID, childFormName) {
+    var cases = CIPAPI.casestore.getCases();
+    var caseOffset = getCaseOffset(cases, caseUUID);
+    if (false === caseOffset) { 
+      log.error("Failed to find case for child report " + caseUUID);
+      return false; 
+    }
+    
+    var relatedReports = [];
+    for (var i=0; i<cases[caseOffset].relatedReports.length; i++) {
+      if (cases[caseOffset].relatedReports[i].reportData.formName == childFormName && typeof cases[caseOffset].relatedReports[i].relatedReports !== 'undefined' && cases[caseOffset].relatedReports[i].relatedReports.length) {
+        relatedReports.push(cases[caseOffset].relatedReports[i].relatedReports);
       }
     }
     
-    return false;
+    return { relatedReports: relatedReports }
   }
 
   // Remove a case from the device

@@ -86,8 +86,6 @@
 
   // When credentials change reload current translations if not disabled
   $(document).on('cipapi-credentials-set', function() {
-    CIPAPI.translations.collection = { lastUpdated: 0, translations: {} };
-
     // If currently NOT loaded AND local storage is enabled try and load translation values 
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistTranslations) {

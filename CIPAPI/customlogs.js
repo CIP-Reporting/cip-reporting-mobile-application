@@ -92,8 +92,6 @@
 
   // When credentials change reload current custom logs if not disabled
   $(document).on('cipapi-credentials-set', function() {
-    CIPAPI.customlogs.collection = { lastUpdated: 0, customlogs: {} };
-
     // If currently NOT loaded AND local storage is enabled try and load translation values 
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistCustomLogs) {

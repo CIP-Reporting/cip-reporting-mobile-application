@@ -52,6 +52,7 @@
         url: '/api/versions/current/integrations/' + CIPAPI.config.overrideIntegration, 
         success: function(response) { 
           response.data.item[0].data.lastUpdated = $.now();
+          CIPAPI.config = jQuery.extend(true, {}, defaultConfig);
           $.extend(CIPAPI.config, response.data.item[0].data);
           log.debug("Config merged at " + CIPAPI.config.lastUpdated);
           
@@ -61,10 +62,10 @@
             localStorage.setItem(storageKey, JSON.stringify(response.data.item[0].data));
             log.debug("Config stored in local storage");
           }
-        },
-        complete: function() {
           isLoaded = true;
           $(document).trigger('cipapi-config-set');
+        },
+        complete: function() {
           CIPAPI.router.validateMetadata();
         }
       });
@@ -93,8 +94,6 @@
   
   // When credentials change reload current configuration override if not disabled
   $(document).on('cipapi-credentials-set', function() {
-    CIPAPI.config = jQuery.extend(true, {}, defaultConfig);
-    
     // If currently NOT loaded AND local storage is enabled try and load config values 
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistConfig) {
@@ -102,6 +101,7 @@
         var storageKey = 'CIPAPI.config.' + CIPAPI.credentials.getCredentialHash();
         var storedConfig = JSON.parse(localStorage.getItem(storageKey));
         if (storedConfig !== null && typeof storedConfig === 'object') {
+          CIPAPI.config = jQuery.extend(true, {}, defaultConfig);
           $.extend(CIPAPI.config, storedConfig);
           log.debug("Config merged from local storage");
 

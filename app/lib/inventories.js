@@ -79,6 +79,7 @@
         fields: getFieldList(val.columnFields, val.summaryFields, val.htmlField ? val.htmlField : false),
          query: val.query,
         success: function(response) { 
+          if (key === 0 && CIPAPI.inventories.length) CIPAPI.inventories = []; // First successful pass?
           CIPAPI.inventories.push({ config: val, items: response.data.item });
           log.debug("Loaded Inventory: " + val.name);
         }
@@ -121,8 +122,6 @@
   
   // When configuration is set re-load the inventories list
   $(document).on('cipapi-config-set', function() {
-    CIPAPI.inventories = [];
-
     // If currently NOT loaded AND local storage is enabled try and load inventories
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistInventories) {

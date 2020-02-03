@@ -414,7 +414,339 @@
       $(this).attr('data-max-width', width);
       $(this).attr('data-quality', quality);
     });
-  }  
+  }
+
+  CIPAPI.behaviors.forms.generateBCAPTenanFileReview = function() {
+    log.debug('Setting Tenant File Review configuration');
+    $('.cipapi-behaviors-tenant-file-review').each(function (o, el) {
+      var tfrPlaceholder = $(this);
+      var cachedVal = tfrPlaceholder.find($("input")).first().val();
+      var fieldsDefinition = null;
+      if (cachedVal !== '') {
+        fieldsDefinition = JSON.parse(cachedVal);
+        $.each(fieldsDefinition.formulas, function(i, v) {
+          if (v.hasOwnProperty('callback')) v.callback = eval("(" + v.callback + ")");
+        });
+        $.each(fieldsDefinition.input, function(i, v) {
+          if (v.hasOwnProperty('schema')) {
+            $.each(v.schema, function(i, f) {
+              if (f.hasOwnProperty('callback')) f.callback = eval("(" + f.callback + ")");
+            });
+          }
+        });
+      } else {
+       fieldsDefinition = {'input': {}, 'output': {}, 'formulas': {}};
+      }
+      tfrPlaceholder.children().hide();
+      
+      // Group callbacks by trigger field or they won't run.
+      var callbackMapping = {};
+
+      // Get our containers ready
+      var masterForm = $('<div></div>');
+      var results = $(
+        '<div>' +
+          '<h4 class="page-header text-center"><strong>Results</strong></h4>' +
+          '<div class="row">' + 
+            '<h5 class="col-xs-9"><strong><u>Maximum Income Limits</u></strong></h5>' +
+            '<button style="margin-top:5px" class="small btn btn-sm btn-primary list-collapser">More</button>' +
+          '</div>' +
+          '<div id="max-income-limit-lists" class="row"></div>' +
+          '<div class="row">' + 
+            '<h5 class="col-xs-9"><strong><u>Maximum Gross Rent Limits</u></strong></h5>' +
+            '<button style="margin-top:5px" class="small btn btn-sm btn-primary list-collapser">More</button>' +
+          '</div>' +
+          '<div id="max-gross-rent-limit-lists" class="row"></div>' +
+        '</div>'
+      );
+      tfrPlaceholder.append(masterForm);
+      
+      $.each(fieldsDefinition.input, function(key, field) {
+        var input = field['type'] === 'group' ? getGroupElements(key, field) : getFieldHTML(key, field);
+
+        var sectionName = field.hasOwnProperty('section') ? field['section'].split(' ').join('-').toLowerCase() : 'General';
+        field['section'] = field.hasOwnProperty('section') ? field['section'] : 'General';
+        var section = false;
+        if ($('#section-' + sectionName).length === 0) {
+          section = $('<div id="section-'+ sectionName +'"><h4 class="page-header">'+ field['section'] +'</h4></div>');
+          masterForm.append(section);
+        } else {
+          section = $('#section-' + sectionName);
+        }
+        section.append(input);
+        // Allow formulas to work on the contents of groups so they can perform aggregations based on the values present in all of them
+        if (field['type'] === 'group') {
+          var trigger = key.replace(/_/g, '-');
+          var timeout = null;
+          $('#' + key).on('change', function() { 
+            clearTimeout(timeout);
+            timeout = setTimeout(function() {$(document).trigger('cipapi-behaviors-' + trigger)}, 250);
+          });
+        }
+      });
+      masterForm.append(results); // Append after input fields are generated
+      
+      // Catch events to handle reactivity on formula fields based on input.
+      $.each(fieldsDefinition.formulas, function(key, field) {
+        var input = getFieldHTML(key, field);
+        results.append(input);
+        mapEventTriggers(field)
+      });
+      
+      // Trigger an initial update from our fields
+      insertInputVals(fieldsDefinition.input);
+      insertInputVals(fieldsDefinition.formulas);
+
+      // Formula fields defined in the fieldsDefinition will reference this function
+      function setFormulaValue(key, value, formatCallback) {
+        fieldsDefinition.output[key] = value;
+        if (formatCallback) {value = formatCallback(value);} 
+        $('#' + key).val(value).trigger('change'); // Only apply the formatter to the HTML input for display purposes
+      }
+
+      function mapEventTriggers(field) {
+        $.each(field.listens, function(i, v) {
+          var trigger = v.replace(/_/g, '-');
+          var eventKey = 'cipapi-behaviors-' + trigger;
+          if (callbackMapping.hasOwnProperty(eventKey) === false) callbackMapping[eventKey] = [];
+          callbackMapping[eventKey].push(field.callback.bind(field));
+        });
+      }
+
+      function insertInputVals(schema, prepend) {
+        $.each(schema, function(key, field) {
+          if (field['type'] === 'group') {
+            var related = fieldsDefinition.input.hasOwnProperty(key) ? fieldsDefinition.input[key].related : [];
+            $.each(related, function(i, v) {
+              insertInputVals(field.schema, v);
+              var offset = fieldsDefinition.input[key].related.indexOf(v);
+              if (offset === -1) fieldsDefinition.input[key].related.push(v);
+            })
+            $('#' + key).trigger('change');
+          } else {
+            key = typeof(prepend) !== 'undefined' ? prepend + '_' + key : key;
+            var input = $('#' + key);
+            var value = fieldsDefinition.output.hasOwnProperty(key) ? fieldsDefinition.output[key] : '';
+            input.val(value).trigger('change');
+          }
+        });
+      }
+
+      function getGroupElements(key, field) {
+        var output = $('#' + key).length === 0 ?
+        $('<div id="'+ key +'" class="col-xs-12 input-group">'+
+              '<label class="col-xs-12" style="padding:10px;background:#FAFAFA;">' + field['title'] + '</label>' +
+              '<div class="group-container"></div>' +
+              '<button data-key="'+ key +'" class="btn btn-success btn-xs col-xs-2 group-add" style="margin-bottom:20px">Add</button>'+
+            '</div>') 
+        : $('#' + key);
+        var related = field.related.length ? field.related : fieldsDefinition.input.hasOwnProperty(key) ? fieldsDefinition.input[key].related : [];
+        $.each(related, function(i, v) {
+          if ($('#' + v).length === 0) {
+            output.find('.group-container').append(getFieldHTML(v, field));
+          } 
+        });
+        return output;
+      }
+
+      function evalMaxGrossRentLimit(event, baseValue) {
+        return new Promise(function(resolve, reject) {
+          var bedrooms = ['efficiency', 1, 2, 3, 4];
+          var rentLimits = [25, 30, 40, 45, 50, 60]; // Percent Values
+            
+          $.each(rentLimits, function(key, value) {
+            var factor = 0;
+            $.each(bedrooms, function(index, content) {
+              var id = content + '_bedroom_' + value + '_gross_rent_limit';
+              var combination = fieldsDefinition.output[(index === 4 ? index+2 : index+1) + '_person_' + value + '_income_limit'];
+              if (index % 2 !== 0 && index > 0) { // Uneven bedrooms combine 2 columns from max income table
+                combination = (fieldsDefinition.output[(index+factor) + '_person_' + value + '_income_limit'] + fieldsDefinition.output[(index+factor+1) + '_person_' + value + '_income_limit']) / 2;
+                factor++;
+              }
+              fieldsDefinition.output[id] = combination * 0.3 / 12;
+              if ($("input[id=" + id + ']').length > 0) {
+                $("input[id=" + id + ']').val(parseFloat(fieldsDefinition.output[id].toFixed(2)).toLocaleString());
+              } else {
+                var title = index !== 0 ? index + '  Bedroom' : 'Efficiency';
+                var ul = $('#max-gross-rent-bedroom-' + (index+1)).length === 0 ? $('<ul class="row col-xs-12" id="max-gross-rent-bedroom-' + (index+1) + '"><h6 class="col-xs-12 small"><u><strong>' + title + '</strong></u></h6></ul>') : $('#max-gross-rent-bedroom-' + (index+1));
+                var element = $('<li class="list-unstyled">' +
+                                  '<label class="col-xs-6 small">' + value + '% Rent Limits</label>' +
+                                  '<span class="col-xs-1"><strong>$</strong></span>' +
+                                '</li>');
+                var input = $('<input class="col-xs-4" type="text" id="' + id + '" value="' + parseFloat(fieldsDefinition.output[id].toFixed(2)).toLocaleString() + '" disabled="disabled">');
+                $(element).append(input);
+                $(ul).append(element);
+                $('#max-gross-rent-limit-lists').append(ul);
+                if (index+1 > 1) ul.hide();
+              }
+            });
+          });
+          storeFieldsDefinitionInField()
+          resolve(true);
+        });
+      }
+
+      function evalMaxIncomeLimit(event, baseValue) {
+        return new Promise(function(resolve, reject) {
+          // A secondary field may trigger this change so we check if we're overriding. If not use tha main field
+          baseValue = fieldsDefinition.output['4_person_50_percent_override'] == '' ? fieldsDefinition.output['4_person_50_percent'].replace(/ *\([^)]*\) */g, '') : fieldsDefinition.output['4_person_50_percent_override'];
+          var basePercent = 50;
+          var people = [0.7, 0.8, 0.9, 1, 1.08, 1.16, 1.24, 1.32]; // 1 person, 2 person ... will skip #4 since it's our input
+          var incomeLimits = [25, 30, 40, 45, 50, 60]; // Percent Values
+    
+          $.each(people, function(i, v) {
+            var value = (baseValue * v);
+            if (i !== 3) { // Person 4 is input field, skip calculation
+              var remainder = value % basePercent;
+              if (remainder) value = remainder >= basePercent / 2 ? value + (basePercent - remainder) : value - remainder + basePercent;
+            }
+            fieldsDefinition.output[(i+1) + '_person_' + basePercent + '_income_limit'] = value;
+          });
+    
+          $.each(incomeLimits, function(key, value) {
+            $.each(people, function(index, content) {
+              var id = (index+1) + '_person_' + value + '_income_limit';
+              fieldsDefinition.output[id] = (fieldsDefinition.output[(index+1) + '_person_' + basePercent + '_income_limit'] * ((value * 2) / 100));
+              if ($("input[id=" + id + ']').length > 0) {
+                $("input[id=" + id + ']').val(parseFloat(fieldsDefinition.output[id].toFixed(2)).toLocaleString());
+              } else {
+                var ul = $('#max-income-persons-' + (index+1)).length === 0 ? $('<ul class="row col-xs-12" id="max-income-persons-' + (index+1) + '"><h6 class="col-xs-12 small"><u><strong>' + (index+1) + ' Person</strong></u></h6></ul>') : $('#max-income-persons-' + (index+1));
+                var element = $('<li class="list-unstyled">' +
+                                  '<label class="col-xs-6 small">' + value + '% Income Limits</label>' +
+                                  '<span class="col-xs-1"><strong>$</strong></span>' +
+                                '</li>');
+                var input = $('<input class="col-xs-4" type="text" id="' + id + '" value="' + parseFloat(fieldsDefinition.output[id].toFixed(2)).toLocaleString() + '" disabled="disabled">');
+                $(element).append(input);
+                $(ul).append(element);
+                $('#max-income-limit-lists').append(ul);
+                if (index+1 > 1) ul.hide();
+              }
+            });
+          });
+          storeFieldsDefinitionInField();
+          resolve(true);
+        });
+      }
+
+      function getFieldHTML(key, field) {
+        var element = $('<div style="margin-bottom:5px"></div>');
+        var title = $('<label>' + field['title'] + '</label>');
+        var input = false;
+        switch(field['type']) {
+          case 'group':
+            title = false;
+            input = $('<div id="'+ key +'" style="margin-top:10px;background:#FAFAFA;padding:10px;">' +
+                        '<div class="row"><button style="margin:0 15px;" class="group-remove btn btn-xs btn-danger pull-right">Remove</button></div>' +
+                      '</div>');
+            $.each(field.schema, function(i,v) {
+              var child = getFieldHTML(key + '_' + i, v);
+              if (v.hasOwnProperty('listens')) { // Map callbacks for fields within a group
+                var clonedChild = Object.assign({}, v);
+                clonedChild.listens = clonedChild.listens.map(function(el) {if (field.schema.hasOwnProperty(el)) {return key + '_' + el;} return el;});
+                clonedChild.parentKey = key;
+                mapEventTriggers(clonedChild);
+              }
+              input.append(child);
+            });
+            break;
+          case 'select': 
+            input = $('<select class="col-xs-12 form-control" id="' + key + '"><option></option></select>');
+            $.each(field.enum, function(i,v) {
+              var child = $('<option value="' + v + '">' + v + '</option>');
+              input.append(child);
+            });
+            break;
+          case 'readonly':
+            input = $('<input class="col-xs-12 form-control" type="' + field['type'] + '" id="' + key + '" disabled="disabled">');
+            break;
+          case 'hidden':
+            title = false;
+            input = $('<input class="col-xs-12 form-control" type="' + field['type'] + '" id="' + key + '" style="display:none">');
+            break;
+          default:
+            input = $('<input class="col-xs-12 form-control" type="' + field['type'] + '" id="' + key + '">');
+        }
+        element.append(title);
+        element.append(input);
+        setOnChangeTriggerForInput(input, key);
+        return element;
+      }
+
+      function setOnChangeTriggerForInput(input, key) {
+        var timeout = null;
+        input.on('keyup change', function(event) {
+          clearTimeout(timeout);
+          timeout = setTimeout(function () {
+            fieldsDefinition.output[key] = input.val();
+            storeFieldsDefinitionInField();
+            $(document).trigger('cipapi-behaviors-' + key.replace(/_/g, '-'), input.val());
+          }, 200);
+        });
+      }
+
+      // Save the changes from calculations into our input field
+      function storeFieldsDefinitionInField() {
+        tfrPlaceholder.find('input').first().val(JSON.stringify(fieldsDefinition, function(key, value) {
+          return typeof value === 'function' ? value.toString() : value;
+        }));
+      }
+
+      // Generate our event handlers from our callback mapping, we need to keep the off() call to clean our event listeners
+      function processCallbackMappings() {
+        $.each(callbackMapping, function(i, callbacks) {
+          $(document).off(i);
+          $.each(callbacks, function(o, v) {
+            $(document).on(i, v);
+          });
+        });
+      }
+
+      // Buttons available in each new group need to have their listener added since these
+      // elements did not exist when the form was render, thus not hooked.
+      function hookEventListenersOnGroupButtons() {
+        $(".group-remove").off('click').on('click', function (e) {
+          e.preventDefault();
+          var groupKey = $(this).parent().parent().attr('id');
+          var parentKey = $(this).parent().parent().parent().parent().parent().attr('id');
+          // Delete from our output
+          $.each(fieldsDefinition.input[parentKey].schema, function(i, v) {
+            delete fieldsDefinition.output[groupKey + '_' + i];
+          });
+          // Delete from our input relationship
+          var offset = fieldsDefinition.input[parentKey].related.indexOf(groupKey);
+          if (offset >= 0) { fieldsDefinition.input[parentKey].related.splice(offset, 1) }
+          // Trigger a recalculation
+          $(this).trigger('change');
+          $(this).parent().parent().parent().remove();
+          storeFieldsDefinitionInField();
+        });
+      }
+
+      $(".group-add").off('click').on('click', function (e) {
+        e.preventDefault();
+        var key = $(this).data('key');
+        var random = Math.random().toString(36).substring(2, 15);
+        var offset = fieldsDefinition.input[key].related.indexOf((key + '_' + random));
+        if (offset === -1) fieldsDefinition.input[key].related.push((key + '_' + random));
+        
+        $.each(fieldsDefinition.input[key].schema, function(i, v) {
+          fieldsDefinition.output[key + '_' + random + '_' + i] = '';
+        });
+        $('#' + key).append(getGroupElements(key, fieldsDefinition.input[key]));
+        hookEventListenersOnGroupButtons();
+        processCallbackMappings();
+      }); 
+      $(".list-collapser").off('click').on('click', function (e) {
+        e.preventDefault();
+        $(this).parent().next().children().not(':first').toggle();
+        $(this).text($(this).text() == 'More' ? 'Less' : 'More');
+      });
+
+      // Some final touches
+      hookEventListenersOnGroupButtons();
+      processCallbackMappings();
+    });
+  }
   
   // Helper function to apply behaviors
   function applyBehaviors(behaviors) {

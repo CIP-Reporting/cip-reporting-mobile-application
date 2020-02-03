@@ -95,8 +95,6 @@
   
   // When configuration is set re-load the forms list
   $(document).on('cipapi-config-set', function() {
-    CIPAPI.mobileforms = {};
-
     // If currently NOT loaded AND local storage is enabled try and load forms
     // from local storage and do not load over the network if found.
     if (!isLoaded && CIPAPI.config.persistForms) {

@@ -79,6 +79,8 @@
 
   // Shared error handler for rest requests
   function restErrorHandler(xhr, ajaxOptions, thrownError) {
+    log.error('(' + xhr.status + ') ' + xhr.responseText + ' -> ' + thrownError);
+
     // Be warned - early attempts to catch other errors seems to interfere with CORS OPTIONS requests
     if (xhr.status == 401 || !CIPAPI.credentials.areValid()) {
       return CIPAPI.router.goTo('login', { action: 'unauthorized' }); // Unuauthorized!
@@ -91,7 +93,6 @@
 
     $(document).trigger('cipapi-rest-error', thrownError);
     CIPAPI.stats.count(statsGroup, 'Total Errors');
-    log.error('(' + xhr.status + ') ' + xhr.responseText + ' -> ' + thrownError);
   }
 
   CIPAPI.rest.simulateOffline = function(status) { simulateOffline = status === true; return simulateOffline; }

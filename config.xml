@@ -116,6 +116,11 @@
     <splash src="res/screen/android/splash-1280-0720.png" density="land-xhdpi" />
     <splash src="res/screen/android/splash-1600-0960.png" density="land-xxhdpi" />
     <splash src="res/screen/android/splash-1920-1280.png" density="land-xxxhdpi" />
+
+    <!-- Allow HTTP traffic on Android -->
+    <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest/application">
+      <application android:usesCleartextTraffic="true" />
+    </edit-config>
   </platform>
 
   <platform name="ios">

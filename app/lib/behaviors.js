@@ -663,6 +663,9 @@
             title = false;
             input = $('<input class="col-xs-12 form-control" type="' + field['type'] + '" id="' + key + '" style="display:none">');
             break;
+          case 'date':
+            input = $('<div class="cipform-datetime-date"><input class="col-xs-12 form-control" type="text" id="' + key + '"></div>');
+            break;
           default:
             input = $('<input class="col-xs-12 form-control" type="' + field['type'] + '" id="' + key + '">');
         }
@@ -674,9 +677,10 @@
 
       function setOnChangeTriggerForInput(input, key) {
         var timeout = null;
-        input.on('keyup change', function(event) {
+        input.on('keyup change dp.change', function(event) {
           clearTimeout(timeout);
           timeout = setTimeout(function () {
+            if (input.hasClass('cipform-datetime-datetime') || input.hasClass('cipform-datetime-date') || input.hasClass('cipform-datetime-time')) input = $(input.children()[0]); // Default to first child for date fields
             fieldsDefinition.output[key] = input.val();
             storeFieldsDefinitionInField();
             $(document).trigger('cipapi-behaviors-' + key.replace(/_/g, '-'), input.val());
@@ -699,6 +703,51 @@
             $(document).on(i, v);
           });
         });
+        // Bind date and time pickers to the picker dialog. 
+        // We happen to generate a custom form that will use date fields so we need to load this here since we don't
+        // use the standard CIPAPI.forms.Render method... Extracted from CIPAPI/forms
+        if ($().datetimepicker) {
+          if (typeof formSelector === 'undefined') var formSelector = 'form.form-cip-reporting';
+          // Put the buttons on these bad boys...
+          $([ formSelector + ' .cipform-datetime-datetime input',
+              formSelector + ' .cipform-datetime-time input',
+              formSelector + ' .cipform-datetime-date input'
+            ].join(', ')).each(function() {
+            var inp = $(this);
+            inp.parent().addClass('input-group date');
+            inp.after('<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>');
+          });
+          
+          $(formSelector + ' .cipform-datetime-datetime input').each(function() {
+            $(this).parent().datetimepicker({
+              showTodayButton: true,
+                  focusOnShow: false,
+                    showClose: true,
+                    showClear: true,
+                      format: 'YYYY-MM-DD HH:mm:ss Z'
+            });
+          });
+
+          $(formSelector + ' .cipform-datetime-time input').each(function() {
+            $(this).parent().datetimepicker({
+              showTodayButton: true,
+                  focusOnShow: false,
+                    showClose: true,
+                    showClear: true,
+                      format: 'HH:mm:ss'
+            });
+          });
+
+          $(formSelector + ' .cipform-datetime-date input').each(function() {
+            $(this).parent().datetimepicker({
+              showTodayButton: true,
+                  focusOnShow: false,
+                    showClose: true,
+                    showClear: true,
+                      format: 'YYYY-MM-DD'
+            });
+          });
+        }
       }
 
       // Buttons available in each new group need to have their listener added since these

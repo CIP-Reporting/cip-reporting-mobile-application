@@ -80,6 +80,9 @@
   // Shared error handler for rest requests
   function restErrorHandler(xhr, ajaxOptions, thrownError) {
     log.error('(' + xhr.status + ') ' + xhr.responseText + ' -> ' + thrownError);
+    log.error('XHR: ' + JSON.stringify(xhr));
+    log.error('OPT: ' + JSON.stringify(ajaxOptions));
+    log.error('ERR: ' + JSON.stringify(thrownError));
 
     // Be warned - early attempts to catch other errors seems to interfere with CORS OPTIONS requests
     if (xhr.status == 401 || !CIPAPI.credentials.areValid()) {
@@ -118,6 +121,8 @@
     
     var credentials = opts.credentials ? opts.credentials : CIPAPI.credentials.get();
 
+    log.info("GET -> " + credentials.host + opts.url + '.js' + encodeApiParameters(opts));
+
     return $.ajax({
       type: "GET",
       url: credentials.host + opts.url + '.js' + encodeApiParameters(opts, credentials.token),
@@ -128,6 +133,8 @@
       error: restErrorHandler,
       allow404: typeof opts.allow404 != 'undefined'
     }).always(function() {
+      log.info('COMPLETED');
+
       if (--numTransactions == 0) $(document).trigger('cipapi-rest-inactive');
     });
   }
@@ -143,6 +150,8 @@
     
     var credentials = opts.credentials ? opts.credentials : CIPAPI.credentials.get();
 
+    log.info("POST -> " + credentials.host + opts.url + '.js' + encodeApiParameters(opts));
+
     return $.ajax({
       type: "POST",
       processData: false, // Needed for ajax file upload
@@ -156,6 +165,8 @@
       error: restErrorHandler,
       allow404: typeof opts.allow404 != 'undefined'
     }).always(function() {
+      log.info('COMPLETED');
+
       if (--numTransactions == 0) $(document).trigger('cipapi-rest-inactive');
     });
   }

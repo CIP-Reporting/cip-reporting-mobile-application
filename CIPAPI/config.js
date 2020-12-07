@@ -65,7 +65,13 @@
           isLoaded = true;
           $(document).trigger('cipapi-config-set');
         },
-        complete: function() {
+        complete: function(response) {
+          if (response.status == 404 && !isLoaded) {
+            log.info("Configuration override returned 404 - using defaults");
+            CIPAPI.config = jQuery.extend(true, {}, defaultConfig);
+            isLoaded = true;
+          }
+          
           CIPAPI.router.validateMetadata();
         }
       });

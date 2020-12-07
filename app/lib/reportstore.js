@@ -33,6 +33,7 @@
   CIPAPI.stats.total(statsGroup, 'Last Attempt', 'Never');
   CIPAPI.stats.total(statsGroup, 'Last Check',   'Never');
   CIPAPI.stats.total(statsGroup, 'Last Success', 'Never');
+  CIPAPI.stats.total(statsGroup, 'Last Fail',    'Never');
 
   $(document).on('cipapi-stats-fetch', function() {
     CIPAPI.stats.total(statsGroup, 'Total Pending', CIPAPI.reportstore.getNumberOfStoredReports());
@@ -133,19 +134,20 @@
     }
     
     var storageKey = 'CIPAPI.reportstore.' + CIPAPI.credentials.getCredentialHash();
+    // Go get the store
+    var storageKey = 'CIPAPI.reportstore.' + CIPAPI.credentials.getCredentialHash();
+    var reportStore = null;
+    try {
+      reportStore = CIPAPI.storage.getItem(storageKey);
+      if (!Array.isArray(reportStore)) reportStore = new Array();
+    } catch(e) {
+      reportStore = new Array();
+    }
+    var currentReport = reportStore.length ? 0 : null;
 
     function sendNextReport() {
-      // Go get the store
-      var reportStore = null;
-      try {
-        reportStore = CIPAPI.storage.getItem(storageKey);
-        if (!Array.isArray(reportStore)) reportStore = new Array();
-      } catch(e) {
-        reportStore = new Array();
-      }
-      
       // Make sure there is still work to do
-      if (reportStore.length == 0) {
+      if (currentReport === null || currentReport >= reportStore.length) {
         log.debug("No more reports to send");
         return;
       }
@@ -160,33 +162,41 @@
         CIPAPI.stats.count(statsGroup, 'Total Sent');
         
         CIPAPI.rest.post({
-          url: reportStore[0].destinationURL,
-          query: reportStore[0].destinationQuery,
+          url: reportStore[currentReport].destinationURL,
+          query: reportStore[currentReport].destinationQuery,
           data: formData,
           success: function(response) {
-            CIPAPI.stats.timestamp(statsGroup, 'Last Success');
-            log.debug("Report sent");
-            
-            // Remove the report from the report store
-            reportStore.shift();
+            var saveStatus = response.data.item[0].data;
+            if (saveStatus != 'SUCCESS') {
+              CIPAPI.stats.timestamp(statsGroup, 'Last Fail');
+              currentReport = currentReport + 1;
+              log.error(saveStatus);
+            } else {
+              CIPAPI.stats.timestamp(statsGroup, 'Last Success');
+              log.debug("Report sent");
+              
+              // Remove the successfully-sent report from the report store
+              reportStore.splice(currentReport, 1);
+
+              // Let the world know...
+              $(document).trigger('cipapi-reportstore-remove');
+              $(document).trigger('cipapi-reportstore-change');
+            }
+ 
             CIPAPI.storage.setItem(storageKey, reportStore);
-            
-            // Let the world know...
-            $(document).trigger('cipapi-reportstore-remove');
-            $(document).trigger('cipapi-reportstore-change');
-            
+              
             // And do it again... or NOT
-            if (reportStore.length > 0) {
+            if (currentReport < reportStore.length) {
               sendNextReport();
             } else {
-              $(document).trigger('cipapi-reportstore-empty');
+              if (!reportStore.length) $(document).trigger('cipapi-reportstore-empty');
             }
           }
         });
       }
 
       // Compose into form data
-      $.each(reportStore[0].serializedData, function(key, val) {
+      $.each(reportStore[currentReport].serializedData, function(key, val) {
         log.debug('Adding form value: ' + key + ' -> ' + val);
         formData.append(key, val);
       });
@@ -201,7 +211,7 @@
       
       // Add in images which were serialized
       log.debug('Adding captured images');
-      $.each(reportStore[0].serializedImages, function(index, serializedImage) {
+      $.each(reportStore[currentReport].serializedImages, function(index, serializedImage) {
         if (serializedImage.formType == 'jsonfile') {
           log.debug('Adding image as jsonfile for submission');
           

@@ -34,7 +34,7 @@
       return false;
     }
     
-    if (!CIPAPI.usersettings[key].options[value]) {
+    if (CIPAPI.usersettings[key].options && !CIPAPI.usersettings[key].options[value]) {
       log.error('Invalid value for user setting ' + key + ': ' + value);
       return false;
     }
@@ -171,6 +171,13 @@
               '10': CIPAPI.translations.translate('10px'),
               '15': CIPAPI.translations.translate('15px')
         }
+      },
+      preSharedKey: { 
+              title: CIPAPI.translations.translate('Pre-Shared Key'),
+        description: CIPAPI.translations.translate('Pre-shared encryption key'),
+                set: function(vv) { return __set('preSharedKey', vv); },
+              reset: function()   { return __set('preSharedKey', ''); },
+            current: ''
       }
     };
     
@@ -180,7 +187,7 @@
       var savedValue = localStorage.getItem(storageKey);
       if (savedValue) {
         savedValue = '' + savedValue;
-        if (settings[key].options[savedValue]) {
+        if (!settings[key].options || settings[key].options[savedValue]) {
           settings[key].current = savedValue;
           log.info('Changed ' + key + ' to: ' + savedValue);
         } else {

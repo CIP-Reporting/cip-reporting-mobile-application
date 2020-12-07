@@ -1,4 +1,5 @@
 /*
+/*
  * CIP Reporting API Client Application
  *
  * Copyright (c) 2013 CIP Reporting
@@ -187,6 +188,10 @@ div#settings-content-area {
 
 div.cipapi-user-setting {
   border-top: 1px solid #ccc;
+}
+
+input.cipapi-user-setting-input {
+  width: 100%;
 }
 
 /****************************
@@ -1215,3 +1220,45 @@ form.cipapi-account-lookup div#barcode-lookup {
   display: none;
 }
 
+form.form-cip-reporting i.cip-input-help {
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+form.form-cip-reporting i.cip-input-help:hover {
+  opacity: 0.7;
+}
+
+
+
+div.cipapi-vote-load {
+  padding-top: 20px;
+}
+
+div.cipapi-vote-load i.fa {
+  font-size: 3em;
+  display: table;
+  margin: 0 auto;
+}
+
+div.cipapi-vote-load span.cipapi-vote-title {
+  padding-bottom: 20px;
+  padding-top: 20px;
+  font-weight: bold;
+  font-size: 1.5em;
+  display: table;
+  margin: 0 auto;
+}
+
+div.cipapi-vote-load a.btn {
+  display: table;
+  margin: 0 auto;
+}
+
+div#vote-content-area div.cipapi-clear-both {
+  clear: both;
+}
+
+div#vote-content-area div#vote-content {
+  margin: 20px;
+}

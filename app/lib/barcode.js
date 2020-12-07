@@ -108,7 +108,7 @@
     try
     {
       // For testing barcode logins
-      //return callback('https://www.cipreporting.com/lookup?host=https%3A%2F%2Fcnentdev2.trial.cipreporting.com&d=cnentdev2&token=30d8c368-461a-5d51-8b38-a8114dedf038');
+      //return callback('https://www.cipreporting.com/lookup?host=https%3A%2F%2Friffsurf%3A4398&d=vote&token=e9063a31-13c4-5c6d-b36d-30539f33b18e');
 
       // Test a form QR code
       //return processCIPFormQRURL('https://www.cipreporting.com/qr/Quality+Incident?Customer+Location=The+Hamptons&Project+Number=12345&Problem+Description=Test&Product+Line=Straight&Part+Numbers=1231231#submit');
@@ -117,7 +117,31 @@
       if (hasScanner && typeof cordova == 'undefined') hasScanner = false;
       if (hasScanner && typeof cordova.plugins == 'undefined') hasScanner = false;
       if (hasScanner && typeof cordova.plugins.barcodeScanner == 'undefined') hasScanner = false;
-      if (!hasScanner) throw 'No Scanner';
+      
+      // Allow a simulated barcode scanner via user prompt
+      if (!hasScanner) {
+        bootbox.prompt(CIPAPI.translations.translate('No Barcode Scanner Detected - Manual Entry Required'), function(code) {
+          if (!code) return handleError('No Barcode Scanner');
+          if ($.trim(code) == '') return handleError('No Barcode Scanner');
+
+          // Allow for an optional call back function
+          if (callback) {
+            log.debug('Invoking callback');
+            return callback(code);
+          }
+
+          if (code.lastIndexOf('https://www.cipreporting.com/qr/', 0) === 0) {
+            log.debug('Processing CIP Form QR code');
+            try {
+              return processCIPFormQRURL(code);
+            } catch(err) {
+              return handleError(err);
+            }
+          }
+        });    
+        
+        return;
+      }
       
       $(document).trigger('cipapi-forms-media-capture-barcode');
       

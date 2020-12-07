@@ -35,34 +35,13 @@
     log.error('Cannot transmit - not connected'); 
     return false; 
   }
-
-  function computeConnectURL(creds) {
-    var yabbleConnect = CIPAPI.settings.YABBLEBOX;
-    var nakedHost = creds.host.replace(/:\d+$/, '').replace(/\/$/, '').replace(/^https*:\/\//i, '');
-
-    // If YabbleBox client URI is 127.0.0.1 or 0.0.0.0 auto-detect the proper URL by replacing the
-    // IP address with the hostname from the API
-    if (yabbleConnect.match(/127\.0\.0\.1/)) return yabbleConnect.replace(/127\.0\.0\.1/, nakedHost);
-    if (yabbleConnect.match(/0\.0\.0\.0/)) return yabbleConnect.replace(/0\.0\.0\.0/, nakedHost);
-    
-    // If we get here the NOT FULLY QUALIFIED host name is provided.  Example would be a host name of
-    // 'foo' where the FQDN is actually 'foo.bar.com'.  The remaining 'bar.com' is determined from the
-    // API host again.  This model is used in SaaS hosted models where the remaining components of the
-    // FQDN are environment specific and determined from the API host.
-    var components = nakedHost.split('.');
-    if (components.length > 1) components.shift();
-    var FQDNTail = '.' + components.join('.');
-    var FQDN = yabbleConnect.replace(/(:\d+)$/, FQDNTail + '$1')
-
-    return FQDN;
-  }
   
   // Create a log view control
   CIPAPI.yabblebox.connect = function(config) {
     // Default the config options
     var creds = CIPAPI.credentials.get();
     if (typeof config == 'undefined') config = {};
-    if (typeof config.connect  == 'undefined') config.connect  = computeConnectURL(creds);
+    if (typeof config.connect  == 'undefined') config.connect  = CIPAPI.settings.YABBLEBOX;
     if (typeof config.host     == 'undefined') config.host     = creds.host;
     if (typeof config.user     == 'undefined') config.user     = creds.user;
     if (typeof config.pass     == 'undefined') config.pass     = creds.pass;

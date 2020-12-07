@@ -173,7 +173,6 @@
   }
 
   function renderSubCase(subcase) {
-  
     // Generate a title
     var caseHeader = $('<div class="col-xs-12 casehdr"></div>');    
     // Determine progress
@@ -274,6 +273,7 @@
     // Output a potential clear div
     $('div#main-content-area form div.form-button-list').append('<div class="beforecasebtn"></div>');
   }
+  
   // Return the formatted time
   function getTime() {
     // Add zero in front of numbers < 10

@@ -93,6 +93,8 @@
     <script src="./lib/jsonform-bootstrap3/lib/jsonform.js"></script>
     <script src="./lib/summernote/dist/summernote.js"></script>
     <script src="./lib/cryptoJS/rollups/sha1.js"></script>
+    <script src="./lib/cryptoJS/rollups/aes.js"></script>
+    <script src="./lib/cryptoJS/rollups/pbkdf2.js"></script>
     <script src="./lib/pagedown/Markdown.Converter.js"></script>
     <script src="./lib/purl.js"></script>
     <script src="./lib/jQueryRotate.js"></script>
@@ -128,6 +130,7 @@
     <script src="./app/screens/inventory.js"></script>
     <script src="./app/screens/olbutton.js"></script>
     <script src="./app/screens/jsonform.js"></script>
+    <script src="./app/screens/vote.js"></script>
 
     <!-- Application Libraries -->
     <script src="./app/lib/storage.memory.js"></script>
@@ -167,7 +170,7 @@
     <script type="text/javascript">
       // Default Configurations - which can be overriden by an integration
       CIPAPI.config.setDefaults({
-              applicationVersion: '10.0.16',                     // Set by the packaging script to know our own version
+              applicationVersion: '10.3.33',                     // Set by the packaging script to know our own version
              overrideIntegration: 'cip-reporting-mobile-application', // Name of integration to request for configuration override / merge
           reloadSettingsInterval: 'cipapi-timing-1day',               // How often to reload settings from the server
                 reloadMeInterval: 'cipapi-timing-1day',               // How often to reload the current user info from the server

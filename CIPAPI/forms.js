@@ -121,27 +121,85 @@
 
     input.value = fixed;  
   }
+
+  // https://github.com/google/closure-library/blob/e877b1eac410c0d842bcda118689759512e0e26f/closure/goog/crypt/crypt.js
+  CIPAPI.forms.stringToUtf8ByteArray  = function(str) {
+    var out = [], p = 0;
+    for (var i = 0; i < str.length; i++) {
+      var c = str.charCodeAt(i);
+      if (c < 128) {
+        out[p++] = c;
+      } else if (c < 2048) {
+        out[p++] = (c >> 6) | 192;
+        out[p++] = (c & 63) | 128;
+      } else if (
+          ((c & 0xFC00) == 0xD800) && (i + 1) < str.length &&
+          ((str.charCodeAt(i + 1) & 0xFC00) == 0xDC00)) {
+        // Surrogate Pair
+        c = 0x10000 + ((c & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
+        out[p++] = (c >> 18) | 240;
+        out[p++] = ((c >> 12) & 63) | 128;
+        out[p++] = ((c >> 6) & 63) | 128;
+        out[p++] = (c & 63) | 128;
+      } else {
+        out[p++] = (c >> 12) | 224;
+        out[p++] = ((c >> 6) & 63) | 128;
+        out[p++] = (c & 63) | 128;
+      }
+    }
+    return out;
+  }
+  
+  // https://github.com/google/closure-library/blob/e877b1eac410c0d842bcda118689759512e0e26f/closure/goog/crypt/crypt.js
+  CIPAPI.forms.utf8ByteArrayToString = function(bytes) {
+    var out = [], pos = 0, c = 0;
+    while (pos < bytes.length) {
+      var c1 = bytes[pos++];
+      if (c1 < 128) {
+        out[c++] = String.fromCharCode(c1);
+      } else if (c1 > 191 && c1 < 224) {
+        var c2 = bytes[pos++];
+        out[c++] = String.fromCharCode((c1 & 31) << 6 | c2 & 63);
+      } else if (c1 > 239 && c1 < 365) {
+        // Surrogate Pair
+        var c2 = bytes[pos++];
+        var c3 = bytes[pos++];
+        var c4 = bytes[pos++];
+        var u = ((c1 & 7) << 18 | (c2 & 63) << 12 | (c3 & 63) << 6 | c4 & 63) -
+            0x10000;
+        out[c++] = String.fromCharCode(0xD800 + (u >> 10));
+        out[c++] = String.fromCharCode(0xDC00 + (u & 1023));
+      } else {
+        var c2 = bytes[pos++];
+        var c3 = bytes[pos++];
+        out[c++] =
+            String.fromCharCode((c1 & 15) << 12 | (c2 & 63) << 6 | c3 & 63);
+      }
+    }
+    return out.join('');
+  }
   
   CIPAPI.forms.hexToAscii = function(h) {
     var hex = h.toString(); // Force conversion
     var str = '';
     
+    var inp = [];
     for (var i = 0; i < hex.length; i += 2) {
-      str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
+      inp[i] = String.fromCharCode(parseInt(hex.substr(i, 2), 16));
     }
     
-    return str;
+    return CIPAPI.forms.utf8ByteArrayToString(str);
   }
   
   CIPAPI.forms.asciiToHex = function(a) {
-    var arr = [];
-  
-    for (var i = 0, l = a.length; i < l; i ++) {
-      var hex = Number(a.charCodeAt(i)).toString(16);
-      arr.push(hex);
+    a = CIPAPI.forms.stringToUtf8ByteArray(a);
+
+    var result = '';
+    for (var i=0; i<a.length; i++) {
+      result += a[i].toString(16);
     }
-  
-    return arr.join('');    
+    
+    return result;
   }
 
   CIPAPI.forms.calculatePercentageComplete = function(formDefinition, formValues, fieldDependencies) {
@@ -258,6 +316,45 @@
     
     jsonForm = $(formSelector).jsonForm(formDefinition);
     $(formSelector).append($('<div class="clearfix"></div>'));
+
+    // Enable field dependency trigger event for checkbox inputs
+    if (CIPAPI.fielddeps) {   
+      $(formSelector + " label.checkbox input").each(function (i,v) {
+          this.onchange = function(event, info) {
+            $(document).trigger('cipapi-fieldvalues-change', { 
+              formDefinition: formDefinition,
+                formSelector: formSelector,
+                editExisting: editExisting,
+                changeTarget: event.target,
+                    jsonForm: jsonForm
+            }); 
+          }
+        });
+    }
+
+    // Append Help/Instructions for fields when provided
+    $.each(formDefinition['schema'], function(key, val) {
+      if (typeof val.help !== 'undefined' && val.help !== '') {
+        // Create a clickable element
+        var helpAnchor = $('<i class="cip-input-help fa fa-question-circle fa-lg" aria-hidden="true"></i>');
+        helpAnchor.on('click', function(e) {
+          bootbox.dialog({
+              title: CIPAPI.translations.translate('Field Instructions'),
+            message: CIPAPI.translations.translate(val.help),
+            buttons: {
+              success: {
+                    label: '<span class="glyphicon glyphicon-ok"></span> ' + CIPAPI.translations.translate('OK'),
+                className: "btn btn-primary btn-custom",
+              }
+            }
+          });
+        });
+
+        // Append clickable element to input field
+        var fieldTitleLabel = $(formSelector + ' .form-group [name=' + key + ']').closest('div.form-group').find('label.control-label');
+        helpAnchor.insertAfter(fieldTitleLabel);
+      }
+    });
 
     // Store for later
     jsonForm.formSelector = formSelector;

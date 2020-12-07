@@ -36,20 +36,30 @@
       html += '<h3>' + v1.title + '</h3>';
       html += '<p>' + v1.description + '</p>';
       
-      $.each(v1.options, function(k2, v2) {
-        var checked = v1.current == k2 ? ' checked' : '';
-        
+      if (v1.options) {
+        $.each(v1.options, function(k2, v2) {
+          var checked = v1.current == k2 ? ' checked' : '';
+          
+          html += '' +
+            '<div class="form-group">' +
+            '  <div class="col-sm-12">' +
+            '    <div class="checkbox">' +
+            '      <label>' +
+            '        <input class="cipapi-user-setting" type="radio" name="' + k1 + '" id="' + k1 + '" value="' + k2 + '" data-setting="' + k1 + '"' + checked + '> ' + v2 +
+            '      </label>' +
+            '    </div>' +
+            '  </div>' +
+            '</div>';
+        });
+      }
+      else {
         html += '' +
           '<div class="form-group">' +
           '  <div class="col-sm-12">' +
-          '    <div class="checkbox">' +
-          '      <label>' +
-          '        <input class="cipapi-user-setting" type="radio" name="' + k1 + '" id="' + k1 + '" value="' + k2 + '" data-setting="' + k1 + '"' + checked + '> ' + v2 +
-          '      </label>' +
-          '    </div>' +
+          '    <input class="cipapi-user-setting cipapi-user-setting-input" type="input" name="' + k1 + '" id="' + k1 + '" value="' + v1.current + '" data-setting="' + k1 + '"> ' +
           '  </div>' +
           '</div>';
-      });
+      }
       
       html += '</div>';
     });

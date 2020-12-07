@@ -147,7 +147,7 @@
     var currHash   = components.shift().replace(/^#/, '');
     if (currHash == 'login') {
       log.debug("Metadata validated, routing to #main");
-      CIPAPI.router.goTo('main');
+      CIPAPI.router.goTo(CIPAPI.config && CIPAPI.config.defaultRoute ? CIPAPI.config.defaultRoute : 'main');
     } else if (!hasRouted) {
       log.debug("Metadata validated, kicking initial route");
       CIPAPI.router.route();

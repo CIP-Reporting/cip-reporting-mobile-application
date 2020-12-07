@@ -171,4 +171,34 @@
     });
   }
   
+  // DELETE
+  CIPAPI.rest.delete = function(opts) {
+    if (simulateOffline) return false;
+
+    $(document).trigger('cipapi-rest-active');
+    CIPAPI.stats.count(statsGroup, 'Total DELETE');
+    CIPAPI.stats.timestamp(statsGroup, 'Last Transaction');
+    numTransactions++;
+    
+    var credentials = opts.credentials ? opts.credentials : CIPAPI.credentials.get();
+
+    log.info("DELETE -> " + credentials.host + opts.url + '.js' + encodeApiParameters(opts));
+
+    return $.ajax({
+      type: "DELETE",
+      data: opts.data,
+      url: credentials.host + opts.url + '.js' + encodeApiParameters(opts, credentials.token),
+      dataType: 'json',
+      success: opts.success,
+      complete: opts.complete,
+      headers: { "Authorization": CIPAPI.rest.encodeBasicAuth(credentials.user, credentials.pass) },
+      error: restErrorHandler,
+      allow404: typeof opts.allow404 != 'undefined'
+    }).always(function() {
+      log.info('COMPLETED');
+
+      if (--numTransactions == 0) $(document).trigger('cipapi-rest-inactive');
+    });
+  }
+  
 })(jQuery, window);

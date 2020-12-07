@@ -435,7 +435,7 @@
           }
         });
       } else {
-       fieldsDefinition = {'input': {}, 'output': {}, 'formulas': {}};
+       fieldsDefinition = {'input': {}, 'output': {}, 'formulas': {}, 'dependencies': {}};
       }
       tfrPlaceholder.children().hide();
       
@@ -535,15 +535,14 @@
       function getGroupElements(key, field) {
         var output = $('#' + key).length === 0 ?
         $('<div id="'+ key +'" class="col-xs-12 input-group">'+
-              '<label class="col-xs-12" style="padding:10px;background:#FAFAFA;">' + field['title'] + '</label>' +
+              '<div class="col-xs-12" style="padding:10px;background:#FAFAFA;">' + field['title'] + '<button data-key="'+ key +'" class="btn btn-success btn-xs col-xs-2 group-add pull-right" style="margin-bottom:20px">Add</button></div>' +
               '<div class="group-container"></div>' +
-              '<button data-key="'+ key +'" class="btn btn-success btn-xs col-xs-2 group-add" style="margin-bottom:20px">Add</button>'+
             '</div>') 
         : $('#' + key);
         var related = field.related.length ? field.related : fieldsDefinition.input.hasOwnProperty(key) ? fieldsDefinition.input[key].related : [];
         $.each(related, function(i, v) {
           if ($('#' + v).length === 0) {
-            output.find('.group-container').append(getFieldHTML(v, field));
+            output.find('.group-container').prepend(getFieldHTML(v, field));
           } 
         });
         return output;
@@ -682,6 +681,18 @@
           timeout = setTimeout(function () {
             if (input.hasClass('cipform-datetime-datetime') || input.hasClass('cipform-datetime-date') || input.hasClass('cipform-datetime-time')) input = $(input.children()[0]); // Default to first child for date fields
             fieldsDefinition.output[key] = input.val();
+
+            // Perform dependencies value modifications if any
+            if (typeof fieldsDefinition.dependencies[key] !== 'undefined') {
+              if (typeof fieldsDefinition.dependencies[key][input.val()] !== 'undefined') {
+                $.each(fieldsDefinition.dependencies[key][input.val()], function(i, v) {
+                  if (typeof fieldsDefinition.output[i] !== 'undefined') {
+                    setFormulaValue(i, v);
+                    }
+                  });
+              }
+            }
+
             storeFieldsDefinitionInField();
             $(document).trigger('cipapi-behaviors-' + key.replace(/_/g, '-'), input.val());
           }, 200);
@@ -751,23 +762,43 @@
       }
 
       // Buttons available in each new group need to have their listener added since these
-      // elements did not exist when the form was render, thus not hooked.
+      // elements did not exist when the form was rendered, thus not hooked.
       function hookEventListenersOnGroupButtons() {
         $(".group-remove").off('click').on('click', function (e) {
           e.preventDefault();
-          var groupKey = $(this).parent().parent().attr('id');
-          var parentKey = $(this).parent().parent().parent().parent().parent().attr('id');
-          // Delete from our output
-          $.each(fieldsDefinition.input[parentKey].schema, function(i, v) {
-            delete fieldsDefinition.output[groupKey + '_' + i];
+          let self = $(this);
+          bootbox.dialog({
+            message: CIPAPI.translations.translate('Do you really want to remove this element?'),
+            title: CIPAPI.translations.translate('Remove'),
+            buttons: {
+              danger: {
+                label: CIPAPI.translations.translate('Remove'),
+                className: "btn-danger",
+                callback: function() {
+                  var groupKey = self.parent().parent().attr('id');
+                  var parentKey = self.parent().parent().parent().parent().parent().attr('id');
+                  // Delete from our output
+                  $.each(fieldsDefinition.input[parentKey].schema, function(i, v) {
+                    delete fieldsDefinition.output[groupKey + '_' + i];
+                  });
+                  // Delete from our input relationship
+                  var offset = fieldsDefinition.input[parentKey].related.indexOf(groupKey);
+                  if (offset >= 0) { fieldsDefinition.input[parentKey].related.splice(offset, 1) }
+                  // Trigger a recalculation
+                  self.trigger('change');
+                  self.parent().parent().parent().remove();
+                  storeFieldsDefinitionInField(); 
+                }
+              },
+              main: {
+                label: CIPAPI.translations.translate('Cancel'),
+                className: "btn-primary btn-custom",
+                callback: function() {
+                  bootbox.hideAll();
+                }
+              }
+            }
           });
-          // Delete from our input relationship
-          var offset = fieldsDefinition.input[parentKey].related.indexOf(groupKey);
-          if (offset >= 0) { fieldsDefinition.input[parentKey].related.splice(offset, 1) }
-          // Trigger a recalculation
-          $(this).trigger('change');
-          $(this).parent().parent().parent().remove();
-          storeFieldsDefinitionInField();
         });
       }
 

@@ -177,7 +177,11 @@
 
     // If no field name was provided, this is a complete re-scan in which case we need to clear the contexts
     if (fieldName === false) CIPAPI.fielddeps.contexts = [ ];
-    
+
+    // if a field has an index, it is most likely a multiselect checkbox. We need to process the logic a bit different
+    var fieldHasIndex = fieldName ? fieldName.match(/\[\d+\]$/) !== null : false;
+    var indexedFieldName = fieldHasIndex ? fieldName.replace(/\[\d+\]$/, "") : false;
+
     // Process each of the rules
     var rules = CIPAPI.fielddeps.getCurrentRules();
     for (var i=0; i<rules.length; i++) {
@@ -188,7 +192,7 @@
       
       // If a field name was provided, filter rules by the field ... if no name provided process them all? (Initial Load)
       var encodedFieldName = CIPAPI.forms.asciiToHex(fieldRule.name);
-      if (fieldName && fieldName != encodedFieldName) continue;
+      if (fieldName && fieldName != encodedFieldName && indexedFieldName !== encodedFieldName) continue;
 
       // If rule specifies a required context, and that context does not exist, then we just move on
       if (fieldRule.hasOwnProperty('context') && fieldRule.context) {
@@ -199,8 +203,12 @@
 
       // If we get here we want the value of the field...
       var fieldValue;
+      var isChecked = false;
       if (fieldRule.name == 'Report Type') {
         fieldValue = info.formDefinition.reportType;
+      } else if (fieldHasIndex) {
+        fieldValue = $(info.formSelector + ' label.checkbox input[name="' + fieldName + '"]').next().text() || '';
+        isChecked = $(info.formSelector + ' label.checkbox input[name="' + fieldName + '"]').prop('checked');
       } else {
         fieldValue = $(info.formSelector + ' select[name=' + encodedFieldName + ']').val() || 
                        $(info.formSelector +  ' input[name=' + encodedFieldName + ']:checked').val() || 
@@ -212,7 +220,10 @@
       if (fieldRule.condition == 'eq' && fieldRule.value != fieldValue) continue; // Not a match
       
       // Inequality?
-      if (fieldRule.condition == 'ne' && fieldRule.value == fieldValue) continue; // Not a match
+      if (fieldRule.condition == 'ne' && ((fieldRule.value == fieldValue && !fieldHasIndex) || (fieldRule.value != fieldValue && fieldHasIndex))) continue; // Not a match
+
+      // Checkboxes!
+      if (fieldHasIndex && ((isChecked && fieldRule.condition != 'eq') || (!isChecked && fieldRule.condition == 'eq'))) continue;
 
       // Hide fields ...
       if (fieldRule.hide) {

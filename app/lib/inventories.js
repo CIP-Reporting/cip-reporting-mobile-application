@@ -70,8 +70,10 @@
     CIPAPI.stats.count(statsGroup, 'Inventory Updates');
 
     // Load up each ajax request into an array of ajax requests to go fetch all inventories
-    var requests = [];
+    var requests = []; var responses = [];
     $.each(CIPAPI.config.inventories, function(key, val) {
+      responses.push(false); // Push a false for each pending response
+      
       requests.push(CIPAPI.batch.GET({ 
            url: val.url,
           sort: cleanFieldName(val.sortField),
@@ -79,8 +81,8 @@
         fields: getFieldList(val.columnFields, val.summaryFields, val.htmlField ? val.htmlField : false),
          query: val.query,
         success: function(response) { 
-          if (key === 0 && CIPAPI.inventories.length) CIPAPI.inventories = []; // First successful pass?
-          CIPAPI.inventories.push({ config: val, items: response.data.item });
+          // Store response in the pre-allocated ordered slot by key
+          responses[key] = { config: val, items: response.data.item };
           log.debug("Loaded Inventory: " + val.name);
         }
       }));
@@ -88,11 +90,17 @@
 
     // KUNG FU - wait until all are done!    
     $.when.apply(null, requests).then(function() {
+      // Rebuild inventories using the ordered set of responses (if any)
+      CIPAPI.inventories = [];
+      for (var i=0; i<responses.length; i++) {
+        CIPAPI.inventories.push(responses[i]);
+      }  
+      
       isLoaded = true;
       $(document).trigger('cipapi-mobile-inventories-set');
       $(document).trigger('cipapi-mobile-inventories-updated');
       CIPAPI.stats.timestamp(statsGroup, 'Last Update');
-        
+      
       // Store the inventories to local storage if so configured
       if (CIPAPI.config.persistInventories) {
         var storageKey = 'CIPAPI.inventories.' + CIPAPI.credentials.getCredentialHash();
